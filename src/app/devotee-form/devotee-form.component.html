@@ -1,0 +1,28 @@
+<div class="container">
+  <h2>Devotee Registration</h2>
+  <p class="tickets">Tickets Left: {{ ticketsLeft }}</p>
+
+  <form [formGroup]="devoteeForm" (ngSubmit)="submitForm()">
+    <div formArrayName="members">
+      <div *ngFor="let member of members.controls; let i = index" [formGroupName]="i" class="member-card">
+        
+        <label>Name</label>
+        <input type="text" formControlName="name" placeholder="Enter Name">
+
+        <label>Aadhar Number</label>
+        <input type="text" formControlName="aadhar" placeholder="12-digit Aadhar">
+
+        <label>Phone Number</label>
+        <input type="text" formControlName="phone" placeholder="10-digit Phone">
+
+        <label>Address</label>
+        <input type="text" formControlName="location" placeholder="Enter Address">
+
+        <button type="button" class="remove-btn" *ngIf="members.length > 1" (click)="removeMember(i)">Remove</button>
+      </div>
+    </div>
+
+    <button type="button" class="add-btn" (click)="addMember()" [disabled]="members.length >= maxMembers">+ Add Member</button>
+    <button type="submit" [disabled]="ticketsLeft <= 0">Submit</button>
+  </form>
+</div>

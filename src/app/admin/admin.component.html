@@ -1,0 +1,17 @@
+<nav class="navbar">
+  <div class="navbar__brand">
+    <span class="navbar__logo">🚀</span>
+    <span class="navbar__title">My Dashboard</span>
+  </div>
+  <button class="navbar__toggle" (click)="toggleMenu()">
+    &#9776;
+  </button>
+  <ul [class.navbar__links--open]="menuOpen" class="navbar__links">
+    <li><a routerLink="/form" routerLinkActive="active">Form</a></li>
+
+    <li>
+      <!-- Your logout button -->
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </li>
+  </ul>
+</nav>

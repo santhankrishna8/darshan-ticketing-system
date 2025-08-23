@@ -1,0 +1,79 @@
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 12px;
+  background: #f9f9f9;
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.tickets {
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: darkgreen;
+}
+
+.member-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+label {
+  display: block;
+  margin: 5px 0 2px;
+  font-size: 14px;
+}
+
+input {
+  width: 95%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+button {
+  margin: 5px 5px 0 0;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.add-btn {
+  background-color: #1976d2;
+  color: white;
+}
+
+.remove-btn {
+  background-color: #d32f2f;
+  color: white;
+}
+
+button[type="submit"] {
+  background-color: #388e3c;
+  color: white;
+}
+
+/* Mobile view */
+@media (max-width: 600px) {
+  .container {
+    padding: 15px;
+  }
+  input {
+    font-size: 14px;
+  }
+  button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}

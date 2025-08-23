@@ -1,0 +1,130 @@
+.login-container {
+  width: 600px;
+  max-width: 96vw;               /* Prevent overflow on large screens */
+  margin: 60px auto;
+  padding: 32px 40px;            /* More horizontal space */
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.09);
+  border-radius: 12px;
+  background: #fff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;        /* Always column */
+  align-items: center;           /* Center content horizontally */
+  justify-content: center;
+}
+
+form {
+  width: 100%;                   /* Fill the container width */
+  max-width: 420px;              /* Prevent stretching too wide */
+  margin: 0 auto;                /* Center form on large screens */
+  display: flex;
+  flex-direction: column;
+  gap: 18px;                     /* Nice vertical space */
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #2f4f4f;
+  font-size: 2rem;
+}
+
+.form-group {
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #1e293b;
+}
+
+input[type="email"],
+input[type="password"] {
+  width: 90%;
+  padding: 10px 12px;
+  border: 1px solid #94a3b8;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+  background: #f8fafc;
+  transition: border 0.2s;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+  border: 1.5px solid #2563eb;
+}
+
+.login-btn {
+  width: 30%;                 /* Make button full width for desktop */
+  padding: 13px;
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+  margin: 0 auto;
+  transition: background 0.2s;
+  display: block;
+  text-align: center;
+}
+
+.login-btn:hover {
+  background-color: #1e40af;
+}
+
+.error-message {
+  color: #dc2626;
+  margin-top: 12px;
+  text-align: center;
+  font-size: 15px;
+}
+
+/* --------- Mobile Responsive Styles --------- */
+@media screen and (max-width: 520px) {
+  .login-container {
+    width: 97vw;
+    padding: 18px 6px;
+    margin: 18px auto;
+    border-radius: 8px;
+    overflow-x: hidden;
+  }
+
+  form {
+    max-width: 99vw;
+    padding: 0;
+    gap: 14px;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+    margin-bottom: 14px;
+  }
+
+  .form-group {
+    margin-bottom: 4px;
+  }
+
+  input[type="email"],
+  input[type="password"] {
+    font-size: 15px;
+    padding: 8px 10px;
+  }
+
+  .login-btn {
+    font-size: 15px;
+    padding: 9px;
+  }
+
+  .error-message {
+    font-size: 14px;
+    margin-top: 8px;
+  }
+}
