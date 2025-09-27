@@ -1,4 +1,4 @@
-<div class="container">
+<!-- <div class="container">
   <h2>Devotee Registration</h2>
   <p class="tickets">Tickets Left: {{ ticketsLeft }}</p>
 
@@ -23,6 +23,46 @@
     </div>
 
     <button type="button" class="add-btn" (click)="addMember()" [disabled]="members.length >= maxMembers">+ Add Member</button>
+    <button type="submit" [disabled]="ticketsLeft <= 0">Submit</button>
+  </form>
+</div> -->
+<div class="container">
+  <h2>Devotee Registration</h2>
+  <p class="tickets">Tickets Left: {{ ticketsLeft }}</p>
+
+  <form [formGroup]="devoteeForm" (ngSubmit)="submitForm()">
+    <div formArrayName="members">
+      <div *ngFor="let member of members.controls; let i = index" [formGroupName]="i" class="member-card">
+        
+        <div class="form-group">
+          <input type="text" formControlName="name" placeholder=" " />
+          <label>Name</label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" formControlName="aadhar" placeholder=" " />
+          <label>Aadhar Number</label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" formControlName="phone" placeholder=" " />
+          <label>Phone Number</label>
+        </div>
+
+        <div class="form-group">
+          <input type="text" formControlName="location" placeholder=" " />
+          <label>Address</label>
+        </div>
+
+        <button type="button" class="remove-btn" *ngIf="members.length > 1" (click)="removeMember(i)">
+          Remove
+        </button>
+      </div>
+    </div>
+
+    <button type="button" class="add-btn" (click)="addMember()" [disabled]="members.length >= maxMembers">
+      + Add Member
+    </button>
     <button type="submit" [disabled]="ticketsLeft <= 0">Submit</button>
   </form>
 </div>
