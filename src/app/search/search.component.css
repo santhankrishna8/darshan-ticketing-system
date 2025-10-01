@@ -1,0 +1,17 @@
+.header{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* height: 250px; */
+  width: 100%;
+  object-fit: contain;
+  
+}
+
+.search-container{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

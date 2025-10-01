@@ -26,8 +26,22 @@
     <button type="submit" [disabled]="ticketsLeft <= 0">Submit</button>
   </form>
 </div> -->
-<div class="container">
-  <h2>Devotee Registration</h2>
+
+<!-- <div class="main">
+  <div class="header">
+    <img class="imgh1" src="assets/header.png">
+  </div>
+  <div class="form-fill">
+    <a class="fill" href='#container'>Fill Details</a>
+    <a class="download" routerLink="/search" routerLinkActive="active">Download Ticket</a>
+  </div>
+</div> -->
+
+<div class="container" id="container">
+  <div class="header">
+    <img class="imgh" src="assets/header.png">
+  </div>
+  <!-- <h2>Devotee Registration</h2> -->
   <p class="tickets">Tickets Left: {{ ticketsLeft }}</p>
 
   <form [formGroup]="devoteeForm" (ngSubmit)="submitForm()">
@@ -35,12 +49,12 @@
       <div *ngFor="let member of members.controls; let i = index" [formGroupName]="i" class="member-card">
         
         <div class="form-group">
-          <input type="text" formControlName="name" placeholder=" " />
-          <label>Name</label>
+          <input type="text" formControlName="name" placeholder="" />
+          <label for="name">Name</label>
         </div>
 
         <div class="form-group">
-          <input type="text" formControlName="aadhar" placeholder=" " />
+          <input type="text" formControlName="aadhar" placeholder="" />
           <label>Aadhar Number</label>
         </div>
 
@@ -66,3 +80,6 @@
     <button type="submit" [disabled]="ticketsLeft <= 0">Submit</button>
   </form>
 </div>
+
+
+

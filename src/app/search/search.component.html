@@ -1,0 +1,20 @@
+<div class="header">
+    <img class="imgh1" src="assets/header.png">
+  </div>
+<div class="search-container">
+  <div class="search-section">
+    <input type="text" [formControl]="searchControl" placeholder="Search by Name, Aadhar, or Phone">
+    <br>
+  <button (click)="searchDevotee()">Search</button>
+</div>
+
+<div *ngIf="searchResults.length > 0" class="search-results">
+  <h3>Search Results</h3>
+  <div *ngFor="let member of searchResults; let i = index">
+    <p><strong>{{i + 1}}.</strong> Name: {{member.name}}, Aadhar: {{member.aadhar}}, Phone: {{member.phone}}, Location: {{member.location}}</p>
+  </div>
+</div>
+<div *ngIf="searchResults.length === 0 && searchAttempted">
+  <p>No records found.</p>
+</div>
+</div>

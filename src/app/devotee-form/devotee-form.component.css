@@ -1,84 +1,4 @@
-/* .container {
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
-  border-radius: 12px;
-  background: #f9f9f9;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
-}
 
-h2 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.tickets {
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 20px;
-  color: darkgreen;
-}
-
-.member-card {
-  border: 1px solid #ddd;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  background: #fff;
-}
-
-label {
-  display: block;
-  margin: 5px 0 2px;
-  font-size: 14px;
-}
-
-input {
-  width: 95%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-button {
-  margin: 5px 5px 0 0;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.add-btn {
-  background-color: #1976d2;
-  color: white;
-}
-
-.remove-btn {
-  background-color: #d32f2f;
-  color: white;
-}
-
-button[type="submit"] {
-  background-color: #388e3c;
-  color: white;
-}
-
-
-@media (max-width: 600px) {
-  .container {
-    padding: 15px;
-  }
-  input {
-    font-size: 14px;
-  }
-  button {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-}
-
- */
 * {
   box-sizing: border-box;
 }
@@ -90,15 +10,31 @@ body {
   padding: 0;
 }
 
+.main{
+  height: 100vh;
+}
+
+.imgh1{
+
+}
+
 .container {
-  max-width: 800px;
+  /* max-width: 800px; */
   margin: auto;
   padding: 25px;
   border-radius: 16px;
   background: #ffffff;
   box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
-
+.header{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+  width: 100%;
+  object-fit: contain;
+  
+}
 h2 {
   text-align: center;
   margin-bottom: 8px;
@@ -113,6 +49,7 @@ h2 {
   margin-bottom: 25px;
   color: #1b5e20;
   font-size: 16px;
+ 
 }
 
 .member-card {
@@ -126,7 +63,6 @@ h2 {
 .member-card:hover {
   box-shadow: 0 4px 15px rgba(0,0,0,0.08);
 }
-
 .form-group {
   position: relative;
   margin-bottom: 20px;
@@ -134,44 +70,38 @@ h2 {
 
 .form-group input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 16px;
-  transition: border-color 0.3s ease;
-  background-color: #fff;
-}
-
-.form-group input:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 4px rgba(0,123,255,0.3);
+  padding: 12px 12px; /* top/bottom 12px, left/right 12px */
+  font-size: 14px;
+  border: 1px solid hsl(0, 0%, 80%);
+  border-radius: 4px;
+  caret-color: transparent;
 }
 
 .form-group label {
   position: absolute;
   left: 12px;
-  top: 12px;
+  top: 12px; /* same as input padding-top */
   font-size: 14px;
   color: #777;
-  transition: top 0.3s ease, font-size 0.3s ease, color 0.3s ease;
-  background-color: #fff;   /* ✅ makes label text visible */
+  background-color: #fff;
   padding: 0 4px;
   border-radius: 4px;
   pointer-events: none;
-  line-height: 1;           /* ✅ prevents text clipping */
+  line-height: 1;
+  transition: all 0.3s ease;
 }
 
-/* Floating state */
+/* Floating label when input is focused or filled */
 .form-group input:focus + label,
 .form-group input:not(:placeholder-shown) + label {
-  top: -3px;               /* ✅ lifts label higher */
+  top: 2px;        /* slightly above input text, below border */
   font-size: 12px;
   color: #007bff;
 }
 
 
-/* Buttons */
+
+
 button {
   margin: 5px 5px 0 0;
   padding: 10px 16px;
@@ -209,6 +139,15 @@ button[type="submit"]:hover {
 @media (max-width: 600px) {
   .container {
     padding: 18px;
+  }
+  .imgh1{
+    margin-top: 23px;
+  }
+  .header{
+    margin-top: -80px;
+  }
+  .tickets{
+     margin-top: -60px;
   }
   h2 {
     font-size: 22px;

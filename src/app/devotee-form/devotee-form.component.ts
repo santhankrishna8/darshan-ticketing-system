@@ -3,18 +3,27 @@ import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } fr
 import { Firestore, doc, updateDoc, onSnapshot, collection, addDoc, getDoc, setDoc } from '@angular/fire/firestore';
 import jsPDF from 'jspdf';
 import { CommonModule } from '@angular/common';
+import { FormControl } from '@angular/forms';
+import { query, where, getDocs } from '@angular/fire/firestore';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+
 
 @Component({
   selector: 'app-devotee-form',
   standalone: true,
   templateUrl: './devotee-form.component.html',
   styleUrls: ['./devotee-form.component.css'],
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule,RouterLink,RouterLinkActive]
 })
 export class DevoteeFormComponent implements OnInit {
   devoteeForm!: FormGroup;
   ticketsLeft: number = 500; // default
   maxMembers = 10;
+searchControl: FormControl = new FormControl('');
+searchResults: any[] = [];
+searchAttempted = false;
+
+
 
   constructor(private fb: FormBuilder, private firestore: Firestore) {}
 
@@ -72,19 +81,19 @@ export class DevoteeFormComponent implements OnInit {
 
     // Save to Firestore
     const devoteesCollection = collection(this.firestore, 'devotees');
-    await addDoc(devoteesCollection, {
+    const docRef = await addDoc(devoteesCollection, {
       members: formData,
       timestamp: new Date()
     });
 
+    // Update tickets left
     const ticketDoc = doc(this.firestore, 'tickets/total');
-await setDoc(ticketDoc, {
-  left: this.ticketsLeft - formData.length
-}, { merge: true });
+    await setDoc(ticketDoc, {
+      left: this.ticketsLeft - formData.length
+    }, { merge: true });
 
-
-    // Generate PDF
-    this.generatePDF(formData);
+    // Generate PDF with Firestore document ID
+    this.generatePDF(formData, docRef.id);
 
     alert('Form submitted successfully!');
     this.devoteeForm.reset();
@@ -92,25 +101,49 @@ await setDoc(ticketDoc, {
     this.members.push(this.createMember());
   }
 
-  // Generate PDF
-  generatePDF(data: any[]) {
+  generatePDF(data: any[], docId: string) {
     const docPdf = new jsPDF();
     docPdf.setFontSize(14);
-    docPdf.text('Devotee Registration Details', 20, 20);
 
-    let y = 30;
-    data.forEach((m, i) => {
-      if (y > 260) { // add page if overflow
-        docPdf.addPage();
-        y = 20;
-      }
-      docPdf.text(`${i + 1}. Name: ${m.name}`, 20, y);
-      docPdf.text(`   Aadhar: ${m.aadhar}`, 20, y + 10);
-      docPdf.text(`   Phone: ${m.phone}`, 20, y + 20);
-      docPdf.text(`   Location: ${m.location}`, 20, y + 30);
-      y += 40;
-    });
+    fetch("assets/header.png")
+      .then(res => res.blob())
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = reader.result as string;
+          const headerHeight = 40;
 
-    docPdf.save('DevoteeDetails.pdf');
+          let y = headerHeight + 20;
+
+          const addHeader = () => {
+            docPdf.addImage(base64, "PNG", 10, 5, 190, headerHeight);
+            docPdf.text("Devotee Registration Details", 20, headerHeight + 15);
+            docPdf.setFontSize(12);
+            docPdf.text(`Document ID: ${docId}`, 20, headerHeight + 25);
+            y = headerHeight + 35;
+          };
+
+          addHeader();
+
+          data.forEach((m, i) => {
+            if (y > 260) {
+              docPdf.addPage();
+              addHeader();
+            }
+
+            docPdf.text(`${i + 1}. Name: ${m.name}`, 20, y);
+            docPdf.text(`   Aadhar: ${m.aadhar}`, 20, y + 10);
+            docPdf.text(`   Phone: ${m.phone}`, 20, y + 20);
+            docPdf.text(`   Location: ${m.location}`, 20, y + 30);
+            y += 40;
+          });
+
+          docPdf.save("DevoteeDetails.pdf");
+        };
+        reader.readAsDataURL(blob);
+      });
   }
+
+
+
 }
