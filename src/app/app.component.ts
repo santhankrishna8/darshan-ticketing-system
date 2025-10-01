@@ -12,7 +12,7 @@ import { LoginComponent } from './login/login.component';
       styleUrls: ['./app.component.css'],
     })
     export class AppComponent  {
-      title = 'registrationApp';
+      title = 'శ్రీ వకుళమాత దేవి  గోవిందమాల  భక్త బృందం';
     
     }
     
