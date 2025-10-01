@@ -14,9 +14,16 @@ body {
   height: 100vh;
 }
 
-.imgh1{
-
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
 
 .container {
   /* max-width: 800px; */
@@ -159,5 +166,14 @@ button[type="submit"]:hover {
     width: 100%;
     margin-bottom: 12px;
   }
+  input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
 }
 

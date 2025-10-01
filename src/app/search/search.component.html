@@ -1,20 +1,41 @@
 <div class="header">
-    <img class="imgh1" src="assets/header.png">
-  </div>
-<div class="search-container">
-  <div class="search-section">
-    <input type="text" [formControl]="searchControl" placeholder="Search by Name, Aadhar, or Phone">
-    <br>
-  <button (click)="searchDevotee()">Search</button>
+  <img class="imgh1" src="assets/header.png" />
 </div>
 
-<div *ngIf="searchResults.length > 0" class="search-results">
-  <h3>Search Results</h3>
-  <div *ngFor="let member of searchResults; let i = index">
-    <p><strong>{{i + 1}}.</strong> Name: {{member.name}}, Aadhar: {{member.aadhar}}, Phone: {{member.phone}}, Location: {{member.location}}</p>
+<div class="search-container">
+  <div class="search-section">
+    <input type="text" [formControl]="searchControl" placeholder="Search by Name, Aadhar, or Phone" />
+    <br />
+    <button (click)="searchDevotee()">Search</button>
   </div>
-</div>
-<div *ngIf="searchResults.length === 0 && searchAttempted">
-  <p>No records found.</p>
-</div>
+  
+  <!-- Results Table -->
+  <div *ngIf="searchResults.length > 0" class="search-results">
+    <h3>Search Results</h3>
+    <table border="1" cellpadding="8" cellspacing="0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Ticket Number</th>
+          <th>Name</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let member of searchResults; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ member.ticketNumber }}</td>
+          <td>{{ member.name }}</td>
+          <td>
+            <button (click)="downloadTicket(member.submissionId)">Download</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No results -->
+  <div *ngIf="searchResults.length === 0 && searchAttempted">
+    <p>No records found.</p>
+  </div>
 </div>

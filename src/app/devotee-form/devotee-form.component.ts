@@ -1,53 +1,44 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Firestore, doc, updateDoc, onSnapshot, collection, addDoc, getDoc, setDoc } from '@angular/fire/firestore';
+import { Firestore, doc, collection, runTransaction, setDoc, getDoc } from '@angular/fire/firestore';
 import jsPDF from 'jspdf';
 import { CommonModule } from '@angular/common';
-import { FormControl } from '@angular/forms';
-import { query, where, getDocs } from '@angular/fire/firestore';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-devotee-form',
   standalone: true,
   templateUrl: './devotee-form.component.html',
   styleUrls: ['./devotee-form.component.css'],
-  imports: [CommonModule, ReactiveFormsModule,RouterLink,RouterLinkActive]
+  imports: [CommonModule, ReactiveFormsModule]
 })
 export class DevoteeFormComponent implements OnInit {
   devoteeForm!: FormGroup;
-  ticketsLeft: number = 500; // default
+  ticketsLeft: number = 500;
   maxMembers = 10;
-searchControl: FormControl = new FormControl('');
-searchResults: any[] = [];
-searchAttempted = false;
-
-
+  randomNames = ['Santhan', 'Bala Krishna', 'Praveen', 'Siva', 'Dinesh'];
 
   constructor(private fb: FormBuilder, private firestore: Firestore) {}
 
   ngOnInit() {
     this.devoteeForm = this.fb.group({
+      allocatedPerson: ['', Validators.required], // top-level dropdown
       members: this.fb.array([this.createMember()])
     });
 
-    // Ensure tickets doc exists
+    // Initialize tickets doc if not exist
     const ticketDoc = doc(this.firestore, 'tickets/total');
     getDoc(ticketDoc).then(snapshot => {
       if (!snapshot.exists()) {
-        setDoc(ticketDoc, { left: 500 }); // initialize
+        setDoc(ticketDoc, { left: 500, lastAllocated: 0 });
+      } else {
+        const data = snapshot.data();
+        this.ticketsLeft = data?.['left'] ?? 500;
       }
-    });
-
-    // Listen for real-time ticket updates
-    onSnapshot(ticketDoc, (snapshot) => {
-      const data = snapshot.data();
-      this.ticketsLeft = data ? (data['left'] as number) : 500;
     });
   }
 
-  // Create new member form
+  // Member form
   createMember(): FormGroup {
     return this.fb.group({
       name: ['', Validators.required],
@@ -61,47 +52,94 @@ searchAttempted = false;
     return this.devoteeForm.get('members') as FormArray;
   }
 
-  // Add member row
   addMember() {
     if (this.members.length < this.maxMembers) {
       this.members.push(this.createMember());
     }
   }
 
-  // Remove member row
   removeMember(index: number) {
     this.members.removeAt(index);
   }
+async submitForm() {
+  if (this.devoteeForm.invalid) return;
 
-  // Submit form
-  async submitForm() {
-    if (this.devoteeForm.invalid) return;
+  const formData = this.devoteeForm.value.members;
+  const allocatedPerson = this.devoteeForm.value.allocatedPerson;
 
-    const formData = this.devoteeForm.value.members;
+  const ticketDocRef = doc(this.firestore, 'tickets/total');
+  const submissionCounterDocRef = doc(this.firestore, 'submissions/total');
+  const devoteesCollection = collection(this.firestore, 'devotees');
 
-    // Save to Firestore
-    const devoteesCollection = collection(this.firestore, 'devotees');
-    const docRef = await addDoc(devoteesCollection, {
-      members: formData,
-      timestamp: new Date()
+  try {
+    let submissionId = 1;
+    let membersWithTickets: any[] = [];
+
+    await runTransaction(this.firestore, async (transaction) => {
+      // Get ticket info
+      const ticketSnapshot = await transaction.get(ticketDocRef);
+      let ticketsLeft = 500;
+      let lastAllocated = 0;
+
+      if (ticketSnapshot.exists()) {
+        const data = ticketSnapshot.data();
+        ticketsLeft = data?.['left'] ?? 500;
+        lastAllocated = data?.['lastAllocated'] ?? 0;
+      } else {
+        transaction.set(ticketDocRef, { left: 500, lastAllocated: 0 });
+      }
+
+      if (ticketsLeft < formData.length) {
+        throw new Error('Not enough tickets left');
+      }
+
+      // Get submission ID
+      const submissionSnapshot = await transaction.get(submissionCounterDocRef);
+      if (submissionSnapshot.exists()) {
+        const data = submissionSnapshot.data();
+        submissionId = (data?.['lastSubmissionId'] ?? 0) + 1;
+      }
+      transaction.set(submissionCounterDocRef, { lastSubmissionId: submissionId }, { merge: true });
+
+      // Allocate ticket numbers
+      membersWithTickets = formData.map((m: any, index: number) => ({
+        ...m,
+        allocatedPerson,
+        ticketNumber: lastAllocated + index + 1
+      }));
+
+      // Save members to Firestore **with submissionId as document ID**
+      const devoteeDocRef = doc(devoteesCollection, submissionId.toString());
+      transaction.set(devoteeDocRef, {
+        allocatedPerson,
+        members: membersWithTickets,
+        submissionId,
+        timestamp: new Date()
+      });
+
+      // Update tickets doc
+      transaction.update(ticketDocRef, {
+        left: ticketsLeft - formData.length,
+        lastAllocated: lastAllocated + formData.length
+      });
     });
 
-    // Update tickets left
-    const ticketDoc = doc(this.firestore, 'tickets/total');
-    await setDoc(ticketDoc, {
-      left: this.ticketsLeft - formData.length
-    }, { merge: true });
+    // Generate PDF outside transaction
+    this.generatePDF(membersWithTickets, submissionId.toString(), allocatedPerson);
 
-    // Generate PDF with Firestore document ID
-    this.generatePDF(formData, docRef.id);
-
-    alert('Form submitted successfully!');
+    // Reset form
     this.devoteeForm.reset();
     this.members.clear();
     this.members.push(this.createMember());
-  }
 
-  generatePDF(data: any[], docId: string) {
+    alert('Form submitted successfully! Submission ID: ' + submissionId);
+  } catch (error: any) {
+    console.error(error);
+    alert(error.message || 'Something went wrong');
+  }
+}
+
+  generatePDF(data: any[], docId: string, allocatedPerson: string) {
     const docPdf = new jsPDF();
     docPdf.setFontSize(14);
 
@@ -111,39 +149,39 @@ searchAttempted = false;
         const reader = new FileReader();
         reader.onload = () => {
           const base64 = reader.result as string;
-          const headerHeight = 40;
+          const headerHeight = 50;
 
-          let y = headerHeight + 20;
+          // Add header
+          docPdf.addImage(base64, "PNG", 10, 5, 190, headerHeight);
+          // docPdf.text("Devotee Registration Details", 20, headerHeight + 15);
+          docPdf.setFontSize(12);
+          docPdf.text(`Document ID: ${docId}`, 20, headerHeight + 25);
+          docPdf.text(`Allocated Person: ${allocatedPerson}`, 20, headerHeight + 35);
 
-          const addHeader = () => {
-            docPdf.addImage(base64, "PNG", 10, 5, 190, headerHeight);
-            docPdf.text("Devotee Registration Details", 20, headerHeight + 15);
-            docPdf.setFontSize(12);
-            docPdf.text(`Document ID: ${docId}`, 20, headerHeight + 25);
-            y = headerHeight + 35;
-          };
+          // Prepare table data
+          const tableData = data.map((m, i) => [
+            m.ticketNumber,
+            m.name,
+            m.aadhar,
+            m.phone,
+            m.location
+            
+          ]);
 
-          addHeader();
-
-          data.forEach((m, i) => {
-            if (y > 260) {
-              docPdf.addPage();
-              addHeader();
-            }
-
-            docPdf.text(`${i + 1}. Name: ${m.name}`, 20, y);
-            docPdf.text(`   Aadhar: ${m.aadhar}`, 20, y + 10);
-            docPdf.text(`   Phone: ${m.phone}`, 20, y + 20);
-            docPdf.text(`   Location: ${m.location}`, 20, y + 30);
-            y += 40;
+          // Add table
+          autoTable(docPdf, {
+            startY: headerHeight + 45,
+            head: [['Ticket No.', 'Name', 'Aadhar', 'Phone', 'Location']],
+            body: tableData,
+            theme: 'grid',
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [41, 128, 185] }
           });
 
-          docPdf.save("DevoteeDetails.pdf");
+          // Save file
+          docPdf.save(`${docId}_DevoteeDetails.pdf`);
         };
         reader.readAsDataURL(blob);
       });
   }
-
-
-
 }

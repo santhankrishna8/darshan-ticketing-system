@@ -11,18 +11,65 @@
   object-fit: contain;
   
 }
-.form-fill{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.form-fill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 30px 0;
+  gap: 15px; /* space between links */
+  font-family: Arial, sans-serif;
 }
+
+/* Common link styles */
+.form-fill a {
+  text-decoration: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 200px;
+  text-align: center;
+  transition: all 0.3s ease;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Fill Details link */
+.form-fill a.fill {
+  background-color: #2980b9;
+}
+
+.form-fill a.fill:hover {
+  background-color: #1f618d;
+  transform: translateY(-2px);
+}
+
+/* Download Ticket link */
+.form-fill a.download {
+  background-color: #27ae60;
+}
+
+.form-fill a.download:hover {
+  background-color: #1e8449;
+  transform: translateY(-2px);
+}
+
+/* Active router link */
+.form-fill a.active {
+  box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.3);
+}
+
+/* Responsive */
+@media screen and (max-width: 480px) {
+  .form-fill a {
+    width: 80%;
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+}
+
+
 @media (max-width: 600px) {
   .container {
     padding: 18px;
-  }
-  .imgh1{
-    /* margin-top: -10px; */
-    
   }
 }

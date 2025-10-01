@@ -22,6 +22,7 @@
     "@vercel/analytics": "^1.5.0",
     "firebase": "^12.1.0",
     "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

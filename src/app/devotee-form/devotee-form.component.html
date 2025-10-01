@@ -37,17 +37,17 @@
   </div>
 </div> -->
 
-<div class="container" id="container">
+<!-- <div class="container" id="container">
   <div class="header">
     <img class="imgh" src="assets/header.png">
   </div>
-  <!-- <h2>Devotee Registration</h2> -->
+
   <p class="tickets">Tickets Left: {{ ticketsLeft }}</p>
 
   <form [formGroup]="devoteeForm" (ngSubmit)="submitForm()">
     <div formArrayName="members">
       <div *ngFor="let member of members.controls; let i = index" [formGroupName]="i" class="member-card">
-        
+
         <div class="form-group">
           <input type="text" formControlName="name" placeholder="" />
           <label for="name">Name</label>
@@ -68,6 +68,14 @@
           <label>Address</label>
         </div>
 
+        <div class="form-group">
+          <label>Select Person</label>
+          <select formControlName="allocatedPerson">
+            <option *ngFor="let person of randomNames" [value]="person">{{ person }}</option>
+          </select>
+        </div>
+
+
         <button type="button" class="remove-btn" *ngIf="members.length > 1" (click)="removeMember(i)">
           Remove
         </button>
@@ -79,7 +87,62 @@
     </button>
     <button type="submit" [disabled]="ticketsLeft <= 0">Submit</button>
   </form>
+</div> -->
+
+
+<div class="container" id="container">
+  <div class="header">
+    <img class="imgh" src="assets/header.png">
+  </div>
+
+  <p class="tickets">Tickets Left: {{ ticketsLeft }}</p>
+
+  <form [formGroup]="devoteeForm" (ngSubmit)="submitForm()">
+    <!-- Top-level Allocated Person dropdown -->
+    <div >
+      <label>Select Allocated Person: </label>
+      <select formControlName="allocatedPerson">
+        <option value="" disabled selected>Select a person</option>
+        <option *ngFor="let person of randomNames" [value]="person">{{ person }}</option>
+      </select>
+    </div>
+    <br><br>
+    <!-- Members form array -->
+    <div formArrayName="members">
+      <div *ngFor="let member of members.controls; let i = index" [formGroupName]="i" class="member-card">
+
+        <div class="form-group">
+          <input type="text" placeholder="Enter Name" formControlName="name" />
+          
+        </div>
+
+        <div class="form-group">
+          <input type="text" placeholder="Enter Aadhar Number" formControlName="aadhar" />
+      
+        </div>
+
+        <div class="form-group">
+          <input type="text" placeholder="Enter Phone Number" formControlName="phone"  />
+          
+        </div>
+
+        <div class="form-group">
+          <input type="text" formControlName="location" placeholder="Enter Address" />
+        </div>
+
+        <!-- Remove button -->
+        <button type="button" class="remove-btn" *ngIf="members.length > 1" (click)="removeMember(i)">
+          Remove
+        </button>
+      </div>
+    </div>
+
+    <!-- Add member button -->
+    <button type="button" class="add-btn" (click)="addMember()" [disabled]="members.length >= maxMembers">
+      + Add Member
+    </button>
+
+    <!-- Submit -->
+    <button type="submit" [disabled]="ticketsLeft <= 0">Submit</button>
+  </form>
 </div>
-
-
-
