@@ -1,36 +1,45 @@
+/* ==========================
+   Navbar
+========================== */
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #2563eb;
-  color: #fff;
-  padding: 0.7rem 1rem;
-  border-radius: 9px 9px 0 0;
+  background: #a6b7dc;
+  color: black;
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px 12px 0 0;
   position: relative;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: all 0.3s ease;
 }
 
 .navbar__brand {
   display: flex;
   align-items: center;
+  gap: 10px;
+
 }
 
 .navbar__logo {
-  font-size: 1.75rem;
-  margin-right: 8px;
+  font-size: 1.9rem;
 }
 
 .navbar__title {
-  font-size: 1.18rem;
-  font-weight: bold;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .navbar__links {
   display: flex;
   list-style: none;
+  gap: 20px;
   margin: 0;
   padding: 0;
-  gap: 22px;
+
+  align-items: center;
 }
 
 .navbar__links li {
@@ -38,60 +47,276 @@
   align-items: center;
 }
 
-.navbar__links a {
-  color: #fff;
+.navbar__links a,
+.navbar__links .logout-btn {
+  color:black;
   text-decoration: none;
   font-size: 1rem;
-  transition: opacity 0.15s;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.navbar__links a:hover {
-  opacity: 0.8;
+.navbar__links a:hover,
+.navbar__links .logout-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
 }
 
-/* Navbar toggle for mobile */
+.button-container {
+  display: flex;
+  justify-content: center; /* centers the buttons horizontally */
+  gap: 12px; /* spacing between buttons */
+  margin-top: 1rem;
+}
+
+
 .navbar__toggle {
   display: none;
   font-size: 2rem;
   background: none;
+  margin-top: -10px;
   border: none;
   color: #fff;
   cursor: pointer;
 }
 
-/* MOBILE STYLES */
+/* ==========================
+   Container & Buttons
+========================== */
+.container {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container button {
+  background: #e4660b;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  
+}
+
+.container button:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================
+   Mobile Styles
+========================== */
 @media (max-width: 650px) {
   .navbar {
     flex-direction: column;
     align-items: flex-start;
-    padding: 0.8rem 0.8rem;
+    padding: 0.9rem 1rem;
   }
+
   .navbar__brand {
-    margin-bottom: 5px;
+    margin-bottom: 6px;
   }
+
   .navbar__links {
     flex-direction: column;
     width: 100%;
     display: none;
-    gap: 0;
+    gap: 6px;
   }
+
   .navbar__links--open {
     display: flex;
   }
+
   .navbar__links li {
     width: 100%;
-    margin-bottom: 7px;
   }
+
   .navbar__links a,
   .navbar__links .logout-btn {
     width: 100%;
     text-align: left;
-    border-radius: 7px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.08);
   }
+
   .navbar__toggle {
     display: block;
     position: absolute;
-    top: 14px;
-    right: 13px;
+    top: 12px;
+    right: 12px;
   }
+}
+
+
+
+
+.admin-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2 {
+  text-align: center;
+  color: #2563eb;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+select {
+  padding: 0.5rem 0.8rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+select:focus {
+  border-color: #2563eb;
+}
+
+button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  margin-right: 10px;
+  /* margin-top: 0.8rem; */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #2563eb;
+  color: #fff;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background-color: #1e40af;
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.results {
+  margin-top: 2rem;
+}
+
+.results p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  border-radius: 8px;
+  
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+th, td {
+  padding: 0.6rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+  background-color: #2563eb;
+  color: #fff;
+  font-weight: 600;
+}
+
+tr:nth-child(even) {
+  background-color: #f1f5f9;
+}
+
+tr:hover {
+  background-color: #e0f2fe;
+  transition: background-color 0.2s;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .admin-container {
+    padding: 1rem;
+  }
+
+  table, th, td {
+    font-size: 0.9rem;
+    overflow-x: scroll;
+  }
+
+  button {
+    margin-bottom: 0.5rem;
+  }
+}
+
+
+
+
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  max-width: 100%;
+}
+
+.table-wrapper table {
+  width: 100%;
+  min-width: 700px; /* ensures horizontal scroll if screen is smaller */
+  border-collapse: collapse;
+}
+
+.table-wrapper th, .table-wrapper td {
+  padding: 0.6rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table-wrapper th {
+  background-color: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.table-wrapper tr:nth-child(even) {
+  background-color: #f1f5f9;
+}
+
+.table-wrapper tr:hover {
+  background-color: #e0f2fe;
+  transition: background-color 0.2s;
 }

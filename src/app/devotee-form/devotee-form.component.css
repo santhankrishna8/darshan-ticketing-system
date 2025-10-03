@@ -143,6 +143,16 @@ button[type="submit"]:hover {
   background-color: #2e7d32;
 }
 
+.error {
+  color: red;
+  font-size: 13px;
+  margin-top: 4px;
+}
+input.ng-invalid.ng-touched {
+  border: 1px solid red;
+}
+
+
 @media (max-width: 600px) {
   .container {
     padding: 18px;

@@ -4,6 +4,7 @@ import { Firestore, doc, collection, runTransaction, setDoc, getDoc } from '@ang
 import jsPDF from 'jspdf';
 import { CommonModule } from '@angular/common';
 import autoTable from 'jspdf-autotable';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-devotee-form',
@@ -44,6 +45,7 @@ export class DevoteeFormComponent implements OnInit {
       name: ['', Validators.required],
       aadhar: ['', [Validators.required, Validators.minLength(12), Validators.maxLength(12)]],
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      age:['',[Validators.required,Validators.min(12),Validators.max(100)]],
       location: ['', Validators.required]
     });
   }
@@ -132,7 +134,18 @@ async submitForm() {
     this.members.clear();
     this.members.push(this.createMember());
 
-    alert('Form submitted successfully! Submission ID: ' + submissionId);
+    // Success case
+Swal.fire({
+  icon: 'success',
+  title: 'Form submitted!',
+  text: 'Submission ID: ' + submissionId,
+  showConfirmButton: false,
+  timer: 5500,
+  position: 'center',
+  customClass: {
+    popup: 'rounded-xl shadow-lg'
+  }
+});
   } catch (error: any) {
     console.error(error);
     alert(error.message || 'Something went wrong');
@@ -162,6 +175,7 @@ async submitForm() {
           const tableData = data.map((m, i) => [
             m.ticketNumber,
             m.name,
+            m.age,
             m.aadhar,
             m.phone,
             m.location
@@ -171,7 +185,7 @@ async submitForm() {
           // Add table
           autoTable(docPdf, {
             startY: headerHeight + 45,
-            head: [['Ticket No.', 'Name', 'Aadhar', 'Phone', 'Location']],
+            head: [['Ticket No.', 'Name','Age', 'Aadhar', 'Phone', 'Location']],
             body: tableData,
             theme: 'grid',
             styles: { fontSize: 10 },

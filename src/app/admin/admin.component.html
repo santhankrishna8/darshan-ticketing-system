@@ -15,3 +15,65 @@
     </li>
   </ul>
 </nav>
+
+
+<div class="container">
+  <button type="button" (click)="exportToExcel()">Download as Excel</button>
+</div>
+
+
+<div class="admin-container">
+  <h2>Admin Tickets Panel</h2>
+
+  <div class="form-group">
+    <label>Select Allocated Person:</label>
+    <select [(ngModel)]="selectedPerson">
+      <option value="" disabled selected>Select a person</option>
+      <option *ngFor="let person of randomNames" [value]="person">{{ person }}</option>
+    </select>
+  </div>
+
+  <div class="button-container">
+  <button (click)="fetchPersonTickets()" [disabled]="!selectedPerson">
+    Submit
+  </button>
+</div>
+
+  <!-- Show results only after submit -->
+  <div *ngIf="personTicketsCount >= 0" class="results">
+    <p>Tickets registered by <strong>{{ selectedPerson }}</strong>: {{ personTicketsCount }}</p>
+
+    <div *ngIf="personTicketsCount >= 0" class="button-container">
+  <button (click)="viewMembers()" [disabled]="personMembers.length === 0">View Members</button>
+  <button (click)="downloadMembers()" [disabled]="personMembers.length === 0">Download Members</button>
+</div>
+
+    <!-- Optional: Show members in table -->
+     <div *ngIf="showMembers && personMembers.length > 0" class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Ticket No.</th>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Aadhar</th>
+        <th>Phone</th>
+        <th>Location</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of personMembers">
+        <td>{{ m.ticketNumber }}</td>
+        <td>{{ m.name }}</td>
+        <td>{{ m.age }}</td>
+        <td>{{ m.aadhar }}</td>
+        <td>{{ m.phone }}</td>
+        <td>{{ m.location }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+  </div>
+</div>
+

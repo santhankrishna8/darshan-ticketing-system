@@ -3,3 +3,6 @@
     overflow-x: hidden;
     font-family: Arial, Helvetica, sans-serif;
 }
+.swal2-timer-progress-bar {
+  display: none !important;
+}
