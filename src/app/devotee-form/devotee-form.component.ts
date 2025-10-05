@@ -15,7 +15,7 @@ import Swal from 'sweetalert2';
 })
 export class DevoteeFormComponent implements OnInit {
   devoteeForm!: FormGroup;
-  ticketsLeft: number = 500;
+  ticketsLeft: number = 470;
   maxMembers = 10;
   randomNames = ['Prathap Reddy','Santhan', 'Bala Krishna', 'Praveen', 'Siva', 'Dinesh','Hemanth','Kishore','Lokesh'];
 
