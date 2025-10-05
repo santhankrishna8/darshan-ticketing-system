@@ -90,90 +90,100 @@
 </div> -->
 
 
+
 <div class="container" id="container">
   <div class="header">
-    <img class="imgh" src="assets/header.png">
+    <img class="imgh" src="assets/header.png" />
   </div>
 
   <p class="tickets">Tickets Left: {{ ticketsLeft }}</p>
-<form [formGroup]="devoteeForm" (ngSubmit)="submitForm()">
 
- <div > <label>Select Allocated Person: </label> <select formControlName="allocatedPerson"> <option value="" disabled selected>Select a person</option> <option *ngFor="let person of randomNames" [value]="person">{{ person }}</option> </select> </div>
-
-  <br>
-
-  <!-- Members FormArray -->
-  <div formArrayName="members">
-    <div *ngFor="let member of members.controls; let i = index" [formGroupName]="i" class="member-card">
-
-      <!-- Name -->
-      <div class="form-group">
-        <input type="text" placeholder="Enter Name / పేరు" formControlName="name" />
-        <div class="error" *ngIf="member.get('name')?.touched && member.get('name')?.hasError('required')">
-          Name is required / పేరు తప్పనిసరి
-        </div>
-      </div>
-
-      <!-- Age -->
-      <div class="form-group">
-        <input type="number" placeholder="Enter Age / వయసు" formControlName="age" />
-        <div class="error" *ngIf="member.get('age')?.touched && member.get('age')?.hasError('required')">
-          Age is required / వయసు తప్పనిసరి
-        </div>
-        <div class="error" *ngIf="member.get('age')?.touched && member.get('age')?.hasError('min')">
-          Age should be more than 11 / వయసు 12 కన్నా ఎక్కువ ఉండాలి
-        </div>
-        <div class="error" *ngIf="member.get('age')?.touched && member.get('age')?.hasError('max')">
-          Age should be less than 100 / వయసు 100 కన్నా తక్కువ ఉండాలి
-        </div>
-      </div>
-
-      <!-- Aadhar -->
-      <div class="form-group">
-        <input type="text" placeholder="Enter Aadhar Number / ఆధార్ నంబర్" formControlName="aadhar" />
-        <div class="error" *ngIf="member.get('aadhar')?.touched && member.get('aadhar')?.hasError('required')">
-          Aadhar is required / ఆధార్ తప్పనిసరి
-        </div>
-        <div class="error" *ngIf="member.get('aadhar')?.touched && (member.get('aadhar')?.hasError('minlength') || member.get('aadhar')?.hasError('maxlength'))">
-          Aadhar must be 12 digits / ఆధార్ 12 అంకెలు ఉండాలి
-        </div>
-      </div>
-
-      <!-- Phone -->
-      <div class="form-group">
-        <input type="text" placeholder="Enter Phone Number / ఫోన్ నంబర్" formControlName="phone" />
-        <div class="error" *ngIf="member.get('phone')?.touched && member.get('phone')?.hasError('required')">
-          Phone number is required / ఫోన్ నంబర్ తప్పనిసరి
-        </div>
-        <div class="error" *ngIf="member.get('phone')?.touched && member.get('phone')?.hasError('pattern')">
-          Enter valid 10-digit phone / సరైన 10 అంకెల ఫోన్ నంబర్ ఇవ్వండి
-        </div>
-      </div>
-
-      <!-- Location -->
-      <div class="form-group">
-        <input type="text" placeholder="Enter Address / చిరునామా" formControlName="location" />
-        <div class="error" *ngIf="member.get('location')?.touched && member.get('location')?.hasError('required')">
-          Address is required / చిరునామా తప్పనిసరి
-        </div>
-      </div>
-
-      <!-- Remove Button -->
-      <button type="button" class="remove-btn" *ngIf="members.length > 1" (click)="removeMember(i)">
-        Remove / తొలగించండి
-      </button>
-    
-
+  <form [formGroup]="devoteeForm" (ngSubmit)="submitForm()">
+    <div>
+      <label>Select Allocated Person:</label>
+      <select formControlName="allocatedPerson">
+        <option value="" disabled selected>Select a person</option>
+        <option *ngFor="let person of randomNames" [value]="person">
+          {{ person }}
+        </option>
+      </select>
     </div>
-  </div>
 
-  <!-- Add Member Button -->
-  <button type="button" class="add-btn" (click)="addMember()" [disabled]="members.length >= maxMembers">
-    + Add Member / సభ్యుడు జోడించండి
-  </button>
+    <br />
 
-  <!-- Submit Button -->
-  <button type="submit" [disabled]="ticketsLeft <= 0">Submit / సమర్పించండి</button>
+    <div formArrayName="members">
+      <div *ngFor="let member of members.controls; let i = index" [formGroupName]="i" class="member-card">
 
-</form>
+        <div class="form-group">
+          <input type="text" placeholder="Enter Name / పేరు" formControlName="name" />
+          <div class="error" *ngIf="member.get('name')?.touched && member.get('name')?.hasError('required')">
+            Name is required / పేరు తప్పనిసరి
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="number" placeholder="Enter Age / వయసు" formControlName="age" />
+          <div class="error" *ngIf="member.get('age')?.touched && member.get('age')?.hasError('required')">
+            Age is required / వయసు తప్పనిసరి
+          </div>
+          <div class="error" *ngIf="member.get('age')?.hasError('min')">
+            Age should be more than 11 / వయసు 12 కన్నా ఎక్కువ ఉండాలి
+          </div>
+          <div class="error" *ngIf="member.get('age')?.hasError('max')">
+            Age should be less than 100 / వయసు 100 కన్నా తక్కువ ఉండాలి
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input
+            type="text"
+            placeholder="Enter Aadhar Number / ఆధార్ నంబర్"
+            formControlName="aadhar"
+            (blur)="checkAadhar(i)"
+          />
+          <div class="error" *ngIf="member.get('aadhar')?.touched && member.get('aadhar')?.hasError('required')">
+            Aadhar is required / ఆధార్ తప్పనిసరి
+          </div>
+          <div
+            class="error"
+            *ngIf="member.get('aadhar')?.touched && (member.get('aadhar')?.hasError('minlength') || member.get('aadhar')?.hasError('maxlength'))"
+          >
+            Aadhar must be 12 digits / ఆధార్ 12 అంకెలు ఉండాలి
+          </div>
+
+          <div class="error" *ngIf="member.get('aadharExists')?.value">
+            This Aadhar is already registered / ఈ ఆధార్ ఇప్పటికే నమోదు చేయబడింది
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" placeholder="Enter Phone Number / ఫోన్ నంబర్" formControlName="phone" />
+          <div class="error" *ngIf="member.get('phone')?.touched && member.get('phone')?.hasError('required')">
+            Phone number is required / ఫోన్ నంబర్ తప్పనిసరి
+          </div>
+          <div class="error" *ngIf="member.get('phone')?.hasError('pattern')">
+            Enter valid 10-digit phone / సరైన 10 అంకెల ఫోన్ నంబర్ ఇవ్వండి
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" placeholder="Enter Address / చిరునామా" formControlName="location" />
+          <div class="error" *ngIf="member.get('location')?.touched && member.get('location')?.hasError('required')">
+            Address is required / చిరునామా తప్పనిసరి
+          </div>
+        </div>
+
+        <button type="button" class="remove-btn" *ngIf="members.length > 1" (click)="removeMember(i)">
+          Remove / తొలగించండి
+        </button>
+      </div>
+    </div>
+
+    <button type="button" class="add-btn" (click)="addMember()" [disabled]="members.length >= maxMembers">
+      + Add Member / సభ్యుడు జోడించండి
+    </button>
+
+    <button type="submit" [disabled]="ticketsLeft <= 0">Submit / సమర్పించండి</button>
+  </form>
 </div>
+
