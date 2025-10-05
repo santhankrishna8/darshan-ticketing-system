@@ -17,7 +17,7 @@ export class DevoteeFormComponent implements OnInit {
   devoteeForm!: FormGroup;
   ticketsLeft: number = 470;
   maxMembers = 10;
-  randomNames = ['Prathap Reddy','Santhan', 'Bala Krishna', 'Praveen', 'Siva', 'Dinesh','Hemanth','Kishore','Lokesh'];
+  randomNames = ['Lokesh','Kishore', 'Kesava', 'Praveen', 'Siva', 'Dinesh','Hemanth','Manikanta','Bala Krishna','Preetham'];
 
   constructor(private fb: FormBuilder, private firestore: Firestore) {}
 
@@ -31,10 +31,10 @@ export class DevoteeFormComponent implements OnInit {
     const ticketDoc = doc(this.firestore, 'tickets/total');
     getDoc(ticketDoc).then(snapshot => {
       if (!snapshot.exists()) {
-        setDoc(ticketDoc, { left: 500, lastAllocated: 0 });
+        setDoc(ticketDoc, { left: 470, lastAllocated: 0 });
       } else {
         const data = snapshot.data();
-        this.ticketsLeft = data?.['left'] ?? 500;
+        this.ticketsLeft = data?.['left'] ?? 470;
       }
     });
   }
@@ -80,15 +80,15 @@ async submitForm() {
     await runTransaction(this.firestore, async (transaction) => {
       // Get ticket info
       const ticketSnapshot = await transaction.get(ticketDocRef);
-      let ticketsLeft = 500;
+      let ticketsLeft = 470;
       let lastAllocated = 0;
 
       if (ticketSnapshot.exists()) {
         const data = ticketSnapshot.data();
-        ticketsLeft = data?.['left'] ?? 500;
+        ticketsLeft = data?.['left'] ?? 470;
         lastAllocated = data?.['lastAllocated'] ?? 0;
       } else {
-        transaction.set(ticketDocRef, { left: 500, lastAllocated: 0 });
+        transaction.set(ticketDocRef, { left: 470, lastAllocated: 0 });
       }
 
       if (ticketsLeft < formData.length) {
@@ -140,7 +140,7 @@ Swal.fire({
   title: 'Form submitted!',
   text: 'Submission ID: ' + submissionId,
   showConfirmButton: false,
-  timer: 5500,
+  timer: 2500,
   position: 'center',
   customClass: {
     popup: 'rounded-xl shadow-lg'

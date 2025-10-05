@@ -110,7 +110,7 @@ selectedPerson: string = '';
 personTicketsCount: number = -1; // initially hidden
 personMembers: any[] = [];
 showMembers: boolean = false;
-randomNames = ['Santhan', 'Bala Krishna', 'Praveen', 'Siva', 'Dinesh'];
+randomNames = ['Lokesh','Kishore', 'Kesava', 'Praveen', 'Siva', 'Dinesh','Hemanth','Manikanta','Bala Krishna','Preetham'];
 
 async fetchPersonTickets() {
   if (!this.selectedPerson) return;
