@@ -23,14 +23,12 @@ export class DevoteeFormComponent implements OnInit {
 
   ngOnInit() {
     this.devoteeForm = this.fb.group({
-      allocatedPerson: ['', Validators.required],
       members: this.fb.array([])
     });
 
-    // ✅ Always start with one form visible
     this.members.push(this.createMember());
 
-    // ✅ Initialize tickets document if not exist
+    // Initialize tickets document
     const ticketDoc = doc(this.firestore, 'tickets', 'total');
     getDoc(ticketDoc).then(snapshot => {
       if (!snapshot.exists()) {
@@ -42,7 +40,10 @@ export class DevoteeFormComponent implements OnInit {
     });
   }
 
-  // ✅ Create new member form group
+  get members(): FormArray {
+    return this.devoteeForm.get('members') as FormArray;
+  }
+
   createMember(): FormGroup {
     return this.fb.group({
       name: ['', Validators.required],
@@ -53,25 +54,15 @@ export class DevoteeFormComponent implements OnInit {
     });
   }
 
-  get members(): FormArray {
-    return this.devoteeForm.get('members') as FormArray;
-  }
-
   addMember() {
-    if (this.members.length < this.maxMembers) {
-      this.members.push(this.createMember());
-    }
+    if (this.members.length < this.maxMembers) this.members.push(this.createMember());
   }
 
   removeMember(index: number) {
     this.members.removeAt(index);
-    // ✅ Ensure one blank form always visible
-    if (this.members.length === 0) {
-      this.members.push(this.createMember());
-    }
+    if (this.members.length === 0) this.members.push(this.createMember());
   }
 
-  // ✅ Check duplicate Aadhar
   async checkAadhar(index: number) {
     const memberGroup = this.members.at(index) as FormGroup;
     const aadhar = memberGroup.get('aadhar')?.value;
@@ -84,9 +75,7 @@ export class DevoteeFormComponent implements OnInit {
 
       snapshot.forEach(docSnap => {
         const members = docSnap.data()['members'] || [];
-        if (members.some((m: any) => m.aadhar === aadhar)) {
-          exists = true;
-        }
+        if (members.some((m: any) => m.aadhar === aadhar)) exists = true;
       });
 
       if (exists) {
@@ -98,31 +87,27 @@ export class DevoteeFormComponent implements OnInit {
           confirmButtonText: 'OK'
         });
       } else {
-        if (memberGroup.get('aadharExists')) {
-          memberGroup.removeControl('aadharExists');
-        }
+        if (memberGroup.get('aadharExists')) memberGroup.removeControl('aadharExists');
       }
     } catch (error) {
       console.error('Error checking Aadhar:', error);
     }
   }
 
-  // ✅ Submit form
   async submitForm() {
     if (this.devoteeForm.invalid) return;
 
-    const formData = this.devoteeForm.value.members;
-    const allocatedPerson = this.devoteeForm.value.allocatedPerson;
-
+    const formData = this.members.value;
     const ticketDocRef = doc(this.firestore, 'tickets', 'total');
     const submissionCounterDocRef = doc(this.firestore, 'submissions', 'total');
     const devoteesCollection = collection(this.firestore, 'devotees');
 
     try {
       let submissionId = 1;
+
       let membersWithTickets: any[] = [];
 
-      await runTransaction(this.firestore, async (transaction) => {
+      await runTransaction(this.firestore, async transaction => {
         const ticketSnapshot = await transaction.get(ticketDocRef);
         let ticketsLeft = 470;
         let lastAllocated = 0;
@@ -144,31 +129,23 @@ export class DevoteeFormComponent implements OnInit {
         }
         transaction.set(submissionCounterDocRef, { lastSubmissionId: submissionId }, { merge: true });
 
-        membersWithTickets = formData.map((m: any, i: number) => ({
-          ...m,
-          allocatedPerson,
-          ticketNumber: lastAllocated + i + 1
-        }));
+        membersWithTickets = formData.map((m: any, i: number) => {
+          const ticketNumber = lastAllocated + i + 1;
+          const personIndex = Math.floor((ticketNumber - 1) / 50);
+          const allocatedPerson = this.randomNames[personIndex] || this.randomNames[this.randomNames.length - 1];
+          return { ...m, ticketNumber, allocatedPerson };
+        });
 
         const devoteeDocRef = doc(devoteesCollection, submissionId.toString());
-        transaction.set(devoteeDocRef, {
-          allocatedPerson,
-          members: membersWithTickets,
-          submissionId,
-          timestamp: new Date()
-        });
+        transaction.set(devoteeDocRef, { members: membersWithTickets, submissionId, timestamp: new Date() });
 
-        transaction.update(ticketDocRef, {
-          left: ticketsLeft - formData.length,
-          lastAllocated: lastAllocated + formData.length
-        });
+        transaction.update(ticketDocRef, { left: ticketsLeft - formData.length, lastAllocated: lastAllocated + formData.length });
       });
 
-      this.generatePDF(membersWithTickets, submissionId.toString(), allocatedPerson);
+      this.generatePDF(membersWithTickets, submissionId.toString());
 
-      this.devoteeForm.reset();
       this.members.clear();
-      this.members.push(this.createMember()); // reset with one blank form
+      this.members.push(this.createMember());
 
       Swal.fire({
         icon: 'success',
@@ -181,17 +158,11 @@ export class DevoteeFormComponent implements OnInit {
       });
     } catch (error: any) {
       console.error(error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: error.message || 'Something went wrong',
-        confirmButtonText: 'OK'
-      });
+      Swal.fire({ icon: 'error', title: 'Error!', text: error.message || 'Something went wrong', confirmButtonText: 'OK' });
     }
   }
 
-  // ✅ Generate PDF
-  generatePDF(data: any[], docId: string, allocatedPerson: string) {
+  generatePDF(data: any[], docId: string) {
     const docPdf = new jsPDF();
     docPdf.setFontSize(14);
 
@@ -205,17 +176,26 @@ export class DevoteeFormComponent implements OnInit {
           docPdf.addImage(base64, 'PNG', 10, 5, 190, headerHeight);
           docPdf.setFontSize(12);
           docPdf.text(`Document ID: ${docId}`, 20, headerHeight + 25);
-          docPdf.text(`Allocated Person: ${allocatedPerson}`, 20, headerHeight + 35);
 
-          const tableData = data.map(m => [m.ticketNumber, m.name, m.age, m.aadhar, m.phone, m.location]);
+          const tableData = data.map(m => [
+            m.ticketNumber,
+            m.name,
+            m.age,
+            m.aadhar,
+            m.phone,
+            m.location,
+            m.allocatedPerson
+          ]);
+
           autoTable(docPdf, {
             startY: headerHeight + 45,
-            head: [['Ticket No.', 'Name', 'Age', 'Aadhar', 'Phone', 'Location']],
+            head: [['Ticket No.', 'Name', 'Age', 'Aadhar', 'Phone', 'Location', 'Allocated Person']],
             body: tableData,
             theme: 'grid',
             styles: { fontSize: 10 },
             headStyles: { fillColor: [41, 128, 185] }
           });
+
           docPdf.save(`${docId}_DevoteeDetails.pdf`);
         };
         reader.readAsDataURL(blob);

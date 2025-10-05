@@ -90,7 +90,6 @@
 </div> -->
 
 
-
 <div class="container" id="container">
   <div class="header">
     <img class="imgh" src="assets/header.png" />
@@ -99,18 +98,6 @@
   <p class="tickets">Tickets Left: {{ ticketsLeft }}</p>
 
   <form [formGroup]="devoteeForm" (ngSubmit)="submitForm()">
-    <div>
-      <label>Select Allocated Person:</label>
-      <select formControlName="allocatedPerson">
-        <option value="" disabled selected>Select a person</option>
-        <option *ngFor="let person of randomNames" [value]="person">
-          {{ person }}
-        </option>
-      </select>
-    </div>
-
-    <br />
-
     <div formArrayName="members">
       <div *ngFor="let member of members.controls; let i = index" [formGroupName]="i" class="member-card">
 
@@ -136,7 +123,7 @@
 
         <div class="form-group">
           <input
-            type="text"
+            type="number"
             placeholder="Enter Aadhar Number / ఆధార్ నంబర్"
             formControlName="aadhar"
             (blur)="checkAadhar(i)"
@@ -150,14 +137,13 @@
           >
             Aadhar must be 12 digits / ఆధార్ 12 అంకెలు ఉండాలి
           </div>
-
           <div class="error" *ngIf="member.get('aadharExists')?.value">
             This Aadhar is already registered / ఈ ఆధార్ ఇప్పటికే నమోదు చేయబడింది
           </div>
         </div>
 
         <div class="form-group">
-          <input type="text" placeholder="Enter Phone Number / ఫోన్ నంబర్" formControlName="phone" />
+          <input type="number" placeholder="Enter Phone Number / ఫోన్ నంబర్" formControlName="phone" />
           <div class="error" *ngIf="member.get('phone')?.touched && member.get('phone')?.hasError('required')">
             Phone number is required / ఫోన్ నంబర్ తప్పనిసరి
           </div>
@@ -186,4 +172,3 @@
     <button type="submit" [disabled]="ticketsLeft <= 0">Submit / సమర్పించండి</button>
   </form>
 </div>
-

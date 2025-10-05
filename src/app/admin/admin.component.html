@@ -3,24 +3,16 @@
     <span class="navbar__logo">🚀</span>
     <span class="navbar__title">My Dashboard</span>
   </div>
-  <button class="navbar__toggle" (click)="toggleMenu()">
-    &#9776;
-  </button>
+  <button class="navbar__toggle" (click)="toggleMenu()">&#9776;</button>
   <ul [class.navbar__links--open]="menuOpen" class="navbar__links">
     <li><a routerLink="/form" routerLinkActive="active">Form</a></li>
-
-    <li>
-      <!-- Your logout button -->
-      <button class="logout-btn" (click)="logout()">Logout</button>
-    </li>
+    <li><button class="logout-btn" (click)="logout()">Logout</button></li>
   </ul>
 </nav>
 
-
 <div class="container">
-  <button type="button" (click)="exportToExcel()">Download as Excel</button>
+  <button type="button" (click)="exportToExcel()">Download All Devotees Excel</button>
 </div>
-
 
 <div class="admin-container">
   <h2>Admin Tickets Panel</h2>
@@ -34,46 +26,44 @@
   </div>
 
   <div class="button-container">
-  <button (click)="fetchPersonTickets()" [disabled]="!selectedPerson">
-    Submit
-  </button>
-</div>
+    <button (click)="fetchPersonTickets()" [disabled]="!selectedPerson">Submit</button>
+  </div>
 
-  <!-- Show results only after submit -->
   <div *ngIf="personTicketsCount >= 0" class="results">
     <p>Tickets registered by <strong>{{ selectedPerson }}</strong>: {{ personTicketsCount }}</p>
 
-    <div *ngIf="personTicketsCount >= 0" class="button-container">
-  <button (click)="viewMembers()" [disabled]="personMembers.length === 0">View Members</button>
-  <button (click)="downloadMembers()" [disabled]="personMembers.length === 0">Download Members</button>
-</div>
+    <div class="button-container">
+      <button (click)="viewMembers()" [disabled]="personMembers.length === 0">View Members</button>
+      <button (click)="downloadMembers()" [disabled]="personMembers.length === 0">Download Members</button>
+    </div>
 
-    <!-- Optional: Show members in table -->
-     <div *ngIf="showMembers && personMembers.length > 0" class="table-wrapper">
-  <table>
-    <thead>
-      <tr>
-        <th>Ticket No.</th>
-        <th>Name</th>
-        <th>Age</th>
-        <th>Aadhar</th>
-        <th>Phone</th>
-        <th>Location</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let m of personMembers">
-        <td>{{ m.ticketNumber }}</td>
-        <td>{{ m.name }}</td>
-        <td>{{ m.age }}</td>
-        <td>{{ m.aadhar }}</td>
-        <td>{{ m.phone }}</td>
-        <td>{{ m.location }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+    <div *ngIf="showMembers && personMembers.length > 0" class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Ticket No.</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Aadhar</th>
+            <th>Phone</th>
+            <th>Location</th>
+            <!-- <th>Submission ID</th> -->
+            <!-- <th>Timestamp</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of personMembers">
+            <td>{{ m.ticketNumber }}</td>
+            <td>{{ m.name }}</td>
+            <td>{{ m.age }}</td>
+            <td>{{ m.aadhar }}</td>
+            <td>{{ m.phone }}</td>
+            <td>{{ m.location }}</td>
+<!-- <td>{{ m.timestamp?.toDate ? m.timestamp.toDate() : m.timestamp | date:'medium' }}</td> -->
 
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
-
