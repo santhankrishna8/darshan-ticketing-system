@@ -17,7 +17,7 @@ export class DevoteeFormComponent implements OnInit {
   devoteeForm!: FormGroup;
   ticketsLeft: number = 500;
   maxMembers = 10;
-  randomNames = ['Santhan', 'Bala Krishna', 'Praveen', 'Siva', 'Dinesh'];
+  randomNames = ['Prathap Reddy','Santhan', 'Bala Krishna', 'Praveen', 'Siva', 'Dinesh','Hemanth','Kishore','Lokesh'];
 
   constructor(private fb: FormBuilder, private firestore: Firestore) {}
 
