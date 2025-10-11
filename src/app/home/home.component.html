@@ -2,10 +2,25 @@
   <div class="header">
     <img class="imgh1" src="assets/header.png">
   </div>
-  <br><br><br>
+  <br>
+  <div class="slider-container">
+    <div class="slides">
+      <img *ngFor="let slide of slides; let i = index" [src]="slide" class="slide" [class.active]="i === currentSlide">
+    </div>
+    <button style="display:flex;left: 0;" class="prev" (click)="changeSlide(-1)">&#10094;</button>
+    <button style="right:0;" class="next" (click)="changeSlide(1)">&#10095;</button>
+  </div>
+<br>
+<a style="display:flex;justify-content: flex-end;  color: red;font-size: smaller;">*ఈ రిజిస్ట్రేషన్‌ శ్రీ వకుళమాత దేవి గోవిందమాల భక్త బృందానికి మాత్రమే</a>
   <div class="form-fill">
     <a class="fill" routerLink="/form" routerLinkActive="active">Fill Details</a>
     <br>
     <a class="download" routerLink="/search" routerLinkActive="active">Download Ticket</a>
   </div>
+  <div class="contact" style="margin-top: -10px;">
+  <p class="contact-heading">వివరాలకు</p>
+  <p class="contact-name">వి. బాలకృష్ణ</p>
+  <a href="tel:+919347580090" class="contact-phone">📞 93475 80090</a>
+</div>
+
 </div>

@@ -97,6 +97,16 @@
 
   <p class="tickets">Tickets Left: {{ ticketsLeft }}</p>
 
+  <a style="display:flex;justify-content: flex-end;  color: red;">*maximum 10 members per submission.</a>
+  <pre style="font-size: small;color: red;">*దర్శన రుసుము: రూ.300
+దయచేసి పేరూరు శ్రీ కృష్ణ భజన మందిరం వద్ద చెల్లించండి.
+అలాగే, ఆధార్ కార్డు జెరాక్స్ సమర్పించవలెను.</pre>
+<pre style="font-size: small;margin-top: -12px;color: red;">
+*Darshan Fee: ₹300
+Please make the payment at Peruru Sri Krishna Temple.
+Also, kindly submit a Xerox copy of your Aadhar card.
+</pre>
+<br>
   <form [formGroup]="devoteeForm" (ngSubmit)="submitForm()">
     <div formArrayName="members">
       <div *ngFor="let member of members.controls; let i = index" [formGroupName]="i" class="member-card">
