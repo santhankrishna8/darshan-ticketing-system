@@ -50,7 +50,8 @@ export class DevoteeFormComponent implements OnInit {
       aadhar: ['', [Validators.required, Validators.minLength(12), Validators.maxLength(12)]],
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       age: ['', [Validators.required, Validators.min(12), Validators.max(100)]],
-      location: ['', Validators.required]
+      location: ['', Validators.required],
+      paymentStatus: ['Not Paid']
     });
   }
 

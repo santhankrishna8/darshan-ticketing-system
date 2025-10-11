@@ -43,22 +43,32 @@
           <tr>
             <th>Ticket No.</th>
             <th>Name</th>
-            <th>Age</th>
-            <th>Aadhar</th>
+            <!-- <th>Age</th> -->
+            <!-- <th>Aadhar</th> -->
             <th>Phone</th>
             <th>Location</th>
+            <th>Payment</th>
             <!-- <th>Submission ID</th> -->
             <!-- <th>Timestamp</th> -->
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let m of personMembers">
+          <tr *ngFor="let m of personMembers; let i = index">
             <td>{{ m.ticketNumber }}</td>
             <td>{{ m.name }}</td>
-            <td>{{ m.age }}</td>
-            <td>{{ m.aadhar }}</td>
+            <!-- <td>{{ m.age }}</td> -->
+            <!-- <td>{{ m.aadhar }}</td> -->
             <td>{{ m.phone }}</td>
             <td>{{ m.location }}</td>
+
+            <td>
+              <label class="switch">
+                <input type="checkbox" [checked]="m.paymentStatus === 'Paid'" (change)="togglePaymentStatus(m, i)">
+                <span class="slider round"></span>
+              </label>
+            </td>
+
+
 <!-- <td>{{ m.timestamp?.toDate ? m.timestamp.toDate() : m.timestamp | date:'medium' }}</td> -->
 
           </tr>
