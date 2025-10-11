@@ -63,36 +63,50 @@ export class DevoteeFormComponent implements OnInit {
     if (this.members.length === 0) this.members.push(this.createMember());
   }
 
-  async checkAadhar(index: number) {
-    const memberGroup = this.members.at(index) as FormGroup;
-    const aadhar = memberGroup.get('aadhar')?.value;
-    if (!aadhar || aadhar.length !== 12) return;
+ async checkAadhar(index: number) {
+  const memberGroup = this.members.at(index) as FormGroup;
+  const aadhar = memberGroup.get('aadhar')?.value;
 
-    try {
-      const devoteesCollection = collection(this.firestore, 'devotees');
-      const snapshot = await getDocs(devoteesCollection);
-      let exists = false;
+  if (!aadhar || aadhar.length !== 12) return;
 
-      snapshot.forEach(docSnap => {
-        const members = docSnap.data()['members'] || [];
-        if (members.some((m: any) => m.aadhar === aadhar)) exists = true;
-      });
+  try {
+    const devoteesCollection = collection(this.firestore, 'devotees');
+    const snapshot = await getDocs(devoteesCollection);
 
-      if (exists) {
+    let exists = false;
+
+    snapshot.forEach(docSnap => {
+      const members = docSnap.data()['members'] || [];
+      if (members.some((m: any) => m.aadhar === aadhar)) exists = true;
+    });
+
+    if (exists) {
+      // Add control to mark invalid
+      if (!memberGroup.get('aadharExists')) {
         memberGroup.addControl('aadharExists', this.fb.control(true));
-        Swal.fire({
-          icon: 'error',
-          title: 'Duplicate Aadhar Found!',
-          text: 'This Aadhar is already registered / ఈ ఆధార్ ఇప్పటికే నమోదు చేయబడింది',
-          confirmButtonText: 'OK'
-        });
       } else {
-        if (memberGroup.get('aadharExists')) memberGroup.removeControl('aadharExists');
+        memberGroup.get('aadharExists')?.setValue(true);
       }
-    } catch (error) {
-      console.error('Error checking Aadhar:', error);
+
+      // ⚠️ Prevent form submission
+      memberGroup.get('aadhar')?.setErrors({ duplicate: true });
+
+      // Show SweetAlert
+      await Swal.fire({
+        icon: 'error',
+        title: 'Duplicate Aadhar Found!',
+        text: 'This Aadhar is already registered / ఈ ఆధార్ ఇప్పటికే నమోదు చేయబడింది You can download ticket/ 🎫 మీరు టికెట్‌ను డౌన్‌లోడ్ చేసుకోవచ్చు',
+        confirmButtonText: 'OK'
+      });
+    } else {
+      // Aadhaar unique → clear error
+      if (memberGroup.get('aadharExists')) memberGroup.removeControl('aadharExists');
+      memberGroup.get('aadhar')?.setErrors(null);
     }
+  } catch (error) {
+    console.error('Error checking Aadhar:', error);
   }
+}
 
   async submitForm() {
     if (this.devoteeForm.invalid) return;

@@ -123,10 +123,11 @@
 
         <div class="form-group">
           <input
-            type="number"
+             type="text"
+              inputmode="numeric"
             placeholder="Enter Aadhar Number / ఆధార్ నంబర్"
             formControlName="aadhar"
-            (blur)="checkAadhar(i)"
+            (change)="checkAadhar(i)"
           />
           <div class="error" *ngIf="member.get('aadhar')?.touched && member.get('aadhar')?.hasError('required')">
             Aadhar is required / ఆధార్ తప్పనిసరి
@@ -139,6 +140,7 @@
           </div>
           <div class="error" *ngIf="member.get('aadharExists')?.value">
             This Aadhar is already registered / ఈ ఆధార్ ఇప్పటికే నమోదు చేయబడింది
+            You can download your ticket/ 🎫 మీరు టికెట్‌ను డౌన్‌లోడ్ చేసుకోవచ్చు
           </div>
         </div>
 

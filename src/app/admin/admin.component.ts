@@ -70,14 +70,12 @@ export class AdminComponent {
 
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(
       this.personMembers.map(m => ({
-        SubmissionID: m.submissionId,
         TicketNumber: m.ticketNumber,
         Name: m.name,
         Age: m.age,
         Aadhar: m.aadhar,
         Phone: m.phone,
-        Location: m.location,
-        Timestamp: m.timestamp?.toDate ? m.timestamp.toDate() : m.timestamp
+        Location: m.location
       }))
     );
 
