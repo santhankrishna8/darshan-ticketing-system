@@ -57,7 +57,7 @@ export class AdminComponent {
 });
 
       this.personTicketsCount = members.length;
-      this.personMembers = members;
+      this.personMembers = members.sort();
       this.showMembers = false; // hide table until "View Members" clicked
     } catch (error) {
       console.error(error);
@@ -68,35 +68,92 @@ export class AdminComponent {
   viewMembers() { this.showMembers = true; }
 
   downloadMembers() {
-    if (this.personMembers.length === 0) return;
+  if (this.personMembers.length === 0) return;
 
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(
-      this.personMembers.map(m => ({
-        TicketNumber: m.ticketNumber,
-        Name: m.name,
-        Age: m.age,
-        Aadhar: m.aadhar,
-        Phone: m.phone,
-        Location: m.location,
-        Payment:m.paymentStatus
-      }))
-    );
+  // ✅ Sort by ticket number before export
+  const sortedMembers = [...this.personMembers].sort((a, b) => a.ticketNumber - b.ticketNumber);
 
-    // Style header
-    const headerRange = XLSX.utils.decode_range(ws['!ref']!);
-    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-      if (!ws[cellAddress]) continue;
-      ws[cellAddress].s = {
-        font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12 },
-        fill: { fgColor: { rgb: "2980B9" } },
-        alignment: { horizontal: "center", vertical: "center" }
-      };
+  const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(
+    sortedMembers.map(m => ({
+      TicketNumber: m.ticketNumber,
+      Name: m.name,
+      Age: m.age,
+      Aadhar: m.aadhar,
+      Phone: m.phone,
+      Location: m.location,
+      Payment: m.paymentStatus
+    }))
+  );
+
+  // Style header
+  const headerRange = XLSX.utils.decode_range(ws['!ref']!);
+  for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+    const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+    if (!ws[cellAddress]) continue;
+    ws[cellAddress].s = {
+      font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12 },
+      fill: { fgColor: { rgb: "2980B9" } },
+      alignment: { horizontal: "center", vertical: "center" }
+    };
+  }
+  ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+
+  const wb: XLSX.WorkBook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, `${this.selectedPerson}_Tickets`);
+
+  const now = new Date();
+  const options: Intl.DateTimeFormatOptions = {
+    month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric',
+    hour12: true
+  };
+  const formattedDate = now.toLocaleString('en-US', options).replace(',', '');
+  const fileName = `${formattedDate} ${this.selectedPerson} Tickets.xlsx`;
+
+  const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array', cellStyles: true });
+  const blobData = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  saveAs(blobData, fileName);
+}
+
+
+  // Export all devotees
+ // ✅ Export all devotees (sorted globally by ticket number)
+async exportToExcel() {
+  try {
+    const devoteesCollection = collection(this.firestore, 'devotees');
+    const snapshot = await getDocs(devoteesCollection);
+
+    if (snapshot.empty) {
+      alert('No data found!');
+      return;
     }
-    ws['!freeze'] = { xSplit: 0, ySplit: 1 };
 
+    const excelData: any[] = [];
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data['members'] && Array.isArray(data['members'])) {
+        data['members'].forEach((m: any) => {
+          excelData.push({
+            SubmissionID: data['submissionId'],
+            AllocatedPerson: m.allocatedPerson,
+            TicketNumber: m.ticketNumber,
+            Name: m.name,
+            Age: m.age,
+            Aadhar: m.aadhar,
+            Phone: m.phone,
+            Location: m.location,
+            Payment: m.paymentStatus || 'Not Paid'
+          });
+        });
+      }
+    });
+
+    // ✅ Sort all rows globally by TicketNumber
+    const sortedData = excelData.sort((a, b) => a.TicketNumber - b.TicketNumber);
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(sortedData);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, `${this.selectedPerson}_Tickets`);
+    XLSX.utils.book_append_sheet(wb, ws, 'Devotees');
 
     const now = new Date();
     const options: Intl.DateTimeFormatOptions = {
@@ -104,65 +161,17 @@ export class AdminComponent {
       hour12: true
     };
     const formattedDate = now.toLocaleString('en-US', options).replace(',', '');
-    const fileName = `${formattedDate} ${this.selectedPerson} Tickets.xlsx`;
+    const fileName = `${formattedDate}_Devotee Details.xlsx`;
 
     const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array', cellStyles: true });
     const blobData = new Blob([excelBuffer], { type: 'application/octet-stream' });
     saveAs(blobData, fileName);
+
+  } catch (error) {
+    console.error(error);
+    alert('Error exporting to Excel');
   }
-
-  // Export all devotees
-  async exportToExcel() {
-    try {
-      const devoteesCollection = collection(this.firestore, 'devotees');
-      const snapshot = await getDocs(devoteesCollection);
-
-      if (snapshot.empty) {
-        alert('No data found!');
-        return;
-      }
-
-      const excelData: any[] = [];
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        if (data['members'] && Array.isArray(data['members'])) {
-          data['members'].forEach((m: any) => {
-            excelData.push({
-              SubmissionID: data['submissionId'],
-              AllocatedPerson: m.allocatedPerson,
-              TicketNumber: m.ticketNumber,
-              Name: m.name,
-              Age: m.age,
-              Aadhar: m.aadhar,
-              Phone: m.phone,
-              Location: m.location
-              // Timestamp: m.timestamp?.toDate ? m.timestamp.toDate() : m.timestamp
-            });
-          });
-        }
-      });
-
-      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
-      const wb: XLSX.WorkBook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Devotees');
-
-      const now = new Date();
-      const options: Intl.DateTimeFormatOptions = {
-        month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric',
-        hour12: true
-      };
-      const formattedDate = now.toLocaleString('en-US', options).replace(',', '');
-      const fileName = `${formattedDate}_Devotee Details.xlsx`;
-
-      const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array', cellStyles: true });
-      const blobData = new Blob([excelBuffer], { type: 'application/octet-stream' });
-      saveAs(blobData, fileName);
-
-    } catch (error) {
-      console.error(error);
-      alert('Error exporting to Excel');
-    }
-  }
+}
 
 
 
