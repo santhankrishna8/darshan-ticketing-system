@@ -22,7 +22,7 @@ export class AdminComponent {
   personMembers: any[] = [];
   showMembers: boolean = false;
 
-  randomNames = ['Lokesh','Kishore', 'Kesava', 'Praveen', 'Siva', 'Dinesh','Hemanth','Mulam Bharath','Manikanta','Burri Bharath','Bala Krishna','Preetham'];
+  randomNames = ['Lokesh','Kishore', 'Kesava','Manikanta','Hemanth','Burri Bharath', 'Praveen', 'Siva', 'Dinesh','Mulam Bharath','Bala Krishna','Preetham'];
 
   constructor(private authService: AuthService, private firestore: Firestore) {}
 
