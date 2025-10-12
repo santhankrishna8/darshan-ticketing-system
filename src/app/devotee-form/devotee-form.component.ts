@@ -109,73 +109,87 @@ export class DevoteeFormComponent implements OnInit {
   }
 }
 
-  async submitForm() {
-    if (this.devoteeForm.invalid) return;
+  isSubmitting = false;
 
-    const formData = this.members.value;
-    const ticketDocRef = doc(this.firestore, 'tickets', 'total');
-    const submissionCounterDocRef = doc(this.firestore, 'submissions', 'total');
-    const devoteesCollection = collection(this.firestore, 'devotees');
+async submitForm() {
+  if (this.devoteeForm.invalid || this.isSubmitting) return;
 
-    try {
-      let submissionId = 1;
+  this.isSubmitting = true;
 
-      let membersWithTickets: any[] = [];
+  const formData = this.members.value;
+  const ticketDocRef = doc(this.firestore, 'tickets', 'total');
+  const submissionCounterDocRef = doc(this.firestore, 'submissions', 'total');
+  const devoteesCollection = collection(this.firestore, 'devotees');
 
-      await runTransaction(this.firestore, async transaction => {
-        const ticketSnapshot = await transaction.get(ticketDocRef);
-        let ticketsLeft = 470;
-        let lastAllocated = 0;
+  try {
+    let submissionId = 1;
+    let membersWithTickets: any[] = [];
 
-        if (ticketSnapshot.exists()) {
-          const data = ticketSnapshot.data() as any;
-          ticketsLeft = data?.['left'] ?? 470;
-          lastAllocated = data?.['lastAllocated'] ?? 0;
-        } else {
-          transaction.set(ticketDocRef, { left: 470, lastAllocated: 0 });
-        }
+    await runTransaction(this.firestore, async transaction => {
+      const ticketSnapshot = await transaction.get(ticketDocRef);
+      let ticketsLeft = 470;
+      let lastAllocated = 0;
 
-        if (ticketsLeft < formData.length) throw new Error('Not enough tickets left');
+      if (ticketSnapshot.exists()) {
+        const data = ticketSnapshot.data() as any;
+        ticketsLeft = data?.['left'] ?? 470;
+        lastAllocated = data?.['lastAllocated'] ?? 0;
+      } else {
+        transaction.set(ticketDocRef, { left: 470, lastAllocated: 0 });
+      }
 
-        const submissionSnapshot = await transaction.get(submissionCounterDocRef);
-        if (submissionSnapshot.exists()) {
-          const data = submissionSnapshot.data() as any;
-          submissionId = (data?.['lastSubmissionId'] ?? 0) + 1;
-        }
-        transaction.set(submissionCounterDocRef, { lastSubmissionId: submissionId }, { merge: true });
+      if (ticketsLeft < formData.length) throw new Error('Not enough tickets left');
 
-        membersWithTickets = formData.map((m: any, i: number) => {
-          const ticketNumber = lastAllocated + i + 1;
-          const personIndex = Math.floor((ticketNumber - 1) / 50);
-          const allocatedPerson = this.randomNames[personIndex] || this.randomNames[this.randomNames.length - 1];
-          return { ...m, ticketNumber, allocatedPerson };
-        });
+      const submissionSnapshot = await transaction.get(submissionCounterDocRef);
+      if (submissionSnapshot.exists()) {
+        const data = submissionSnapshot.data() as any;
+        submissionId = (data?.['lastSubmissionId'] ?? 0) + 1;
+      }
+      transaction.set(submissionCounterDocRef, { lastSubmissionId: submissionId }, { merge: true });
 
-        const devoteeDocRef = doc(devoteesCollection, submissionId.toString());
-        transaction.set(devoteeDocRef, { members: membersWithTickets, submissionId, timestamp: new Date() });
-
-        transaction.update(ticketDocRef, { left: ticketsLeft - formData.length, lastAllocated: lastAllocated + formData.length });
+      membersWithTickets = formData.map((m: any, i: number) => {
+        const ticketNumber = lastAllocated + i + 1;
+        const personIndex = Math.floor((ticketNumber - 1) / 50);
+        const allocatedPerson = this.randomNames[personIndex] || this.randomNames[this.randomNames.length - 1];
+        return { ...m, ticketNumber, allocatedPerson };
       });
 
-      this.generatePDF(membersWithTickets, submissionId.toString());
+      const devoteeDocRef = doc(devoteesCollection, submissionId.toString());
+      transaction.set(devoteeDocRef, { members: membersWithTickets, submissionId, timestamp: new Date() });
 
-      this.members.clear();
-      this.members.push(this.createMember());
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Form submitted!',
-        text: 'Submission ID: ' + submissionId,
-        showConfirmButton: false,
-        timer: 2500,
-        position: 'center',
-        customClass: { popup: 'rounded-xl shadow-lg' }
+      transaction.update(ticketDocRef, {
+        left: ticketsLeft - formData.length,
+        lastAllocated: lastAllocated + formData.length
       });
-    } catch (error: any) {
-      console.error(error);
-      Swal.fire({ icon: 'error', title: 'Error!', text: error.message || 'Something went wrong', confirmButtonText: 'OK' });
-    }
+    });
+
+    this.generatePDF(membersWithTickets, submissionId.toString());
+
+    this.members.clear();
+    this.members.push(this.createMember());
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Form submitted!',
+      text: 'Submission ID: ' + submissionId,
+      showConfirmButton: false,
+      timer: 2500,
+      position: 'center',
+      customClass: { popup: 'rounded-xl shadow-lg' }
+    });
+  } catch (error: any) {
+    console.error(error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error!',
+      text: error.message || 'Something went wrong',
+      confirmButtonText: 'OK'
+    });
+  } finally {
+    this.isSubmitting = false;
   }
+}
+
 
   generatePDF(data: any[], docId: string) {
     const docPdf = new jsPDF();

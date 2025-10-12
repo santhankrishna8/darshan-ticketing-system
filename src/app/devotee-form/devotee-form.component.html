@@ -192,6 +192,11 @@
       + Add Member / సభ్యుడు జోడించండి
     </button>
 
-    <button type="submit" [disabled]="ticketsLeft <= 0">Submit / సమర్పించండి</button>
+   <button
+  type="submit"
+  [disabled]="ticketsLeft <= 0 || isSubmitting">
+  {{ isSubmitting ? 'Submitting...' : 'Submit / సమర్పించండి' }}
+</button>
+
   </form>
 </div>
