@@ -21,35 +21,43 @@ export class SearchComponent {
   constructor(private firestore: Firestore) {}
 
   async searchDevotee() {
-    const searchValue = this.searchControl.value.trim();
-    this.searchResults = [];
-    this.searchAttempted = true;
+  const searchValue = this.searchControl.value?.trim();
+  this.searchResults = [];
+  this.searchAttempted = true;
 
-    if (!searchValue) return;
+  if (!searchValue) return;
 
-    const devoteesCollection = collection(this.firestore, 'devotees');
+  const devoteesCollection = collection(this.firestore, 'devotees');
 
-    try {
-      const snapshot = await getDocs(devoteesCollection);
+  try {
+    const snapshot = await getDocs(devoteesCollection);
 
-      snapshot.forEach(docSnap => {
-        const members = docSnap.data()['members'] || [];
-        const submissionId = docSnap.id; // 🔑 ticket group ID
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const members = data['members'] || [];
+      const submissionId = docSnap.id;
 
-        members.forEach((m: any) => {
-          if (
-            m.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-            m.aadhar.includes(searchValue) ||
-            m.phone.includes(searchValue)
-          ) {
-            this.searchResults.push({ ...m, submissionId });
-          }
-        });
+      members.forEach((m: any) => {
+        const name = (m.name || '').toLowerCase();
+        const aadhar = String(m.aadhar || '');
+        const phone = String(m.phone || '');
+
+        if (
+          name.includes(searchValue.toLowerCase()) ||
+          aadhar.includes(searchValue) ||
+          phone.includes(searchValue)
+        ) {
+          this.searchResults.push({ ...m, submissionId });
+        }
       });
-    } catch (error) {
-      console.error('Search error:', error);
-    }
+    });
+
+    console.log('Results:', this.searchResults); // 👈 for debugging
+  } catch (error) {
+    console.error('Search error:', error);
   }
+}
+
 
   async downloadTicket(submissionId: string) {
     try {
@@ -88,7 +96,7 @@ export class SearchComponent {
 
           docPdf.setFontSize(12);
           docPdf.text(`Document ID: ${docId}`, 20, headerHeight + 25);
-          docPdf.text(`Allocated Person: ${allocatedPerson}`, 20, headerHeight + 35);
+          // docPdf.text(`Allocated Person: ${allocatedPerson}`, 20, headerHeight + 35);
 
           // Prepare table data
           const tableData = data.map((m, i) => [
@@ -96,13 +104,14 @@ export class SearchComponent {
             m.name,
             m.aadhar,
             m.phone,
-            m.location
+            m.location,
+            m.allocatedPerson
           ]);
 
           // Add table
           autoTable(docPdf, {
             startY: headerHeight + 45,
-            head: [['Ticket No.', 'Name', 'Aadhar', 'Phone', 'Location']],
+            head: [['Ticket No.', 'Name', 'Aadhar', 'Phone', 'Location',"Allocated Person"]],
             body: tableData,
             theme: 'grid',
             styles: { fontSize: 10 },
