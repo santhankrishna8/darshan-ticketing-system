@@ -12,11 +12,10 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 14px;
-  border-top: 4px solid var(--turmeric);
 }
 
 .gate-card h1 {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
 }
 
 .gate-card .btn-primary {
@@ -25,7 +24,7 @@
 
 .gate-icon {
   font-size: 2.4rem;
-  color: var(--kumkum);
+  color: var(--primary);
 }
 
 .gate-skel {
@@ -34,20 +33,17 @@
 }
 
 .brand {
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  color: var(--kumkum);
-  text-decoration: none;
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  flex-direction: column;
+  text-decoration: none;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 .brand span {
-  font-family: var(--font-text);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--muted-foreground);
 }
 
 .desk {
@@ -57,12 +53,13 @@
 }
 
 .side {
+  color: var(--sidebar-foreground);
   position: sticky;
   top: 0;
   height: 100dvh;
   overflow-y: auto;
-  background: var(--surface);
-  border-right: 1px solid var(--line);
+  background: var(--sidebar);
+  border-right: 1px solid var(--sidebar-border);
 }
 
 .side-head {
@@ -91,7 +88,7 @@
 .who small {
   display: block;
   font-weight: 500;
-  color: var(--ink-soft);
+  color: var(--muted-foreground);
   font-size: 0.82rem;
 }
 
@@ -109,27 +106,27 @@ nav a {
   min-height: 44px;
   padding: 0 12px;
   border-radius: var(--radius);
-  color: var(--ink);
+  color: var(--foreground);
   text-decoration: none;
   font-weight: 600;
 }
 
 nav a i {
   font-size: 1.25rem;
-  color: var(--ink-soft);
+  color: var(--muted-foreground);
 }
 
 nav a:hover {
-  background: var(--surface-sunk);
+  background: var(--muted);
 }
 
 nav a.active {
-  background: var(--kumkum-soft);
-  color: var(--kumkum);
+  background: var(--accent);
+  color: var(--primary);
 }
 
 nav a.active i {
-  color: var(--kumkum);
+  color: var(--primary);
 }
 
 .content {
@@ -150,7 +147,7 @@ nav a.active i {
     position: static;
     height: auto;
     border-right: 0;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--border);
   }
 
   .side-head {

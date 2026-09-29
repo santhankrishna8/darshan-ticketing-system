@@ -3,11 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { SeasonSettings } from '../../core/models';
 import { SeasonService } from '../../core/season.service';
 import { ToastService } from '../../shared/toast';
+import { IconComponent } from '../../shared/icon';
 
 /** Main admin: the season's ticket limits, fee, instructions and coordinators. */
 @Component({
   selector: 'app-settings',
-  imports: [FormsModule],
+  imports: [IconComponent, FormsModule],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.css',
 })

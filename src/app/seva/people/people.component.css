@@ -1,5 +1,5 @@
 h1 {
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 header .muted {
@@ -7,7 +7,7 @@ header .muted {
 }
 
 h2 {
-  font-family: var(--font-text);
+  font-family: var(--font-sans);
   font-weight: 700;
   font-size: 1.15rem;
   display: flex;
@@ -58,8 +58,8 @@ section {
 .initial {
   display: grid;
   place-items: center;
-  background: var(--kumkum-soft);
-  color: var(--kumkum);
+  background: var(--accent);
+  color: var(--primary);
   font-weight: 700;
 }
 
@@ -96,21 +96,21 @@ section {
   min-height: 40px;
   padding: 0 12px;
   border-radius: 999px;
-  border: 1.5px solid var(--line-strong);
-  background: var(--surface);
-  color: var(--ink-soft);
-  font: 600 0.9rem var(--font-text);
+  border: 1.5px solid var(--input-border);
+  background: var(--card);
+  color: var(--muted-foreground);
+  font: 600 0.9rem var(--font-sans);
   cursor: pointer;
 }
 
 .pay.on {
-  border-color: var(--leaf);
-  background: var(--leaf-soft);
-  color: var(--leaf);
+  border-color: var(--foreground);
+  background: var(--secondary);
+  color: var(--foreground);
 }
 
 .danger {
-  color: var(--danger);
+  color: var(--destructive);
 }
 
 .empty {

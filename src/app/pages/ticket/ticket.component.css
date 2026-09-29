@@ -1,46 +1,30 @@
 .page {
-  max-width: 720px;
-  padding-block: 28px 0;
+  padding-block: 24px 0;
 }
 
 h1 {
-  font-size: clamp(1.8rem, 5vw, 2.4rem);
-  color: var(--kumkum);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 12px;
-}
-
-.h-en {
-  font-family: var(--font-text);
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--ink-soft);
+  font-size: 1.6rem;
 }
 
 .intro {
-  margin: 8px 0 20px;
-  max-width: 60ch;
+  margin: 8px 0 16px;
 }
 
 .search {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: clamp(16px, 4vw, 24px);
-  border-top: 4px solid var(--turmeric);
-  margin-bottom: 24px;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
 }
 
 .result-skel {
-  height: 180px;
-  border-radius: var(--radius-lg);
+  height: 160px;
 }
 
 .result {
-  padding: clamp(16px, 4vw, 24px);
-  margin-bottom: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
 }
 
 .result-head {
@@ -49,13 +33,11 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 h2 {
-  font-family: var(--font-text);
-  font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
 }
 
 .members {
@@ -70,22 +52,21 @@ h2 {
   align-items: center;
   gap: 12px;
   padding: 10px 0;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--border);
 }
 
 .ticket-no {
-  min-width: 52px;
-  padding: 3px 10px;
-  border-radius: 8px;
-  background: var(--kumkum-soft);
-  color: var(--kumkum);
-  font-weight: 700;
+  min-width: 44px;
+  padding: 2px 8px;
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-weight: 600;
   text-align: center;
-  font-variant-numeric: tabular-nums;
 }
 
 .name {
-  font-weight: 600;
+  font-weight: 500;
   min-width: 0;
   overflow-wrap: anywhere;
 }

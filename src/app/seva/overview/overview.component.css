@@ -6,11 +6,11 @@
 }
 
 h1 {
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 h1 .muted {
-  font-family: var(--font-text);
+  font-family: var(--font-sans);
   font-size: 1.1rem;
   font-weight: 600;
 }
@@ -27,15 +27,15 @@ h1 .muted {
 
 .stat {
   padding: 18px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
 }
 
 .stat.lead {
-  background: var(--kumkum);
-  border-color: var(--kumkum);
-  color: var(--on-kumkum);
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .stat.lead .muted,
@@ -47,7 +47,7 @@ h1 .muted {
 .label {
   font-weight: 600;
   font-size: 0.92rem;
-  color: var(--ink-soft);
+  color: var(--muted-foreground);
 }
 
 .value {
@@ -68,7 +68,7 @@ h1 .muted {
 }
 
 h2 {
-  font-family: var(--font-text);
+  font-family: var(--font-sans);
   font-weight: 700;
   font-size: 1.15rem;
   margin-bottom: 10px;
@@ -83,12 +83,12 @@ th,
 td {
   text-align: left;
   padding: 10px 8px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--border);
 }
 
 th {
   font-size: 0.88rem;
-  color: var(--ink-soft);
+  color: var(--muted-foreground);
 }
 
 .num {

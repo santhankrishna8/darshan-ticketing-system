@@ -2,9 +2,8 @@
   @case ('approved') {
     <div class="desk">
       <aside class="side">
-        <div class="temple-band" aria-hidden="true"></div>
-        <div class="side-head">
-          <a routerLink="/" class="brand">గోవిందమాల <span>Seva desk {{ season.season }}</span></a>
+                <div class="side-head">
+          <a routerLink="/" class="brand">Seva desk {{ season.season }}<span>గోవిందమాల దర్శనం</span></a>
           <p class="who">
             @if (auth.user()?.photoURL) { <img [src]="auth.user()!.photoURL" alt="" width="28" height="28" referrerpolicy="no-referrer" /> }
             <span>{{ firstName() }}<small>{{ roleLabel() }}</small></span>
@@ -12,19 +11,19 @@
           <app-tour-button />
         </div>
         <nav aria-label="Seva desk">
-          <a routerLink="overview" routerLinkActive="active" data-tour="nav-overview"><i class="ph ph-chart-bar" aria-hidden="true"></i>Overview</a>
-          <a routerLink="registrations" routerLinkActive="active" data-tour="nav-registrations"><i class="ph ph-list" aria-hidden="true"></i>Registrations</a>
-          <a routerLink="/register" data-tour="nav-new"><i class="ph ph-user-plus" aria-hidden="true"></i>New registration</a>
+          <a routerLink="overview" routerLinkActive="active" data-tour="nav-overview"><app-icon name="chart-bar" />Overview</a>
+          <a routerLink="registrations" routerLinkActive="active" data-tour="nav-registrations"><app-icon name="list" />Registrations</a>
+          <a routerLink="/register" data-tour="nav-new"><app-icon name="user-plus" />New registration</a>
           @if (auth.isOwner()) {
-            <a routerLink="people" routerLinkActive="active" data-tour="nav-people"><i class="ph ph-users" aria-hidden="true"></i>People</a>
-            <a routerLink="settings" routerLinkActive="active" data-tour="nav-settings"><i class="ph ph-gear" aria-hidden="true"></i>Settings</a>
+            <a routerLink="people" routerLinkActive="active" data-tour="nav-people"><app-icon name="users" />People</a>
+            <a routerLink="settings" routerLinkActive="active" data-tour="nav-settings"><app-icon name="gear" />Settings</a>
           }
-          <a routerLink="device" routerLinkActive="active" data-tour="nav-device"><i class="ph ph-fingerprint" aria-hidden="true"></i>This device</a>
+          <a routerLink="device" routerLinkActive="active" data-tour="nav-device"><app-icon name="fingerprint" />This device</a>
         </nav>
       </aside>
       <main class="content">
         @if (season.settings() === null && !auth.isOwner()) {
-          <div class="notice notice-warn"><i class="ph ph-hourglass-medium" aria-hidden="true"></i><p>The {{ season.season }} season has not been set up yet. The main admin can create it in Settings.</p></div>
+          <div class="notice notice-warn"><app-icon name="hourglass-medium" /><p>The {{ season.season }} season has not been set up yet. The main admin can create it in Settings.</p></div>
         }
         <router-outlet />
       </main>
@@ -33,9 +32,8 @@
 
   @default {
     <div class="gate">
-      <div class="temple-band" aria-hidden="true"></div>
-      <section class="gate-card panel">
-        <a routerLink="/" class="brand">గోవిందమాల <span>Seva desk</span></a>
+            <section class="gate-card card">
+        <a routerLink="/" class="brand">Seva desk<span>గోవిందమాల దర్శనం</span></a>
 
         @switch (auth.access()) {
           @case ('loading') {
@@ -46,43 +44,43 @@
             <h1>Staff sign in</h1>
             <p class="muted">Organisers and volunteers sign in with their Google account. New people are let in after the main admin approves them.</p>
             <button type="button" class="btn btn-primary btn-lg" (click)="signIn()" [disabled]="busy()">
-              <i class="ph ph-google-logo" aria-hidden="true"></i>Sign in with Google
+              <app-icon name="google-logo" />Sign in with Google
             </button>
           }
 
           @case ('locked') {
-            <i class="ph ph-lock-simple gate-icon" aria-hidden="true"></i>
+            <app-icon name="lock-simple" class="gate-icon" />
             <h1>Unlock the seva desk</h1>
             <p class="muted">Signed in as {{ auth.user()?.email }}.</p>
-            <button type="button" class="btn btn-primary btn-lg" (click)="unlock()"><i class="ph ph-fingerprint" aria-hidden="true"></i>Unlock with fingerprint</button>
+            <button type="button" class="btn btn-primary btn-lg" (click)="unlock()"><app-icon name="fingerprint" />Unlock with fingerprint</button>
             @if (unlockError()) { <p class="error-text" role="alert">{{ unlockError() }}</p> }
             <button type="button" class="btn btn-quiet" (click)="useGoogleInstead()">Use Google sign-in instead</button>
           }
 
           @case ('pending') {
-            <i class="ph ph-hourglass-medium gate-icon" aria-hidden="true"></i>
+            <app-icon name="hourglass-medium" class="gate-icon" />
             <h1>Waiting for approval</h1>
             <p class="muted">Your request from <strong>{{ auth.user()?.email }}</strong> has been sent to the main admin. This page opens by itself once you are approved.</p>
-            <button type="button" class="btn btn-quiet" (click)="auth.signOut()"><i class="ph ph-sign-out" aria-hidden="true"></i>Sign out</button>
+            <button type="button" class="btn btn-quiet" (click)="auth.signOut()"><app-icon name="sign-out" />Sign out</button>
           }
 
           @case ('rejected') {
-            <i class="ph ph-warning-circle gate-icon" aria-hidden="true"></i>
+            <app-icon name="warning-circle" class="gate-icon" />
             <h1>Request not approved</h1>
             <p class="muted">The main admin has not given {{ auth.user()?.email }} access. Please speak to the organisers if this is a mistake.</p>
-            <button type="button" class="btn" (click)="auth.signOut()"><i class="ph ph-sign-out" aria-hidden="true"></i>Sign out</button>
+            <button type="button" class="btn" (click)="auth.signOut()"><app-icon name="sign-out" />Sign out</button>
           }
 
           @case ('revoked') {
-            <i class="ph ph-warning-circle gate-icon" aria-hidden="true"></i>
+            <app-icon name="warning-circle" class="gate-icon" />
             <h1>Access removed</h1>
             <p class="muted">Access for {{ auth.user()?.email }} has been turned off by the main admin.</p>
-            <button type="button" class="btn" (click)="auth.signOut()"><i class="ph ph-sign-out" aria-hidden="true"></i>Sign out</button>
+            <button type="button" class="btn" (click)="auth.signOut()"><app-icon name="sign-out" />Sign out</button>
           }
         }
 
         @if (auth.error()) {
-          <div class="notice notice-error" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>{{ auth.error() }}</p></div>
+          <div class="notice notice-error" role="alert"><app-icon name="warning-circle" /><p>{{ auth.error() }}</p></div>
         }
       </section>
     </div>

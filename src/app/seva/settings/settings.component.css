@@ -1,15 +1,15 @@
 h1 {
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 h1 .muted {
-  font-family: var(--font-text);
+  font-family: var(--font-sans);
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 h2 {
-  font-family: var(--font-text);
+  font-family: var(--font-sans);
   font-weight: 700;
   font-size: 1.2rem;
 }
@@ -25,12 +25,11 @@ h2 {
   align-items: flex-start;
   gap: 12px;
   max-width: 620px;
-  border-top: 4px solid var(--turmeric);
 }
 
 .setup > i {
   font-size: 2.4rem;
-  color: var(--kumkum);
+  color: var(--primary);
 }
 
 .open {
@@ -40,13 +39,9 @@ h2 {
   justify-content: space-between;
   gap: 12px;
   padding: 18px 20px;
-  border-left: 6px solid var(--turmeric);
   box-shadow: none;
 }
 
-.open.is-open {
-  border-left-color: var(--leaf);
-}
 
 .form {
   padding: clamp(16px, 3vw, 28px);
@@ -66,9 +61,8 @@ fieldset {
 }
 
 legend {
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  color: var(--kumkum);
+  font-weight: 600;
+  font-size: 1rem;
   padding: 0;
   margin-bottom: 8px;
 }

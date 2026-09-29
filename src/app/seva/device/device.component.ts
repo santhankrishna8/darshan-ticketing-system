@@ -2,14 +2,16 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { AuthService } from '../../core/auth.service';
 import { BiometricService } from '../../core/biometric.service';
 import { ToastService } from '../../shared/toast';
+import { IconComponent } from '../../shared/icon';
 
 /** Per-device security: biometric unlock and sign out. */
 @Component({
   selector: 'app-device',
+  imports: [IconComponent],
   template: `
     <h1>This device</h1>
-    <section class="panel box">
-      <i class="ph ph-fingerprint big-icon" aria-hidden="true"></i>
+    <section class="card box">
+      <app-icon name="fingerprint" class="big-icon" />
       <div class="text">
         <h2>Fingerprint or face unlock</h2>
         @if (!auth.biometricAllowed()) {
@@ -31,8 +33,8 @@ import { ToastService } from '../../shared/toast';
       }
     </section>
 
-    <section class="panel box">
-      <i class="ph ph-sign-out big-icon" aria-hidden="true"></i>
+    <section class="card box">
+      <app-icon name="sign-out" class="big-icon" />
       <div class="text">
         <h2>Sign out</h2>
         <p class="muted">Signed in as {{ auth.user()?.email }}. Signing out also removes fingerprint unlock from this phone.</p>
@@ -41,11 +43,11 @@ import { ToastService } from '../../shared/toast';
     </section>
   `,
   styles: `
-    h1 { font-size: 2rem; }
-    h2 { font-family: var(--font-text); font-weight: 700; font-size: 1.15rem; }
+    h1 { font-size: 1.5rem; }
+    h2 { font-family: var(--font-sans); font-weight: 700; font-size: 1.15rem; }
     .box { padding: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; box-shadow: none; max-width: 760px; }
     .text { flex: 1 1 280px; }
-    .big-icon { font-size: 2rem; color: var(--kumkum); }
+    .big-icon { font-size: 2rem; color: var(--primary); }
   `,
 })
 export class DeviceComponent {

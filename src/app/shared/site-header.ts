@@ -1,37 +1,35 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { SeasonService } from '../core/season.service';
+import { IconComponent } from './icon';
 import { TourButtonComponent } from './tour';
 
 @Component({
   selector: 'app-site-header',
-  imports: [RouterLink, RouterLinkActive, TourButtonComponent],
+  imports: [RouterLink, RouterLinkActive, TourButtonComponent, IconComponent],
   template: `
-    <div class="temple-band" aria-hidden="true"></div>
-    <header class="container bar">
-      <a routerLink="/" class="brand">
-        <span class="brand-te">గోవిందమాల</span>
-        <span class="brand-en">Darshan {{ season.season }}</span>
-      </a>
-      <nav aria-label="Main">
-        <a routerLink="/register" routerLinkActive="active" class="nav-link">నమోదు <span class="en">Register</span></a>
-        <a routerLink="/ticket" routerLinkActive="active" class="nav-link" data-tour="nav-ticket">టికెట్ <span class="en">Ticket</span></a>
-        <app-tour-button />
-      </nav>
+    <header>
+      <div class="container bar">
+        <a routerLink="/" class="brand">
+          <span class="title">గోవిందమాల దర్శనం {{ season.season }}</span>
+          <span class="sub">Govindamala Darshan</span>
+        </a>
+        <nav aria-label="Main">
+          <a routerLink="/ticket" routerLinkActive="active" class="link" data-tour="nav-ticket"><app-icon name="ticket" />Ticket</a>
+          <app-tour-button />
+        </nav>
+      </div>
     </header>
   `,
   styles: `
-    .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; }
-    .brand { display: flex; align-items: baseline; gap: 10px; text-decoration: none; color: var(--ink); }
-    .brand-te { font-family: var(--font-display); font-size: 1.35rem; color: var(--kumkum); }
-    .brand-en { font-size: 0.9rem; font-weight: 600; color: var(--ink-soft); }
-    nav { display: flex; gap: 4px; }
-    .nav-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: var(--radius);
-      text-decoration: none; color: var(--ink); font-weight: 600; }
-    .nav-link:hover { background: var(--surface-sunk); }
-    .nav-link.active { color: var(--kumkum); background: var(--kumkum-soft); }
-    .en { font-weight: 500; color: var(--ink-soft); font-size: 0.9rem; }
-    @media (max-width: 480px) { .en { display: none; } .brand-en { display: none; } }
+    header { border-bottom: 1px solid var(--border); background: var(--card); position: sticky; top: 0; z-index: 20; }
+    .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 60px; }
+    .brand { display: flex; flex-direction: column; text-decoration: none; line-height: 1.2; min-width: 0; }
+    .title { font-weight: 600; font-size: 1rem; }
+    .sub { font-size: 0.8rem; color: var(--muted-foreground); }
+    nav { display: flex; align-items: center; gap: 2px; }
+    .link { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 10px; border-radius: var(--radius); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+    .link:hover, .link.active { background: var(--accent); }
   `,
 })
 export class SiteHeaderComponent {

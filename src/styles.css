@@ -1,60 +1,140 @@
 /*
- * Design tokens. A temple-print palette: kumkum red for action, turmeric for ornament,
- * sandal-ivory paper. Chosen deliberately for a devotional, traditional audience.
+ * Theme tokens (supplied theme). Values are the exact sRGB equivalents of the given oklch
+ * colours, written as hex so older Android browsers without oklch() support render them.
+ * Dark values apply with the system dark mode, or with class="dark" on <html>.
  */
 :root {
   color-scheme: light;
-  --paper: #fcf5e8;
-  --surface: #fffcf6;
-  --surface-sunk: #f6ead4;
-  --ink: #2a1b14;
-  --ink-soft: #5e4a3c;
-  --line: #e4d2b4;
-  --line-strong: #cdb38c;
-  --kumkum: #9e1b32;
-  --kumkum-hover: #841528;
-  --kumkum-soft: #f7e3e3;
-  --on-kumkum: #fff8ec;
-  --turmeric: #d99a1c;
-  --turmeric-soft: #fbeccb;
-  --leaf: #2f6b3a;
-  --leaf-soft: #e3f0df;
-  --danger: #b3261e;
-  --danger-soft: #fbe6e3;
-  --focus: #1c5d99;
+  --card: #ffffff;
+  --ring: #000000;
+  --input: #ebebeb;
+  --muted: #f5f5f5;
+  --accent: #ebebeb;
+  --border: #e4e4e4;
+  --radius: 0.5rem;
+  --chart-1: #ffae04;
+  --chart-2: #2d62ef;
+  --chart-3: #a4a4a4;
+  --chart-4: #e4e4e4;
+  --chart-5: #747474;
+  --popover: #fcfcfc;
+  --primary: #000000;
+  --sidebar: #fcfcfc;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --font-sans: 'Geist Sans', 'Noto Sans Telugu', system-ui, sans-serif;
+  --secondary: #ebebeb;
+  --background: #fcfcfc;
+  --font-serif: Georgia, 'Noto Sans Telugu', serif;
+  --foreground: #000000;
+  --destructive: #e54b4f;
+  --shadow-blur: 2px;
+  --shadow-color: hsl(0 0% 0%);
+  --sidebar-ring: #000000;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.18;
+  --sidebar-accent: #ebebeb;
+  --sidebar-border: #ebebeb;
+  --card-foreground: #000000;
+  --shadow-offset-x: 0px;
+  --shadow-offset-y: 1px;
+  --sidebar-primary: #000000;
+  --muted-foreground: #525252;
+  --accent-foreground: #000000;
+  --popover-foreground: #000000;
+  --primary-foreground: #ffffff;
+  --sidebar-foreground: #000000;
+  --secondary-foreground: #000000;
+  --destructive-foreground: #ffffff;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-primary-foreground: #ffffff;
 
-  --font-display: 'Tiro Telugu', 'Noto Serif Telugu', Georgia, serif;
-  --font-text: 'Hind Guntur', 'Noto Sans Telugu', system-ui, sans-serif;
-
-  --radius: 10px;
-  --radius-lg: 16px;
-  --shadow: 0 1px 2px rgb(94 58 20 / 0.08), 0 8px 24px -12px rgb(94 58 20 / 0.25);
-  --gutter: clamp(16px, 4vw, 32px);
+  /* Derived from the theme above. */
+  --shadow: var(--shadow-offset-x) var(--shadow-offset-y) var(--shadow-blur) var(--shadow-spread) hsl(0 0% 0% / 0.18);
+  --shadow-lg: 0 10px 30px -10px hsl(0 0% 0% / 0.25);
+  --input-border: var(--chart-3);
+  --highlight: #fff4dc; /* chart-1 tint: fields filled from the card */
+  --destructive-soft: #fdecec;
+  --gutter: clamp(16px, 4vw, 24px);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
     color-scheme: dark;
-    --paper: #1b1310;
-    --surface: #251a15;
-    --surface-sunk: #2f221b;
-    --ink: #f3e7d6;
-    --ink-soft: #cdb9a3;
-    --line: #43322a;
-    --line-strong: #5d473b;
-    --kumkum: #e0697c;
-    --kumkum-hover: #eb8494;
-    --kumkum-soft: #3b1f24;
-    --on-kumkum: #22110f;
-    --turmeric: #e6b54a;
-    --turmeric-soft: #3a2d17;
-    --leaf: #8cc79a;
-    --leaf-soft: #1f3024;
-    --danger: #f19b90;
-    --danger-soft: #3d1f1c;
-    --focus: #8cbcf0;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+    --card: #090909;
+    --ring: #a4a4a4;
+    --input: #333333;
+    --muted: #1d1d1d;
+    --accent: #333333;
+    --border: #242424;
+    --chart-2: #2671f4;
+    --chart-3: #747474;
+    --chart-4: #525252;
+    --chart-5: #e4e4e4;
+    --popover: #121212;
+    --primary: #ffffff;
+    --sidebar: #121212;
+    --secondary: #222222;
+    --background: #000000;
+    --foreground: #ffffff;
+    --destructive: #ff5b5b;
+    --sidebar-ring: #a4a4a4;
+    --sidebar-accent: #333333;
+    --sidebar-border: #333333;
+    --card-foreground: #ffffff;
+    --sidebar-primary: #ffffff;
+    --muted-foreground: #a4a4a4;
+    --accent-foreground: #ffffff;
+    --popover-foreground: #ffffff;
+    --primary-foreground: #000000;
+    --sidebar-foreground: #ffffff;
+    --secondary-foreground: #ffffff;
+    --destructive-foreground: #000000;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-primary-foreground: #000000;
+    --input-border: #525252;
+    --highlight: #2a2110;
+    --destructive-soft: #2e1415;
+    --shadow-lg: 0 10px 30px -10px hsl(0 0% 0% / 0.8);
   }
+}
+
+.dark {
+  color-scheme: dark;
+  --card: #090909;
+  --ring: #a4a4a4;
+  --input: #333333;
+  --muted: #1d1d1d;
+  --accent: #333333;
+  --border: #242424;
+  --chart-2: #2671f4;
+  --chart-3: #747474;
+  --chart-4: #525252;
+  --chart-5: #e4e4e4;
+  --popover: #121212;
+  --primary: #ffffff;
+  --sidebar: #121212;
+  --secondary: #222222;
+  --background: #000000;
+  --foreground: #ffffff;
+  --destructive: #ff5b5b;
+  --sidebar-ring: #a4a4a4;
+  --sidebar-accent: #333333;
+  --sidebar-border: #333333;
+  --card-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --muted-foreground: #a4a4a4;
+  --accent-foreground: #ffffff;
+  --popover-foreground: #ffffff;
+  --primary-foreground: #000000;
+  --sidebar-foreground: #ffffff;
+  --secondary-foreground: #ffffff;
+  --destructive-foreground: #000000;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-primary-foreground: #000000;
+  --input-border: #525252;
+  --highlight: #2a2110;
+  --destructive-soft: #2e1415;
+  --shadow-lg: 0 10px 30px -10px hsl(0 0% 0% / 0.8);
 }
 
 *,
@@ -70,22 +150,23 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-text);
-  font-size: 17px;
-  line-height: 1.55;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 h1,
 h2,
 h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
+  font-family: var(--font-sans);
+  font-weight: 600;
   line-height: 1.25;
+  letter-spacing: -0.01em;
   margin: 0;
-  text-wrap: balance;
 }
 
 p {
@@ -93,7 +174,8 @@ p {
 }
 
 a {
-  color: var(--kumkum);
+  color: inherit;
+  text-underline-offset: 3px;
 }
 
 img {
@@ -102,16 +184,20 @@ img {
 }
 
 :focus-visible {
-  outline: 3px solid var(--focus);
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
-.te {
-  font-family: var(--font-text);
+.muted {
+  color: var(--muted-foreground);
 }
 
-.muted {
-  color: var(--ink-soft);
+.te {
+  color: var(--muted-foreground);
+}
+
+.mono {
+  font-family: var(--font-mono);
 }
 
 .visually-hidden {
@@ -125,44 +211,46 @@ img {
 
 .container {
   width: 100%;
-  max-width: 1080px;
+  max-width: 720px;
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
 
-/* Ornamental band, like the border of a silk sari. Pure CSS so it scales crisply. */
-.temple-band {
-  height: 10px;
-  background:
-    linear-gradient(135deg, var(--turmeric) 25%, transparent 25%) -5px 0 / 10px 10px,
-    linear-gradient(225deg, var(--turmeric) 25%, transparent 25%) -5px 0 / 10px 10px,
-    var(--kumkum);
+/* ---- Icons ---- */
+app-icon {
+  display: inline-flex;
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+}
+
+app-icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 /* ---- Buttons ---- */
 .btn {
-  --bg: var(--surface);
-  --fg: var(--ink);
-  --bd: var(--line-strong);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5em;
-  min-height: 48px;
-  padding: 0.55em 1.2em;
-  border: 1.5px solid var(--bd);
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--bg);
-  color: var(--fg);
-  font: 600 1rem/1.2 var(--font-text);
+  background: var(--card);
+  color: var(--foreground);
+  font: 500 0.95rem/1.2 var(--font-sans);
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  box-shadow: var(--shadow);
+  transition: background-color 0.15s ease, opacity 0.15s ease;
 }
 
-.btn:hover {
-  border-color: var(--kumkum);
+.btn:hover:not(:disabled) {
+  background: var(--accent);
 }
 
 .btn:active:not(:disabled) {
@@ -170,53 +258,45 @@ img {
 }
 
 .btn:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .btn-primary {
-  --bg: var(--kumkum);
-  --fg: var(--on-kumkum);
-  --bd: var(--kumkum);
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .btn-primary:hover:not(:disabled) {
-  --bg: var(--kumkum-hover);
-  --bd: var(--kumkum-hover);
+  background: var(--primary);
+  opacity: 0.85;
 }
 
-.btn-quiet {
-  --bg: transparent;
-  --bd: transparent;
-  color: var(--kumkum);
-  padding-inline: 0.6em;
-}
-
-.btn-quiet:hover {
-  --bd: transparent;
-  background: var(--kumkum-soft);
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .btn-danger {
-  --fg: var(--danger);
-  --bd: var(--danger);
-  --bg: transparent;
+  color: var(--destructive);
 }
 
 .btn-lg {
-  min-height: 56px;
-  font-size: 1.08rem;
-  padding-inline: 1.5em;
+  min-height: 52px;
+  font-size: 1rem;
+  padding: 0 20px;
 }
 
 .btn-sm {
-  min-height: 38px;
-  font-size: 0.92rem;
-  padding: 0.35em 0.8em;
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 0.875rem;
 }
 
-.btn i[class^='ph'] {
-  font-size: 1.25em;
+.btn-block {
+  width: 100%;
 }
 
 /* ---- Form fields ---- */
@@ -229,152 +309,136 @@ img {
 
 .field label,
 .field .label {
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
 .field label .te,
 .field .label .te {
-  font-weight: 500;
-  color: var(--ink-soft);
+  font-weight: 400;
 }
 
 .input {
   width: 100%;
-  min-height: 50px;
-  padding: 0.6em 0.8em;
-  border: 1.5px solid var(--line-strong);
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--input-border);
   border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--ink);
-  font: 500 1.05rem/1.4 var(--font-text);
-  transition: border-color 0.15s ease, background-color 0.3s ease;
+  background: var(--card);
+  color: var(--foreground);
+  font: 400 1rem/1.4 var(--font-sans);
 }
 
 .input::placeholder {
-  color: var(--ink-soft);
-  opacity: 0.75;
+  color: var(--muted-foreground);
 }
 
 .input:focus {
-  border-color: var(--kumkum);
   outline: none;
-  box-shadow: 0 0 0 3px var(--kumkum-soft);
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px var(--accent);
 }
 
 .input.from-card {
-  background: var(--turmeric-soft);
-  border-color: var(--turmeric);
+  background: var(--highlight);
+  border-color: var(--chart-1);
 }
 
 .input.invalid {
-  border-color: var(--danger);
+  border-color: var(--destructive);
 }
 
 textarea.input {
-  min-height: 84px;
+  padding-block: 10px;
+  min-height: 76px;
   resize: vertical;
 }
 
 select.input {
   appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
-  background-position: calc(100% - 20px) 55%, calc(100% - 14px) 55%;
-  background-size: 6px 6px;
+  padding-right: 36px;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 18px) 52%, calc(100% - 13px) 52%;
+  background-size: 5px 5px;
   background-repeat: no-repeat;
-  padding-right: 2.4em;
 }
 
 .hint {
-  font-size: 0.88rem;
-  color: var(--ink-soft);
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
 }
 
 .error-text {
-  font-size: 0.9rem;
-  color: var(--danger);
-  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--destructive);
 }
 
-/* ---- Panels & notices ---- */
-.panel {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+/* ---- Surfaces ---- */
+.card {
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
   box-shadow: var(--shadow);
 }
 
 .notice {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: flex-start;
-  padding: 14px 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  border: 1px solid var(--line);
-  background: var(--surface-sunk);
+  background: var(--muted);
+  font-size: 0.95rem;
 }
 
-.notice i[class^='ph'] {
-  font-size: 1.4rem;
-  flex: none;
-  margin-top: 1px;
-}
-
-.notice-ok {
-  background: var(--leaf-soft);
-  border-color: color-mix(in srgb, var(--leaf) 35%, transparent);
-}
-
-.notice-ok i[class^='ph'] {
-  color: var(--leaf);
+.notice > app-icon {
+  margin-top: 2px;
 }
 
 .notice-warn {
-  background: var(--turmeric-soft);
-  border-color: color-mix(in srgb, var(--turmeric) 50%, transparent);
+  background: var(--highlight);
+  border-color: var(--chart-1);
 }
 
 .notice-error {
-  background: var(--danger-soft);
-  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  background: var(--destructive-soft);
+  border-color: var(--destructive);
 }
 
-.notice-error i[class^='ph'] {
-  color: var(--danger);
+.notice-error > app-icon {
+  color: var(--destructive);
 }
 
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.35em;
-  padding: 0.15em 0.65em;
+  gap: 6px;
+  padding: 2px 10px;
+  border: 1px solid var(--border);
   border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: var(--surface-sunk);
-  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: var(--muted);
   white-space: nowrap;
 }
 
-.chip-ok {
-  background: var(--leaf-soft);
-  color: var(--leaf);
-}
-
-.chip-warn {
-  background: var(--turmeric-soft);
-  color: var(--ink);
+.chip-solid {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .chip-danger {
-  background: var(--danger-soft);
-  color: var(--danger);
+  color: var(--destructive);
+  border-color: var(--destructive);
+  background: transparent;
 }
 
-/* Skeleton shimmer for loading states. */
 .skeleton {
   border-radius: var(--radius);
-  background: linear-gradient(90deg, var(--surface-sunk) 25%, var(--line) 50%, var(--surface-sunk) 75%) 0 0 / 200% 100%;
+  background: linear-gradient(90deg, var(--muted) 25%, var(--accent) 50%, var(--muted) 75%) 0 0 / 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }
 
@@ -391,7 +455,6 @@ select.input {
 }
 
 .spin {
-  display: inline-block;
   animation: spin 0.9s linear infinite;
 }
 

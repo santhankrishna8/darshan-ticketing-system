@@ -4,11 +4,11 @@
 </header>
 
 @if (error()) {
-  <div class="notice notice-error" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>{{ error() }}</p></div>
+  <div class="notice notice-error" role="alert"><app-icon name="warning-circle" /><p>{{ error() }}</p></div>
 }
 
 <div class="roles notice">
-  <i class="ph ph-shield-check" aria-hidden="true"></i>
+  <app-icon name="shield-check" />
   <p><strong>Volunteer</strong> can register families, see the list and mark payments. <strong>Admin</strong> can also export Excel with full Aadhaar numbers. Only you manage people and settings.</p>
 </div>
 
@@ -16,9 +16,9 @@
   @for (i of [1, 2, 3]; track i) { <div class="skeleton person-skel"></div> }
 } @else {
   <section aria-labelledby="pending-title">
-    <h2 id="pending-title">Waiting for approval <span class="chip" [class.chip-warn]="pending().length">{{ pending().length }}</span></h2>
+    <h2 id="pending-title">Waiting for approval <span class="chip" [class.chip-solid]="pending().length > 0">{{ pending().length }}</span></h2>
     @for (p of pending(); track p.uid) {
-      <div class="person panel">
+      <div class="person card">
         <ng-container *ngTemplateOutlet="who; context: { $implicit: p }" />
         <div class="acts">
           <button type="button" class="btn btn-primary btn-sm" (click)="approve(p, 'volunteer')" [disabled]="busy() === p.uid">Approve as volunteer</button>
@@ -34,7 +34,7 @@
   <section aria-labelledby="approved-title">
     <h2 id="approved-title">Approved <span class="chip">{{ approved().length }}</span></h2>
     @for (p of approved(); track p.uid) {
-      <div class="person panel">
+      <div class="person card">
         <ng-container *ngTemplateOutlet="who; context: { $implicit: p }" />
         <div class="acts">
           <label class="field inline">
@@ -46,7 +46,7 @@
           </label>
           <button type="button" class="pay" role="switch" [class.on]="p.biometricAllowed" [attr.aria-checked]="p.biometricAllowed" [disabled]="busy() === p.uid"
             (click)="decide(p, { biometricAllowed: !p.biometricAllowed }, p.biometricAllowed ? 'Fingerprint unlock turned off' : 'Fingerprint unlock allowed')">
-            <i class="ph ph-fingerprint" aria-hidden="true"></i>{{ p.biometricAllowed ? 'Fingerprint allowed' : 'Fingerprint off' }}
+            <app-icon name="fingerprint" />{{ p.biometricAllowed ? 'Fingerprint allowed' : 'Fingerprint off' }}
           </button>
           <button type="button" class="btn btn-quiet btn-sm danger" (click)="revoke(p)" [disabled]="busy() === p.uid">Remove</button>
         </div>
@@ -60,7 +60,7 @@
     <section aria-labelledby="others-title">
       <h2 id="others-title">Declined or removed</h2>
       @for (p of others(); track p.uid) {
-        <div class="person panel quiet">
+        <div class="person card quiet">
           <ng-container *ngTemplateOutlet="who; context: { $implicit: p }" />
           <div class="acts">
             <button type="button" class="btn btn-sm" (click)="approve(p, 'volunteer')" [disabled]="busy() === p.uid">Approve as volunteer</button>
