@@ -17,7 +17,7 @@ import { InstallButtonComponent } from './install-button';
         }
         <div class="row">
           <app-install-button variant="btn-sm" label="Install app" />
-          <a routerLink="/seva" class="staff">Staff sign in</a>
+          <a routerLink="/seva" class="staff">Admin sign in</a>
         </div>
       </div>
     </footer>

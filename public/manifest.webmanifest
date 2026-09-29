@@ -9,8 +9,8 @@
   "scope": "./",
   "start_url": "./?source=pwa",
   "id": "./",
-  "background_color": "#fcf5e8",
-  "theme_color": "#9e1b32",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "categories": ["lifestyle", "utilities"],
   "icons": [
     { "src": "icons/icon-72x72.png", "sizes": "72x72", "type": "image/png", "purpose": "any" },

@@ -1,7 +1,7 @@
 /*
  * Theme tokens (supplied theme). Values are the exact sRGB equivalents of the given oklch
  * colours, written as hex so older Android browsers without oklch() support render them.
- * Dark values apply with the system dark mode, or with class="dark" on <html>.
+ * The site is always light: white surfaces, black primary, even when the phone is in dark mode.
  */
 :root {
   color-scheme: light;
@@ -19,11 +19,11 @@
   --chart-5: #747474;
   --popover: #fcfcfc;
   --primary: #000000;
-  --sidebar: #fcfcfc;
+  --sidebar: #ffffff;
   --font-mono: 'Geist Mono', ui-monospace, monospace;
   --font-sans: 'Geist Sans', 'Noto Sans Telugu', system-ui, sans-serif;
   --secondary: #ebebeb;
-  --background: #fcfcfc;
+  --background: #ffffff;
   --font-serif: Georgia, 'Noto Sans Telugu', serif;
   --foreground: #000000;
   --destructive: #e54b4f;
@@ -55,86 +55,6 @@
   --highlight: #fff4dc; /* chart-1 tint: fields filled from the card */
   --destructive-soft: #fdecec;
   --gutter: clamp(16px, 4vw, 24px);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    color-scheme: dark;
-    --card: #090909;
-    --ring: #a4a4a4;
-    --input: #333333;
-    --muted: #1d1d1d;
-    --accent: #333333;
-    --border: #242424;
-    --chart-2: #2671f4;
-    --chart-3: #747474;
-    --chart-4: #525252;
-    --chart-5: #e4e4e4;
-    --popover: #121212;
-    --primary: #ffffff;
-    --sidebar: #121212;
-    --secondary: #222222;
-    --background: #000000;
-    --foreground: #ffffff;
-    --destructive: #ff5b5b;
-    --sidebar-ring: #a4a4a4;
-    --sidebar-accent: #333333;
-    --sidebar-border: #333333;
-    --card-foreground: #ffffff;
-    --sidebar-primary: #ffffff;
-    --muted-foreground: #a4a4a4;
-    --accent-foreground: #ffffff;
-    --popover-foreground: #ffffff;
-    --primary-foreground: #000000;
-    --sidebar-foreground: #ffffff;
-    --secondary-foreground: #ffffff;
-    --destructive-foreground: #000000;
-    --sidebar-accent-foreground: #ffffff;
-    --sidebar-primary-foreground: #000000;
-    --input-border: #525252;
-    --highlight: #2a2110;
-    --destructive-soft: #2e1415;
-    --shadow-lg: 0 10px 30px -10px hsl(0 0% 0% / 0.8);
-  }
-}
-
-.dark {
-  color-scheme: dark;
-  --card: #090909;
-  --ring: #a4a4a4;
-  --input: #333333;
-  --muted: #1d1d1d;
-  --accent: #333333;
-  --border: #242424;
-  --chart-2: #2671f4;
-  --chart-3: #747474;
-  --chart-4: #525252;
-  --chart-5: #e4e4e4;
-  --popover: #121212;
-  --primary: #ffffff;
-  --sidebar: #121212;
-  --secondary: #222222;
-  --background: #000000;
-  --foreground: #ffffff;
-  --destructive: #ff5b5b;
-  --sidebar-ring: #a4a4a4;
-  --sidebar-accent: #333333;
-  --sidebar-border: #333333;
-  --card-foreground: #ffffff;
-  --sidebar-primary: #ffffff;
-  --muted-foreground: #a4a4a4;
-  --accent-foreground: #ffffff;
-  --popover-foreground: #ffffff;
-  --primary-foreground: #000000;
-  --sidebar-foreground: #ffffff;
-  --secondary-foreground: #ffffff;
-  --destructive-foreground: #000000;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-primary-foreground: #000000;
-  --input-border: #525252;
-  --highlight: #2a2110;
-  --destructive-soft: #2e1415;
-  --shadow-lg: 0 10px 30px -10px hsl(0 0% 0% / 0.8);
 }
 
 *,
