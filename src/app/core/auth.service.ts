@@ -10,7 +10,8 @@ import {
   signInWithRedirect,
   signOut,
 } from 'firebase/auth';
-import { collection, doc, getDoc, onSnapshot, serverTimestamp, setDoc, Unsubscribe, updateDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, serverTimestamp, setDoc, Unsubscribe, updateDoc } from 'firebase/firestore';
+import { environment } from '../../environments/environment';
 import { BiometricService } from './biometric.service';
 import { SEASON, db } from './firebase';
 import { auth } from './firebase-auth';
@@ -23,7 +24,7 @@ const staffCollection = () => collection(db, 'seasons', SEASON, 'staff');
 
 /**
  * Staff sign-in with Google and a permission-request model: anyone may sign in, which
- * files an access request; the main admin (listed in config/owners) approves it and
+ * files an access request; the main admin (environment.ownerEmails) approves it and
  * picks a role. Firestore rules enforce the same model on the server.
  */
 @Injectable({ providedIn: 'root' })
@@ -109,13 +110,8 @@ export class AuthService {
     this.user.set(user);
     if (!user) return this.markReady();
 
-    // config/owners is readable only by the people it lists, so a successful read means "main admin".
-    try {
-      const owners = await getDoc(doc(db, 'config', 'owners'));
-      this.isOwner.set(owners.exists());
-    } catch {
-      this.isOwner.set(false);
-    }
+    const email = (user.email ?? '').toLowerCase();
+    this.isOwner.set(user.emailVerified && environment.ownerEmails.includes(email));
     if (this.isOwner()) this.markReady();
 
     const ref = doc(staffCollection(), user.uid);

@@ -39,7 +39,7 @@ export class SettingsComponent {
       this.toast.show(`Season ${this.season.season} created. Review the settings, then open registration.`, 'ok', 6000);
     } catch (e: any) {
       console.error(e);
-      this.toast.show(e?.code === 'permission-denied' ? 'Permission denied: check config/owners and the deployed rules.' : 'Could not create the season.', 'error', 6000);
+      this.toast.show(e?.code === 'permission-denied' ? 'Permission denied: deploy the Firestore rules (see README).' : 'Could not create the season.', 'error', 6000);
     } finally {
       this.creating.set(false);
     }

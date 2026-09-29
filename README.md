@@ -17,18 +17,19 @@ Angular 20 + Firebase (Firestore, Google sign-in).
 | `seasons/2026/aadhaar/{sha256}` | Full Aadhaar number, used to block duplicates. Admins only. |
 | `seasons/2026/phones/{phone}` | Lets a devotee find their ticket by phone. |
 | `seasons/2026/staff/{uid}` | Access requests and approved staff. |
-| `config/owners` | The main admin's email(s). |
 
 Next year: change `season` in `src/environments/environment.ts`, deploy, and create the new season from *Settings*.
 
 ## One-time setup (Firebase console)
 
+The main admin is **santhankrishna18@gmail.com**. To change it, edit `ownerEmails` in
+`src/environments/environment.ts` *and* `isOwner()` in `firestore.rules`, then deploy both.
+
+
 1. **Authentication > Sign-in method**: enable **Google**.
    **Authentication > Settings > Authorized domains**: add the site's domain (for example the Vercel domain).
-2. **Firestore**: create collection `config`, document `owners`, with one field
-   `emails` of type **array** containing your Google email. That account becomes the main admin.
-3. Deploy the security rules: `npx firebase deploy --only firestore:rules`.
-4. Open `/seva`, sign in with that Google account, go to **Settings**, click **Create season 2026**,
+2. Deploy the security rules: `npx firebase deploy --only firestore:rules`.
+3. Open `/seva`, sign in with the main admin account (santhankrishna18@gmail.com), go to **Settings**, click **Create season 2026**,
    review the numbers and coordinators, then **Open registration**.
 
 Volunteers open `/seva` and sign in; they appear under **People** for you to approve as *volunteer*
