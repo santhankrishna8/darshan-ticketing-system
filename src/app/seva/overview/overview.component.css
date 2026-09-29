@@ -12,7 +12,7 @@ h1 {
 h1 .muted {
   font-family: var(--font-sans);
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .stats {
@@ -32,34 +32,23 @@ h1 .muted {
   background: var(--card);
 }
 
-.stat.lead {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--primary-foreground);
-}
-
-.stat.lead .muted,
-.stat.lead .label {
-  color: inherit;
-  opacity: 0.85;
-}
 
 .label {
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.92rem;
   color: var(--muted-foreground);
 }
 
 .value {
   font-size: 2.2rem;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
 }
 
 .value span {
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 500;
   opacity: 0.8;
 }
 
@@ -69,7 +58,7 @@ h1 .muted {
 
 h2 {
   font-family: var(--font-sans);
-  font-weight: 700;
+  font-weight: 500;
   font-size: 1.15rem;
   margin-bottom: 10px;
 }

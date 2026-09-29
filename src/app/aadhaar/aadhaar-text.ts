@@ -28,7 +28,7 @@ const NOT_NAME_WORDS = new Set(
   ).split(' '),
 );
 
-const RELATION = /\b(?:[SDWC]\s?[\/|1Il]\s?[O0o]|Father|Husband|Mother|Guardian)\b\s*[:\-.]?\s*/i;
+const RELATION = /\b(?:[SDWC]\s?[\/|1Il\\vV]\s?[O0o]|Father|Husband|Mother|Guardian)\b\s*[:\-.]?\s*/i;
 
 export function parseAadhaarText(text: string): TextParse {
   const lines = splitLines(text);
@@ -197,7 +197,8 @@ function nameScore(raw: string, candidate: string): number {
   return 1 + (words.length >= 3 ? 0.3 : 0);
 }
 
-function nameCandidate(line: string, careOf?: string): string | undefined {
+/** The person's name in one OCR line, if the line looks like a name at all. */
+export function nameCandidate(line: string, careOf?: string): string | undefined {
   if (RELATION.test(line)) return undefined;
   const raw = trimToName(line);
   if (!raw || /\d/.test(raw)) return undefined;

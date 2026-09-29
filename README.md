@@ -40,19 +40,31 @@ You can also allow **fingerprint unlock** per person.
 
 Everything runs on the phone; the photo is never uploaded.
 
-1. The QR code is read first (the phone's built-in detector, else ZXing). Old QR codes contain the full
-   details; newer Secure QR codes contain name, date of birth, gender, address and the last 4 digits.
-2. Text is read with Tesseract OCR (English lines of the card), and a second pass runs when fields are missing.
-3. The Aadhaar number must pass its Verhoeff checksum, so a misread digit is caught rather than saved.
+1. **QR code** first (the phone's built-in detector, else ZXing). Old QR codes contain every detail;
+   newer Secure QR codes contain name, date of birth, gender, address and the last 4 digits.
+2. **Straighten**: the tilt of the text is measured (projection profile) and the photo is rotated level.
+3. **Read the whole card** with Tesseract OCR, keeping where every line sits.
+4. **Targeted re-reads** based on the Aadhaar layouts (e-Aadhaar letter, old letter, PVC card): the
+   12-digit number under "Your Aadhaar No." or along the bottom of the card (digits only), the name on
+   the first name-like line above DOB or after "To" (letters only), and the DOB and gender lines. Each
+   spot is cropped from the full-resolution photo, enlarged and read with only the characters that can
+   appear there.
+5. **Checks**: the Aadhaar number must pass its Verhoeff checksum; low-confidence name words one slip
+   away from a common Telugu name ("Knshna") are corrected ("Krishna"); noise is left blank instead of filled.
 
 Fields filled from the card are highlighted for the person to check. OCR engine files are served from
 `/ocr` (copied from `node_modules` at build time), so scanning does not depend on any CDN.
+
+## Language
+
+One language at a time, English by default. The gear (Settings) in the header switches to Telugu;
+the choice is remembered on the device. It also holds the tour, install and admin sign-in.
 
 ## Install as an app (PWA)
 
 The production build includes a service worker and web manifest, so the site can be added to the
 home screen and opens full screen with its own icon. Android/Chrome shows an **Add to home screen**
-button on the home page; on iPhone the button explains Share > Add to Home Screen.
+button in Settings; on iPhone it explains Share > Add to Home Screen.
 The app shell loads offline; the scanner files are cached after the first scan. Registering still
 needs internet. When a new version is deployed, open apps show a **Reload** bar.
 
@@ -65,7 +77,7 @@ The site is always light (white background, black buttons), even when the phone 
 ## Guided tours
 
 The registration, ticket and seva desk pages each play a short bilingual walkthrough on the
-first visit. **Help** in the header replays it. Tours are remembered per device.
+first visit. **Settings > Show me around** replays it. Tours are remembered per device.
 
 ## Fingerprint unlock
 

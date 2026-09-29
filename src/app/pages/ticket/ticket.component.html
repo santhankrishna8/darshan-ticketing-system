@@ -1,19 +1,18 @@
 <app-site-header />
 
 <main class="container page">
-  <h1>Download your ticket</h1>
-  <p class="te">టికెట్ డౌన్‌లోడ్</p>
-  <p class="muted intro">Enter the Aadhaar number of anyone in your registration, or the phone number you gave.</p>
+  <h1>{{ i18n.t('Find a ticket', 'టికెట్ వెతకండి') }}</h1>
+  <p class="muted intro">{{ i18n.t('Use the Aadhaar number of anyone in the registration, or its phone number.', 'నమోదులో ఎవరిదైనా ఆధార్ నంబర్ లేదా ఫోన్ నంబర్ ఇవ్వండి.') }}</p>
 
   <form class="search card" (ngSubmit)="search()">
     <div class="field" data-tour="lookup">
-      <label for="q">Aadhaar or phone number <span class="te">ఆధార్ లేదా ఫోన్ నంబర్</span></label>
-      <input id="q" name="q" class="input" inputmode="numeric" autocomplete="off" [(ngModel)]="query" placeholder="e.g. 98480 12345" />
+      <label for="q">{{ i18n.t('Aadhaar or phone number', 'ఆధార్ లేదా ఫోన్ నంబర్') }}</label>
+      <input id="q" name="q" class="input" inputmode="numeric" autocomplete="off" [(ngModel)]="query" />
       @if (error()) { <p class="error-text" role="alert">{{ error() }}</p> }
     </div>
-    <button class="btn btn-primary btn-lg" type="submit" data-tour="find" [disabled]="searching()">
-      @if (searching()) { <app-icon name="spinner-gap" class="spin" />Searching… }
-      @else { <app-icon name="magnifying-glass" />Find ticket }
+    <button class="btn btn-primary" type="submit" data-tour="find" [disabled]="searching()">
+      @if (searching()) { <app-icon name="spinner-gap" class="spin" />{{ i18n.t('Searching…', 'వెతుకుతోంది…') }} }
+      @else { <app-icon name="magnifying-glass" />{{ i18n.t('Find', 'వెతకండి') }} }
     </button>
   </form>
 
@@ -23,28 +22,24 @@
     @if (list.length === 0) {
       <div class="notice">
         <app-icon name="magnifying-glass" />
-        <div>
-          <p><strong>No registration found.</strong> Check the number, or try the other devotees' Aadhaar numbers.</p>
-          <p class="te">నమోదు కనబడలేదు.</p>
-          <a routerLink="/register">Register now</a>
-        </div>
+        <p>{{ i18n.t('No registration found. Check the number, or try another devotee\'s Aadhaar.', 'నమోదు కనబడలేదు. నంబర్ సరిచూడండి లేదా మరొకరి ఆధార్ ప్రయత్నించండి.') }} <a routerLink="/">{{ i18n.t('Register', 'నమోదు చేయండి') }}</a></p>
       </div>
     }
     @for (reg of list; track reg.id) {
       <article class="result card">
         <header class="result-head">
           <div>
-            <h2>Registration #{{ reg.submissionNo }}</h2>
-            <p class="muted">{{ reg.members.length }} {{ reg.members.length === 1 ? 'devotee' : 'devotees' }}</p>
+            <h2>{{ i18n.t('Registration', 'నమోదు') }} #{{ reg.submissionNo }}</h2>
+            <p class="muted">{{ reg.members.length }} {{ i18n.t(reg.members.length === 1 ? 'devotee' : 'devotees', 'మంది') }}</p>
           </div>
-          <button type="button" class="btn btn-primary" (click)="download(reg)"><app-icon name="download-simple" />Download PDF</button>
+          <button type="button" class="btn" (click)="download(reg)"><app-icon name="download-simple" />PDF</button>
         </header>
         <ol class="members">
           @for (m of reg.members; track m.ticketNumber) {
             <li>
               <span class="ticket-no">{{ m.ticketNumber }}</span>
               <span class="name">{{ m.name }}</span>
-              <span class="chip" [class.chip-solid]="m.paymentStatus === 'Paid'">{{ m.paymentStatus === 'Paid' ? 'Paid' : 'Payment pending' }}</span>
+              <span class="chip" [class.chip-solid]="m.paymentStatus === 'Paid'">{{ m.paymentStatus === 'Paid' ? i18n.t('Paid', 'చెల్లించారు') : i18n.t('Not paid', 'చెల్లించలేదు') }}</span>
             </li>
           }
         </ol>
@@ -52,5 +47,3 @@
     }
   }
 </main>
-
-<app-site-footer />

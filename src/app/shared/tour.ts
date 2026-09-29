@@ -1,4 +1,5 @@
 import { Component, ElementRef, Injectable, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { I18nService } from './i18n.service';
 import { IconComponent } from './icon';
 
 export interface TourStep {
@@ -107,17 +108,16 @@ interface Box {
         [class.below]="place() === 'below'" [class.above]="place() === 'above'" [class.middle]="place() === 'middle'"
         [style.top.px]="cardTop()" [style.left.px]="cardLeft()">
         <p class="count">{{ tour.index() + 1 }} / {{ tour.active()!.steps.length }}</p>
-        <h2>{{ s.titleTe }} <span>{{ s.title }}</span></h2>
-        <p>{{ s.body }}</p>
-        <p class="te">{{ s.bodyTe }}</p>
+        <h2>{{ i18n.t(s.title, s.titleTe) }}</h2>
+        <p>{{ i18n.t(s.body, s.bodyTe) }}</p>
         <div class="acts">
-          <button type="button" class="btn btn-quiet btn-sm" (click)="tour.finish()">Skip</button>
+          <button type="button" class="btn btn-ghost btn-sm" (click)="tour.finish()">{{ i18n.t('Skip', 'దాటవేయి') }}</button>
           <span class="grow"></span>
           @if (tour.index() > 0) {
-            <button type="button" class="btn btn-sm" (click)="tour.back()"><app-icon name="arrow-left" />Back</button>
+            <button type="button" class="btn btn-sm" (click)="tour.back()"><app-icon name="arrow-left" />{{ i18n.t('Back', 'వెనక్కి') }}</button>
           }
           <button type="button" class="btn btn-primary btn-sm" (click)="tour.next()">
-            {{ tour.index() === tour.active()!.steps.length - 1 ? 'Done · సరే' : 'Next · తర్వాత' }}
+            {{ tour.index() === tour.active()!.steps.length - 1 ? i18n.t('Done', 'సరే') : i18n.t('Next', 'తర్వాత') }}
           </button>
         </div>
       </section>
@@ -125,23 +125,23 @@ interface Box {
   `,
   styles: `
     .veil { position: fixed; inset: 0; z-index: 60; }
-    .veil.center { background: rgb(27 15 10 / 0.55); }
+    .veil.center { background: hsl(0 0% 0% / 0.4); }
     .spot { position: absolute; z-index: 61; border-radius: 14px; pointer-events: none;
-      box-shadow: 0 0 0 3px var(--chart-1), 0 0 0 9999px rgb(27 15 10 / 0.55); transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease; }
+      box-shadow: 0 0 0 2px var(--card), 0 0 0 9999px hsl(0 0% 0% / 0.4); transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease; }
     .card { position: fixed; z-index: 62; width: min(360px, calc(100vw - 32px)); padding: 18px 18px 14px;
       background: var(--card); color: var(--foreground); border-radius: var(--radius);
       box-shadow: 0 20px 50px -12px rgb(0 0 0 / .45); outline: none; }
     .card.middle { transform: translate(-50%, -50%); }
-    .count { font-size: .8rem; font-weight: 700; color: var(--muted-foreground); }
-    h2 { font-size: 1.35rem; color: var(--primary); margin: 2px 0 8px; }
-    h2 span { display: block; font-family: var(--font-sans); font-size: .95rem; font-weight: 700; color: var(--foreground); }
-    .te { color: var(--muted-foreground); margin-top: 4px; }
+    .count { font-size: .8rem; color: var(--muted-foreground); }
+    h2 { font-size: 1.05rem; font-weight: 500; margin: 2px 0 6px; }
+    p { color: var(--muted-foreground); font-size: .95rem; }
     .acts { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
     .grow { flex: 1; }
   `,
 })
 export class TourComponent {
   protected readonly tour = inject(TourService);
+  protected readonly i18n = inject(I18nService);
   private readonly card = viewChild<ElementRef<HTMLElement>>('card');
 
   protected readonly spot = signal<Box | null>(null);
@@ -205,7 +205,7 @@ export class TourComponent {
   `,
   styles: `
     .help { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 12px; border: 0; border-radius: var(--radius);
-      background: transparent; color: var(--foreground); font: 600 .95rem var(--font-sans); cursor: pointer; }
+      background: transparent; color: var(--foreground); font: 400 .9rem var(--font-sans); cursor: pointer; }
     .help:hover { background: var(--muted); }
     .help i { font-size: 1.3rem; color: var(--primary); }
     @media (max-width: 480px) { span { display: none; } }

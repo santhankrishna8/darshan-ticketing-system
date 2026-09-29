@@ -38,7 +38,7 @@ export class ToastService {
     </div>
   `,
   styles: `
-    .toasts { position: fixed; inset: auto 0 16px 0; display: grid; justify-items: center; gap: 8px; padding: 0 16px; z-index: 50; pointer-events: none; }
+    .toasts { position: fixed; inset: 68px 0 auto 0; display: grid; justify-items: center; gap: 8px; padding: 0 16px; z-index: 50; pointer-events: none; }
     .toast { pointer-events: auto; display: flex; align-items: center; gap: 10px; max-width: 520px; width: 100%; padding: 12px 12px 12px 16px;
       border-radius: var(--radius); background: var(--foreground); color: var(--background); box-shadow: var(--shadow); font-weight: 500; }
     .toast i { font-size: 1.3rem; }

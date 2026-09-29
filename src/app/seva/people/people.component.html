@@ -23,7 +23,7 @@
         <div class="acts">
           <button type="button" class="btn btn-primary btn-sm" (click)="approve(p, 'volunteer')" [disabled]="busy() === p.uid">Approve as volunteer</button>
           <button type="button" class="btn btn-sm" (click)="approve(p, 'admin')" [disabled]="busy() === p.uid">Approve as admin</button>
-          <button type="button" class="btn btn-quiet btn-sm danger" (click)="decide(p, { status: 'rejected' }, 'Request declined')" [disabled]="busy() === p.uid">Decline</button>
+          <button type="button" class="btn btn-ghost btn-sm danger" (click)="decide(p, { status: 'rejected' }, 'Request declined')" [disabled]="busy() === p.uid">Decline</button>
         </div>
       </div>
     } @empty {
@@ -48,7 +48,7 @@
             (click)="decide(p, { biometricAllowed: !p.biometricAllowed }, p.biometricAllowed ? 'Fingerprint unlock turned off' : 'Fingerprint unlock allowed')">
             <app-icon name="fingerprint" />{{ p.biometricAllowed ? 'Fingerprint allowed' : 'Fingerprint off' }}
           </button>
-          <button type="button" class="btn btn-quiet btn-sm danger" (click)="revoke(p)" [disabled]="busy() === p.uid">Remove</button>
+          <button type="button" class="btn btn-ghost btn-sm danger" (click)="revoke(p)" [disabled]="busy() === p.uid">Remove</button>
         </div>
       </div>
     } @empty {

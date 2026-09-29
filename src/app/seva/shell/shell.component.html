@@ -54,14 +54,14 @@
             <p class="muted">Signed in as {{ auth.user()?.email }}.</p>
             <button type="button" class="btn btn-primary btn-lg" (click)="unlock()"><app-icon name="fingerprint" />Unlock with fingerprint</button>
             @if (unlockError()) { <p class="error-text" role="alert">{{ unlockError() }}</p> }
-            <button type="button" class="btn btn-quiet" (click)="useGoogleInstead()">Use Google sign-in instead</button>
+            <button type="button" class="btn btn-ghost" (click)="useGoogleInstead()">Use Google sign-in instead</button>
           }
 
           @case ('pending') {
             <app-icon name="hourglass-medium" class="gate-icon" />
             <h1>Waiting for approval</h1>
             <p class="muted">Your request from <strong>{{ auth.user()?.email }}</strong> has been sent to the main admin. This page opens by itself once you are approved.</p>
-            <button type="button" class="btn btn-quiet" (click)="auth.signOut()"><app-icon name="sign-out" />Sign out</button>
+            <button type="button" class="btn btn-ghost" (click)="auth.signOut()"><app-icon name="sign-out" />Sign out</button>
           }
 
           @case ('rejected') {

@@ -51,8 +51,9 @@
   /* Derived from the theme above. */
   --shadow: var(--shadow-offset-x) var(--shadow-offset-y) var(--shadow-blur) var(--shadow-spread) hsl(0 0% 0% / 0.18);
   --shadow-lg: 0 10px 30px -10px hsl(0 0% 0% / 0.25);
-  --input-border: var(--chart-3);
-  --highlight: #fff4dc; /* chart-1 tint: fields filled from the card */
+  --input-border: #d4d4d4;
+  --highlight: #fffaf0; /* light chart-1 tint: fields filled from the card */
+  --highlight-border: #f3d38c;
   --destructive-soft: #fdecec;
   --gutter: clamp(16px, 4vw, 24px);
 }
@@ -83,7 +84,7 @@ h1,
 h2,
 h3 {
   font-family: var(--font-sans);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.25;
   letter-spacing: -0.01em;
   margin: 0;
@@ -161,11 +162,10 @@ app-icon svg {
   border-radius: var(--radius);
   background: var(--card);
   color: var(--foreground);
-  font: 500 0.95rem/1.2 var(--font-sans);
+  font: 400 0.95rem/1.2 var(--font-sans);
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: var(--shadow);
   transition: background-color 0.15s ease, opacity 0.15s ease;
 }
 
@@ -186,6 +186,7 @@ app-icon svg {
   background: var(--primary);
   border-color: var(--primary);
   color: var(--primary-foreground);
+  font-weight: 500;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -196,7 +197,7 @@ app-icon svg {
 .btn-ghost {
   background: transparent;
   border-color: transparent;
-  box-shadow: none;
+  color: var(--muted-foreground);
 }
 
 .btn-danger {
@@ -229,8 +230,9 @@ app-icon svg {
 
 .field label,
 .field .label {
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 400;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
 }
 
 .field label .te,
@@ -240,7 +242,7 @@ app-icon svg {
 
 .input {
   width: 100%;
-  min-height: 46px;
+  min-height: 44px;
   padding: 0 12px;
   border: 1px solid var(--input-border);
   border-radius: var(--radius);
@@ -261,7 +263,7 @@ app-icon svg {
 
 .input.from-card {
   background: var(--highlight);
-  border-color: var(--chart-1);
+  border-color: var(--highlight-border);
 }
 
 .input.invalid {
@@ -299,7 +301,6 @@ select.input {
   color: var(--card-foreground);
   border: 1px solid var(--border);
   border-radius: calc(var(--radius) + 4px);
-  box-shadow: var(--shadow);
 }
 
 .notice {
@@ -319,7 +320,7 @@ select.input {
 
 .notice-warn {
   background: var(--highlight);
-  border-color: var(--chart-1);
+  border-color: var(--highlight-border);
 }
 
 .notice-error {
@@ -339,7 +340,7 @@ select.input {
   border: 1px solid var(--border);
   border-radius: 999px;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 400;
   background: var(--muted);
   white-space: nowrap;
 }
@@ -386,4 +387,15 @@ select.input {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Staff desk pages: consistent spacing between sections. */
+app-overview,
+app-registrations,
+app-people,
+app-settings,
+app-device {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }

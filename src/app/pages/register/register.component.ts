@@ -11,7 +11,7 @@ import { RegistrationError, RegistrationService } from '../../core/registration.
 import { SeasonService } from '../../core/season.service';
 import { downloadTicketPdf } from '../../core/ticket-pdf';
 import { IconComponent } from '../../shared/icon';
-import { SiteFooterComponent } from '../../shared/site-footer';
+import { I18nService } from '../../shared/i18n.service';
 import { SiteHeaderComponent } from '../../shared/site-header';
 import { ToastService } from '../../shared/toast';
 import { TourService, TourStep } from '../../shared/tour';
@@ -90,17 +90,25 @@ const TOUR: TourStep[] = [
     body: 'Submit to get ticket numbers. The ticket PDF downloads straight away; pay the fee at the temple.',
     bodyTe: 'సమర్పిస్తే టికెట్ PDF వస్తుంది. రుసుము మందిరంలో చెల్లించండి.',
   },
+  {
+    target: '[data-tour=settings]',
+    title: 'Settings',
+    titleTe: 'సెట్టింగ్స్',
+    body: 'Switch between English and Telugu, see this tour again, or sign in as admin.',
+    bodyTe: 'ఇంగ్లీష్ / తెలుగు మార్చుకోవచ్చు, ఈ వివరణ మళ్ళీ చూడవచ్చు, అడ్మిన్ సైన్ ఇన్ చేయవచ్చు.',
+  },
 ];
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, SiteHeaderComponent, SiteFooterComponent, IconComponent],
+  imports: [ReactiveFormsModule, RouterLink, SiteHeaderComponent, IconComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })
 export class RegisterComponent implements OnDestroy {
   protected readonly season = inject(SeasonService);
   protected readonly scanner = inject(AadhaarScannerService);
+  protected readonly i18n = inject(I18nService);
   private readonly registrations = inject(RegistrationService);
   private readonly toast = inject(ToastService);
   private readonly tour = inject(TourService);
@@ -171,9 +179,10 @@ export class RegisterComponent implements OnDestroy {
       const result = await this.scanner.scan(file);
       this.apply(row, result.details);
       const missing: string[] = [];
-      if (!result.details.name) missing.push('name / పేరు');
-      if (!result.details.aadhaar || !result.aadhaarVerified) missing.push('Aadhaar number / ఆధార్ నంబర్');
-      if (row.form.controls.age.value == null) missing.push('age / వయసు');
+      const t = (en: string, te: string) => this.i18n.t(en, te);
+      if (!result.details.name) missing.push(t('name', 'పేరు'));
+      if (!result.details.aadhaar || !result.aadhaarVerified) missing.push(t('Aadhaar number', 'ఆధార్ నంబర్'));
+      if (row.form.controls.age.value == null) missing.push(t('age', 'వయసు'));
       row.missing.set(missing);
       row.scan.set(result.filled.length === 0 ? 'failed' : missing.length ? 'partial' : 'ok');
     } catch (e) {
@@ -248,7 +257,7 @@ export class RegisterComponent implements OnDestroy {
     const firstBad = rows.findIndex(r => r.form.invalid || r.duplicate() === 'taken');
     if (firstBad >= 0) {
       this.cards()[firstBad]?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      this.toast.show('Please fix the highlighted details · గుర్తించిన వివరాలు సరిచేయండి', 'error');
+      this.toast.show(this.i18n.t('Please fix the highlighted details', 'గుర్తించిన వివరాలు సరిచేయండి'), 'error');
       return;
     }
 
@@ -276,15 +285,21 @@ export class RegisterComponent implements OnDestroy {
       console.error(e);
       if (e instanceof RegistrationError && e.code === 'duplicate') {
         for (const r of rows) if (e.aadhaars.includes(r.form.controls.aadhaar.value.replace(/\D/g, ''))) r.duplicate.set('taken');
-        this.submitError.set('Some Aadhaar numbers are already registered. Remove them or download the existing ticket.');
+        this.submitError.set(this.i18n.t('Some Aadhaar numbers are already registered. Remove them or download the existing ticket.', 'కొన్ని ఆధార్ నంబర్లు ఇప్పటికే నమోదయ్యాయి. వాటిని తొలగించండి లేదా పాత టికెట్ డౌన్‌లోడ్ చేసుకోండి.'));
       } else if (e instanceof RegistrationError) {
-        this.submitError.set(e.message);
+        const left = e.message.match(/\d+/)?.[0] ?? '0';
+        const t = (en: string, te: string) => this.i18n.t(en, te);
+        this.submitError.set(
+          e.code === 'sold-out' ? t(`Only ${left} tickets are left.`, `${left} టికెట్లు మాత్రమే మిగిలి ఉన్నాయి.`)
+          : e.code === 'closed' ? t('Registration is closed.', 'నమోదు ముగిసింది.')
+          : t('Registration has not started yet.', 'నమోదు ఇంకా ప్రారంభం కాలేదు.'),
+        );
       } else if (e?.code === 'permission-denied') {
-        this.submitError.set('Registration is not open right now. Please contact the organisers.');
+        this.submitError.set(this.i18n.t('Registration is not open right now.', 'ప్రస్తుతం నమోదు అందుబాటులో లేదు.'));
       } else if (e?.code === 'unavailable') {
-        this.submitError.set('No internet connection. Your details are still here: please try again.');
+        this.submitError.set(this.i18n.t('No internet connection. Your details are still here, please try again.', 'ఇంటర్నెట్ లేదు. వివరాలు అలాగే ఉన్నాయి, మళ్ళీ ప్రయత్నించండి.'));
       } else {
-        this.submitError.set('Something went wrong. Please try again.');
+        this.submitError.set(this.i18n.t('Something went wrong. Please try again.', 'ఏదో పొరపాటు జరిగింది. మళ్ళీ ప్రయత్నించండి.'));
       }
     } finally {
       this.submitting.set(false);
@@ -298,7 +313,7 @@ export class RegisterComponent implements OnDestroy {
       await downloadTicketPdf(reg, s);
     } catch (e) {
       console.error(e);
-      this.toast.show('Could not create the PDF. Please try the download button again.', 'error');
+      this.toast.show(this.i18n.t('Could not create the PDF. Please try again.', 'PDF తయారు కాలేదు. మళ్ళీ ప్రయత్నించండి.'), 'error');
     }
   }
 

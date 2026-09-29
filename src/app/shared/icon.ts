@@ -31,10 +31,16 @@ import userPlusSvg from '@phosphor-icons/core/assets/regular/user-plus.svg';
 import usersSvg from '@phosphor-icons/core/assets/regular/users.svg';
 import warningCircleSvg from '@phosphor-icons/core/assets/regular/warning-circle.svg';
 import xSvg from '@phosphor-icons/core/assets/regular/x.svg';
+import translateSvg from '@phosphor-icons/core/assets/regular/translate.svg';
+import signInSvg from '@phosphor-icons/core/assets/regular/sign-in.svg';
+import caretRightSvg from '@phosphor-icons/core/assets/regular/caret-right.svg';
 
 // Phosphor icons (regular), bundled as SVG text at build time so they always render,
 // even offline or when a web font would be blocked.
 const ICONS = {
+  'caret-right': caretRightSvg,
+  'sign-in': signInSvg,
+  'translate': translateSvg,
   'arrow-left': arrowLeftSvg,
   'arrows-clockwise': arrowsClockwiseSvg,
   'camera': cameraSvg,

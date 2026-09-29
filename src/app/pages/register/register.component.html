@@ -4,11 +4,11 @@
   @if (done(); as reg) {
     <section class="card done" aria-live="polite">
       <app-icon name="check-circle" class="done-icon" />
-      <div>
-        <h1>Registration complete</h1>
-        <p class="te">నమోదు పూర్తయింది</p>
-      </div>
-      <p>Registration <strong>#{{ reg.submissionNo }}</strong> for {{ reg.members.length }} {{ reg.members.length === 1 ? 'devotee' : 'devotees' }}. The ticket PDF is downloading.</p>
+      <h1>{{ i18n.t('Registration complete', 'నమోదు పూర్తయింది') }}</h1>
+      <p class="muted">
+        {{ i18n.t('Registration', 'నమోదు') }} #{{ reg.submissionNo }} · {{ reg.members.length }} {{ i18n.t(reg.members.length === 1 ? 'devotee' : 'devotees', 'మంది') }}.
+        {{ i18n.t('The ticket PDF is downloading.', 'టికెట్ PDF డౌన్‌లోడ్ అవుతోంది.') }}
+      </p>
 
       <ul class="done-list">
         @for (m of reg.members; track m.ticketNumber) {
@@ -20,22 +20,16 @@
         }
       </ul>
 
-      <div class="notice">
-        <app-icon name="currency-inr" />
-        <p>₹{{ season.settings()?.fee }} per devotee. {{ season.settings()?.paymentPlaceEn }}.<br /><span class="te">{{ season.settings()?.paymentPlaceTe }}.</span></p>
-      </div>
-
       <div class="actions">
-        <button type="button" class="btn btn-primary btn-lg" (click)="download(reg)"><app-icon name="download-simple" />Download ticket</button>
-        <button type="button" class="btn btn-lg" (click)="startOver()"><app-icon name="user-plus" />Register another family</button>
+        <button type="button" class="btn btn-primary" (click)="download(reg)"><app-icon name="download-simple" />{{ i18n.t('Download ticket', 'టికెట్ డౌన్‌లోడ్') }}</button>
+        <button type="button" class="btn" (click)="startOver()"><app-icon name="user-plus" />{{ i18n.t('New registration', 'కొత్త నమోదు') }}</button>
       </div>
     </section>
   } @else {
     <header class="page-head">
-      <h1>Darshan registration</h1>
-      <p class="te">దర్శన టికెట్ నమోదు</p>
+      <h1>{{ i18n.t('Registration', 'దర్శన నమోదు') }}</h1>
       @if (state() === 'open') {
-        <p class="left"><strong>{{ season.ticketsLeft() }}</strong> of {{ season.settings()?.totalTickets }} tickets left</p>
+        <p class="muted">{{ i18n.t(season.ticketsLeft() + ' of ' + season.settings()?.totalTickets + ' tickets left', season.ticketsLeft() + ' / ' + season.settings()?.totalTickets + ' టికెట్లు మిగిలి ఉన్నాయి') }}</p>
       }
     </header>
 
@@ -44,31 +38,23 @@
         <div class="skeleton card-skel" aria-label="Loading"></div>
       }
       @case ('not-ready') {
-        <div class="notice"><app-icon name="hourglass-medium" /><p>Registration opens soon.<br /><span class="te">నమోదు త్వరలో ప్రారంభమవుతుంది.</span></p></div>
+        <div class="notice"><app-icon name="hourglass-medium" /><p>{{ i18n.t('Registration opens soon.', 'నమోదు త్వరలో ప్రారంభమవుతుంది.') }}</p></div>
       }
       @case ('closed') {
-        <div class="notice"><app-icon name="lock-simple" /><p>Registration is closed. <a routerLink="/ticket">Download an existing ticket</a>.<br /><span class="te">నమోదు ముగిసింది.</span></p></div>
+        <div class="notice"><app-icon name="lock-simple" /><p>{{ i18n.t('Registration is closed.', 'నమోదు ముగిసింది.') }} <a routerLink="/ticket">{{ i18n.t('Find a ticket', 'టికెట్ వెతకండి') }}</a></p></div>
       }
       @case ('full') {
-        <div class="notice notice-error"><app-icon name="warning-circle" /><p>All tickets have been taken.<br /><span class="te">టికెట్లు అన్నీ అయిపోయాయి.</span></p></div>
+        <div class="notice notice-error"><app-icon name="warning-circle" /><p>{{ i18n.t('All tickets have been taken.', 'టికెట్లు అన్నీ అయిపోయాయి.') }}</p></div>
       }
       @case ('open') {
-        @if (season.settings(); as s) {
-          <ul class="rules card">
-            <li><app-icon name="currency-inr" /><span>₹{{ s.fee }} per devotee, paid at the temple<span class="te"> · {{ s.paymentPlaceTe }}</span></span></li>
-            <li><app-icon name="identification-card" /><span>Bring an Aadhaar photocopy for each devotee<span class="te"> · ఆధార్ జెరాక్స్ తప్పనిసరి</span></span></li>
-            <li><app-icon name="t-shirt" /><span>{{ s.dressCodeEn }}<span class="te"> · {{ s.dressCodeTe }}</span></span></li>
-          </ul>
-        }
-
         <form (submit)="$event.preventDefault(); submit()" novalidate>
           @for (row of rows(); track row.id; let i = $index) {
             <section #card class="card member" [attr.aria-labelledby]="'m' + row.id">
               <div class="member-head">
-                <h2 [id]="'m' + row.id">Devotee {{ i + 1 }} <span class="te">భక్తుడు {{ i + 1 }}</span></h2>
+                <h2 [id]="'m' + row.id">{{ i18n.t('Devotee', 'భక్తుడు') }} {{ i + 1 }}</h2>
                 @if (rows().length > 1) {
-                  <button type="button" class="btn btn-ghost btn-sm" (click)="removeRow(row)" [attr.aria-label]="'Remove devotee ' + (i + 1)">
-                    <app-icon name="trash" />Remove
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="removeRow(row)" [attr.aria-label]="i18n.t('Remove devotee', 'తొలగించు') + ' ' + (i + 1)">
+                    <app-icon name="trash" />{{ i18n.t('Remove', 'తొలగించు') }}
                   </button>
                 }
               </div>
@@ -81,109 +67,108 @@
                   <app-icon name="spinner-gap" class="spin" />
                   <p>
                     @switch (scanner.stage()) {
-                      @case ('qr') { Looking for the QR code… }
-                      @case ('reading') { Reading the card… }
-                      @case ('rereading') { Looking closer… }
-                      @default { Preparing the scanner… }
+                      @case ('qr') { {{ i18n.t('Looking for the QR code…', 'QR కోడ్ వెతుకుతోంది…') }} }
+                      @case ('reading') { {{ i18n.t('Reading the card…', 'కార్డు చదువుతోంది…') }} }
+                      @case ('targeting') { {{ i18n.t('Checking each detail…', 'ప్రతి వివరం సరిచూస్తోంది…') }} }
+                      @case ('rereading') { {{ i18n.t('Looking closer…', 'మరింత దగ్గరగా చూస్తోంది…') }} }
+                      @default { {{ i18n.t('Preparing the scanner…', 'స్కానర్ సిద్ధమవుతోంది…') }} }
                     }
-                    <span class="te"> కార్డు చదువుతోంది</span>
                   </p>
                 </div>
               } @else {
                 <div class="scan">
                   <button type="button" class="btn btn-primary" [attr.data-tour]="i === 0 ? 'scan' : null" (click)="pickPhoto(camera)" [disabled]="scanningAny()">
-                    <app-icon name="camera" />Scan Aadhaar
+                    <app-icon name="camera" />{{ i18n.t('Scan Aadhaar', 'ఆధార్ స్కాన్') }}
                   </button>
                   <button type="button" class="btn" [attr.data-tour]="i === 0 ? 'choose' : null" (click)="pickPhoto(gallery)" [disabled]="scanningAny()">
-                    <app-icon name="image" />Upload photo
+                    <app-icon name="image" />{{ i18n.t('Upload photo', 'ఫోటో ఎంచుకోండి') }}
                   </button>
                 </div>
-                <p class="hint">Photo the card to fill the details automatically, or type them below. The photo stays on this phone.</p>
               }
 
               @switch (row.scan()) {
                 @case ('ok') {
-                  <div class="notice notice-warn scan-note"><app-icon name="check-circle" /><p>Filled from the card. Check the highlighted fields. <span class="te">వివరాలు సరిచూడండి.</span></p></div>
+                  <div class="notice notice-warn scan-note"><app-icon name="check-circle" /><p>{{ i18n.t('Filled from the card. Check the highlighted fields.', 'కార్డు నుండి నింపబడింది. వివరాలు సరిచూడండి.') }}</p></div>
                 }
                 @case ('partial') {
-                  <div class="notice notice-warn scan-note"><app-icon name="warning-circle" /><p>Please type the {{ row.missing().join(', ') }}. <span class="te">మిగిలినవి టైప్ చేయండి.</span></p></div>
+                  <div class="notice notice-warn scan-note"><app-icon name="warning-circle" /><p>{{ i18n.t('Please type the ', 'దయచేసి టైప్ చేయండి: ') }}{{ row.missing().join(', ') }}.</p></div>
                 }
                 @case ('failed') {
-                  <div class="notice notice-error scan-note"><app-icon name="warning-circle" /><p>Could not read this photo. Hold the card flat in good light and try again, or type the details. <span class="te">మళ్ళీ ప్రయత్నించండి.</span></p></div>
+                  <div class="notice notice-error scan-note"><app-icon name="warning-circle" /><p>{{ i18n.t('Could not read this photo. Hold the card flat in good light and try again, or type the details.', 'ఫోటో చదవలేకపోయాము. వెలుతురులో కార్డును సమంగా ఉంచి మళ్ళీ ప్రయత్నించండి, లేదా టైప్ చేయండి.') }}</p></div>
                 }
               }
 
               <div class="grid" [formGroup]="row.form">
                 <div class="field span-2" [attr.data-tour]="i === 0 ? 'fields' : null">
-                  <label [for]="'name' + row.id">Full name <span class="te">పేరు</span></label>
+                  <label [for]="'name' + row.id">{{ i18n.t('Full name', 'పూర్తి పేరు') }}</label>
                   <input [id]="'name' + row.id" class="input" formControlName="name" autocomplete="off" autocapitalize="words"
                     [class.from-card]="row.fromCard().has('name')" [class.invalid]="show(row, 'name')" (input)="edited(row, 'name')" />
-                  @if (show(row, 'name')) { <p class="error-text">Enter the name as on Aadhaar</p> }
+                  @if (show(row, 'name')) { <p class="error-text">{{ i18n.t('Enter the name as on Aadhaar', 'ఆధార్‌లో ఉన్నట్లు పేరు ఇవ్వండి') }}</p> }
                 </div>
 
                 <div class="field span-2">
-                  <label [for]="'aadhaar' + row.id">Aadhaar number <span class="te">ఆధార్ నంబర్</span></label>
+                  <label [for]="'aadhaar' + row.id">{{ i18n.t('Aadhaar number', 'ఆధార్ నంబర్') }}</label>
                   <input #aadhaarEl [id]="'aadhaar' + row.id" class="input mono" formControlName="aadhaar" inputmode="numeric" autocomplete="off"
                     placeholder="0000 0000 0000" maxlength="14"
                     [class.from-card]="row.fromCard().has('aadhaar')" [class.invalid]="show(row, 'aadhaar') || row.duplicate() === 'taken'"
                     (input)="onAadhaarInput(row, aadhaarEl)" />
                   @if (show(row, 'aadhaar')) {
                     <p class="error-text">
-                      @if (row.form.controls.aadhaar.hasError('required')) { Aadhaar number is required }
-                      @else if (row.form.controls.aadhaar.hasError('length')) { Aadhaar has 12 digits }
-                      @else { This number is not valid. Check each digit. }
+                      @if (row.form.controls.aadhaar.hasError('required')) { {{ i18n.t('Aadhaar number is required', 'ఆధార్ నంబర్ తప్పనిసరి') }} }
+                      @else if (row.form.controls.aadhaar.hasError('length')) { {{ i18n.t('Aadhaar has 12 digits', 'ఆధార్‌లో 12 అంకెలు ఉంటాయి') }} }
+                      @else { {{ i18n.t('This number is not valid. Check each digit.', 'ఈ నంబర్ సరైనది కాదు. ప్రతి అంకె సరిచూడండి.') }} }
                     </p>
                   } @else if (row.duplicate() === 'taken') {
-                    <p class="error-text">Already registered. <a routerLink="/ticket">Download that ticket</a></p>
+                    <p class="error-text">{{ i18n.t('Already registered.', 'ఇప్పటికే నమోదైంది.') }} <a routerLink="/ticket">{{ i18n.t('Find that ticket', 'ఆ టికెట్ వెతకండి') }}</a></p>
                   } @else if (row.duplicate() === 'free') {
-                    <p class="hint ok"><app-icon name="check-circle" />Valid Aadhaar number</p>
+                    <p class="hint ok"><app-icon name="check-circle" />{{ i18n.t('Valid Aadhaar number', 'సరైన ఆధార్ నంబర్') }}</p>
                   }
                 </div>
 
                 <div class="field">
-                  <label [for]="'age' + row.id">Age <span class="te">వయసు</span></label>
+                  <label [for]="'age' + row.id">{{ i18n.t('Age', 'వయసు') }}</label>
                   <input [id]="'age' + row.id" class="input" type="number" inputmode="numeric" formControlName="age"
                     [class.from-card]="row.fromCard().has('age')" [class.invalid]="show(row, 'age')" (input)="edited(row, 'age')" />
                   @if (show(row, 'age')) {
-                    <p class="error-text">Age {{ season.settings()?.minAge }} to {{ season.settings()?.maxAge }}</p>
+                    <p class="error-text">{{ i18n.t('Age', 'వయసు') }} {{ season.settings()?.minAge }}-{{ season.settings()?.maxAge }}</p>
                   }
                 </div>
 
                 <div class="field">
-                  <label [for]="'gender' + row.id">Gender <span class="te">లింగం</span></label>
+                  <label [for]="'gender' + row.id">{{ i18n.t('Gender', 'లింగం') }}</label>
                   <select [id]="'gender' + row.id" class="input" formControlName="gender"
                     [class.from-card]="row.fromCard().has('gender')" [class.invalid]="show(row, 'gender')" (change)="edited(row, 'gender')">
-                    <option value="" disabled>Select</option>
-                    <option value="Male">Male · పురుషుడు</option>
-                    <option value="Female">Female · స్త్రీ</option>
-                    <option value="Transgender">Other · ఇతర</option>
+                    <option value="" disabled>{{ i18n.t('Select', 'ఎంచుకోండి') }}</option>
+                    <option value="Male">{{ i18n.t('Male', 'పురుషుడు') }}</option>
+                    <option value="Female">{{ i18n.t('Female', 'స్త్రీ') }}</option>
+                    <option value="Transgender">{{ i18n.t('Other', 'ఇతర') }}</option>
                   </select>
-                  @if (show(row, 'gender')) { <p class="error-text">Choose one</p> }
+                  @if (show(row, 'gender')) { <p class="error-text">{{ i18n.t('Choose one', 'ఒకటి ఎంచుకోండి') }}</p> }
                 </div>
 
                 <div class="field span-2">
-                  <label [for]="'phone' + row.id">Phone number <span class="te">ఫోన్ నంబర్</span></label>
+                  <label [for]="'phone' + row.id">{{ i18n.t('Phone number', 'ఫోన్ నంబర్') }}</label>
                   <input [id]="'phone' + row.id" class="input" type="tel" inputmode="numeric" maxlength="10" formControlName="phone" autocomplete="tel-national"
                     [class.from-card]="row.fromCard().has('phone')" [class.invalid]="show(row, 'phone')" (input)="edited(row, 'phone')" />
-                  @if (show(row, 'phone')) { <p class="error-text">Enter a 10-digit mobile number</p> }
+                  @if (show(row, 'phone')) { <p class="error-text">{{ i18n.t('Enter a 10-digit mobile number', '10 అంకెల ఫోన్ నంబర్ ఇవ్వండి') }}</p> }
                 </div>
 
                 <div class="field span-2">
-                  <label [for]="'address' + row.id">Village / address <span class="te">గ్రామం / చిరునామా</span></label>
+                  <label [for]="'address' + row.id">{{ i18n.t('Village / address', 'గ్రామం / చిరునామా') }}</label>
                   <textarea [id]="'address' + row.id" class="input" rows="2" formControlName="address"
                     [class.from-card]="row.fromCard().has('address')" [class.invalid]="show(row, 'address')" (input)="edited(row, 'address')"></textarea>
-                  @if (show(row, 'address')) { <p class="error-text">Address is required</p> }
+                  @if (show(row, 'address')) { <p class="error-text">{{ i18n.t('Address is required', 'చిరునామా తప్పనిసరి') }}</p> }
                 </div>
               </div>
             </section>
           }
 
           @if (rows().length < maxRows()) {
-            <button type="button" class="btn btn-lg add" data-tour="add" (click)="addRow()">
-              <app-icon name="plus" />Add another devotee
+            <button type="button" class="btn add" data-tour="add" (click)="addRow()">
+              <app-icon name="plus" />{{ i18n.t('Add another devotee', 'మరొకరిని జోడించండి') }}
             </button>
           } @else {
-            <p class="hint center">Maximum {{ maxRows() }} devotees in one registration.</p>
+            <p class="hint center">{{ i18n.t('Maximum ' + maxRows() + ' devotees in one registration.', 'ఒక నమోదులో గరిష్టంగా ' + maxRows() + ' మంది.') }}</p>
           }
 
           @if (submitError()) {
@@ -191,10 +176,10 @@
           }
 
           <div class="submit-bar" data-tour="submit">
-            <p class="count">{{ rows().length }} {{ rows().length === 1 ? 'devotee' : 'devotees' }} · ₹{{ (season.settings()?.fee ?? 0) * rows().length }}</p>
-            <button type="submit" class="btn btn-primary btn-lg" [disabled]="submitting() || scanningAny()">
-              @if (submitting()) { <app-icon name="spinner-gap" class="spin" />Saving… }
-              @else { Submit }
+            <p class="count">{{ rows().length }} {{ i18n.t(rows().length === 1 ? 'devotee' : 'devotees', 'మంది') }} · ₹{{ (season.settings()?.fee ?? 0) * rows().length }}</p>
+            <button type="submit" class="btn btn-primary" [disabled]="submitting() || scanningAny()">
+              @if (submitting()) { <app-icon name="spinner-gap" class="spin" />{{ i18n.t('Saving…', 'సేవ్ అవుతోంది…') }} }
+              @else { {{ i18n.t('Submit', 'సమర్పించండి') }} }
             </button>
           </div>
         </form>
@@ -202,5 +187,3 @@
     }
   }
 </main>
-
-<app-site-footer />

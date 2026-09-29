@@ -70,11 +70,11 @@
               </button>
             </td>
             <td class="actions">
-              <button type="button" class="btn btn-quiet btn-sm" (click)="ticket(r)" [attr.aria-label]="'Ticket PDF for registration ' + r.reg.submissionNo">
+              <button type="button" class="btn btn-ghost btn-sm" (click)="ticket(r)" [attr.aria-label]="'Ticket PDF for registration ' + r.reg.submissionNo">
                 <app-icon name="ticket" />
               </button>
               @if (auth.isOwner()) {
-                <button type="button" class="btn btn-quiet btn-sm danger" (click)="remove(r)" [attr.aria-label]="'Delete registration ' + r.reg.submissionNo">
+                <button type="button" class="btn btn-ghost btn-sm danger" (click)="remove(r)" [attr.aria-label]="'Delete registration ' + r.reg.submissionNo">
                   <app-icon name="trash" />
                 </button>
               }

@@ -7,12 +7,8 @@
 }
 
 h1 {
-  font-size: 1.6rem;
-}
-
-.left {
-  margin-top: 8px;
-  font-size: 0.95rem;
+  font-size: 1.4rem;
+  margin-bottom: 2px;
 }
 
 .card-skel {
@@ -64,12 +60,6 @@ form {
 
 h2 {
   font-size: 1.05rem;
-}
-
-h2 .te {
-  font-weight: 400;
-  font-size: 0.9rem;
-  margin-left: 4px;
 }
 
 .scan {
@@ -133,8 +123,8 @@ h2 .te {
 }
 
 .count {
-  font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  color: var(--muted-foreground);
 }
 
 /* Confirmation */
@@ -146,8 +136,8 @@ h2 .te {
 }
 
 .done-icon {
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 2rem;
+  height: 2rem;
 }
 
 .done-list {
@@ -167,17 +157,16 @@ h2 .te {
 }
 
 .ticket-no {
-  min-width: 48px;
+  min-width: 44px;
   padding: 2px 8px;
   border-radius: calc(var(--radius) - 2px);
-  background: var(--primary);
-  color: var(--primary-foreground);
-  font-weight: 600;
+  background: var(--muted);
   text-align: center;
 }
 
 .done-name {
-  font-weight: 500;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .actions {

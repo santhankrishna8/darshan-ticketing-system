@@ -8,7 +8,7 @@ header .muted {
 
 h2 {
   font-family: var(--font-sans);
-  font-weight: 700;
+  font-weight: 500;
   font-size: 1.15rem;
   display: flex;
   align-items: center;
@@ -60,11 +60,11 @@ section {
   place-items: center;
   background: var(--accent);
   color: var(--primary);
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .name {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .email {

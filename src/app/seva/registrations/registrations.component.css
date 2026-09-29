@@ -26,7 +26,7 @@ h1 {
 }
 
 .count {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .table-wrap {
@@ -64,7 +64,7 @@ tbody tr:hover {
 }
 
 .ticket {
-  font-weight: 700;
+  font-weight: 500;
   color: var(--primary);
   font-size: 1.1rem;
 }
