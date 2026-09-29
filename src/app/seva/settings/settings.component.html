@@ -1,0 +1,71 @@
+<header>
+  <h1>Settings <span class="muted">{{ season.season }}</span></h1>
+</header>
+
+@if (season.settings() === undefined) {
+  <div class="skeleton block-skel"></div>
+} @else if (season.settings() === null) {
+  <section class="setup panel">
+    <i class="ph ph-ticket" aria-hidden="true"></i>
+    <h2>Create the {{ season.season }} season</h2>
+    <p class="muted">This makes a new <code>seasons/{{ season.season }}</code> document in Firestore where all of this year's registrations, access requests and settings are stored.</p>
+    <button type="button" class="btn btn-primary btn-lg" (click)="create()" [disabled]="creating()">
+      {{ creating() ? 'Creating…' : 'Create season ' + season.season }}
+    </button>
+  </section>
+} @else {
+  <section class="open panel" [class.is-open]="season.settings()!.registrationOpen">
+    <div>
+      <h2>{{ season.settings()!.registrationOpen ? 'Registration is open' : 'Registration is closed' }}</h2>
+      <p class="muted">{{ season.settings()!.registrationOpen ? 'Anyone with the link can register.' : 'Only signed-in staff can register families.' }}</p>
+    </div>
+    <button type="button" class="btn" [class.btn-primary]="!season.settings()!.registrationOpen" (click)="toggleOpen()">
+      {{ season.settings()!.registrationOpen ? 'Close registration' : 'Open registration' }}
+    </button>
+  </section>
+
+  @if (draft; as d) {
+    <form class="panel form" (ngSubmit)="save()" (input)="dirty = true" (change)="dirty = true">
+      <fieldset>
+        <legend>Tickets</legend>
+        <div class="grid">
+          <div class="field"><label for="total">Total tickets</label><input id="total" name="total" class="input" type="number" min="1" [(ngModel)]="d.totalTickets" required /></div>
+          <div class="field"><label for="max">Max devotees per registration</label><input id="max" name="max" class="input" type="number" min="1" max="20" [(ngModel)]="d.maxPerGroup" /></div>
+          <div class="field"><label for="minAge">Minimum age</label><input id="minAge" name="minAge" class="input" type="number" min="0" [(ngModel)]="d.minAge" /></div>
+          <div class="field"><label for="maxAge">Maximum age</label><input id="maxAge" name="maxAge" class="input" type="number" [(ngModel)]="d.maxAge" /></div>
+          <div class="field"><label for="fee">Darshan fee (₹)</label><input id="fee" name="fee" class="input" type="number" min="0" [(ngModel)]="d.fee" /></div>
+          <div class="field"><label for="date">Darshan date</label><input id="date" name="date" class="input" [(ngModel)]="d.darshanDate" placeholder="e.g. 18 December 2026" /></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Coordinators</legend>
+        <p class="hint">Tickets are given to coordinators in blocks, in this order. One name per line.</p>
+        <div class="grid">
+          <div class="field"><label for="coords">Names</label><textarea id="coords" name="coords" class="input" rows="6" [(ngModel)]="coordinatorsText"></textarea></div>
+          <div class="field"><label for="block">Tickets per coordinator</label><input id="block" name="block" class="input" type="number" min="1" [(ngModel)]="d.ticketsPerCoordinator" /></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Event and instructions</legend>
+        <div class="grid">
+          <div class="field span-2"><label for="tte">Title (Telugu)</label><input id="tte" name="tte" class="input" [(ngModel)]="d.eventTitleTe" /></div>
+          <div class="field span-2"><label for="ten">Title (English)</label><input id="ten" name="ten" class="input" [(ngModel)]="d.eventTitleEn" /></div>
+          <div class="field"><label for="pte">Place (Telugu)</label><input id="pte" name="pte" class="input" [(ngModel)]="d.placeTe" /></div>
+          <div class="field"><label for="pen">Place (English)</label><input id="pen" name="pen" class="input" [(ngModel)]="d.placeEn" /></div>
+          <div class="field"><label for="payte">Where to pay (Telugu)</label><input id="payte" name="payte" class="input" [(ngModel)]="d.paymentPlaceTe" /></div>
+          <div class="field"><label for="payen">Where to pay (English)</label><input id="payen" name="payen" class="input" [(ngModel)]="d.paymentPlaceEn" /></div>
+          <div class="field"><label for="dte">Dress code (Telugu)</label><input id="dte" name="dte" class="input" [(ngModel)]="d.dressCodeTe" /></div>
+          <div class="field"><label for="den">Dress code (English)</label><input id="den" name="den" class="input" [(ngModel)]="d.dressCodeEn" /></div>
+          <div class="field"><label for="cname">Contact name</label><input id="cname" name="cname" class="input" [(ngModel)]="d.contactName" /></div>
+          <div class="field"><label for="cphone">Contact phone</label><input id="cphone" name="cphone" class="input" inputmode="numeric" [(ngModel)]="d.contactPhone" /></div>
+        </div>
+      </fieldset>
+
+      <div class="save">
+        <button type="submit" class="btn btn-primary btn-lg" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save settings' }}</button>
+      </div>
+    </form>
+  }
+}

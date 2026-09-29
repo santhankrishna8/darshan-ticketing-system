@@ -1,59 +1,78 @@
-# RegistrationApp
+# Govindamala Darshan registration
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.7.
+Darshan ticket registration for Sri Vakulamatha Devi Govindamala Bhakta Brundam, Peruru.
+Angular 20 + Firebase (Firestore, Google sign-in).
 
-## Development server
+- **Public site**: `/` home, `/register` registration with Aadhaar scanning, `/ticket` ticket download.
+- **Seva desk** (`/seva`): staff sign in with Google; the main admin approves who gets in.
 
-To start a local development server, run:
+## How data is stored
+
+| Path | What |
+| --- | --- |
+| `devotees`, `tickets`, `submissions` | **2025 data, untouched.** The app cannot read it; only the Firebase console shows it. |
+| `seasons/2026` | This year's settings (ticket count, fee, coordinators, open/closed). |
+| `seasons/2026/meta/counter` | Last ticket and registration number. |
+| `seasons/2026/registrations/{id}` | One document per family; Aadhaar shown only as last 4 digits. |
+| `seasons/2026/aadhaar/{sha256}` | Full Aadhaar number, used to block duplicates. Admins only. |
+| `seasons/2026/phones/{phone}` | Lets a devotee find their ticket by phone. |
+| `seasons/2026/staff/{uid}` | Access requests and approved staff. |
+| `config/owners` | The main admin's email(s). |
+
+Next year: change `season` in `src/environments/environment.ts`, deploy, and create the new season from *Settings*.
+
+## One-time setup (Firebase console)
+
+1. **Authentication > Sign-in method**: enable **Google**.
+   **Authentication > Settings > Authorized domains**: add the site's domain (for example the Vercel domain).
+2. **Firestore**: create collection `config`, document `owners`, with one field
+   `emails` of type **array** containing your Google email. That account becomes the main admin.
+3. Deploy the security rules: `npx firebase deploy --only firestore:rules`.
+4. Open `/seva`, sign in with that Google account, go to **Settings**, click **Create season 2026**,
+   review the numbers and coordinators, then **Open registration**.
+
+Volunteers open `/seva` and sign in; they appear under **People** for you to approve as *volunteer*
+(register, list, mark payments) or *admin* (also Excel export with full Aadhaar).
+You can also allow **fingerprint unlock** per person.
+
+## Aadhaar scanning
+
+Everything runs on the phone; the photo is never uploaded.
+
+1. The QR code is read first (the phone's built-in detector, else ZXing). Old QR codes contain the full
+   details; newer Secure QR codes contain name, date of birth, gender, address and the last 4 digits.
+2. Text is read with Tesseract OCR (English lines of the card), and a second pass runs when fields are missing.
+3. The Aadhaar number must pass its Verhoeff checksum, so a misread digit is caught rather than saved.
+
+Fields filled from the card are highlighted for the person to check. OCR engine files are served from
+`/ocr` (copied from `node_modules` at build time), so scanning does not depend on any CDN.
+
+## Install as an app (PWA)
+
+The production build includes a service worker and web manifest, so the site can be added to the
+home screen and opens full screen with its own icon. Android/Chrome shows an **Add to home screen**
+button on the home page; on iPhone the button explains Share > Add to Home Screen.
+The app shell loads offline; the scanner files are cached after the first scan. Registering still
+needs internet. When a new version is deployed, open apps show a **Reload** bar.
+
+## Guided tours
+
+The home, registration, ticket and seva desk pages each play a short bilingual walkthrough on the
+first visit. **Help** in the header replays it. Tours are remembered per device.
+
+## Fingerprint unlock
+
+Uses the device's platform authenticator (WebAuthn). Google sign-in remains the real identity check enforced by
+the Firestore rules; fingerprint unlock is a lock on top, so a phone left signed in cannot be opened by someone else.
+There is no server here, so it is not a replacement for Google sign-in on a new device.
+
+## Development
 
 ```bash
-ng serve
+npm install
+npm start                 # against the real Firebase project
+npm run start:emulators   # against local Firestore/Auth emulators (needs Java)
+npm run test:unit         # Aadhaar parser, QR decoder and checksum tests
+npm run test:rules        # security rules tests in the Firestore emulator
+npm run build
 ```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

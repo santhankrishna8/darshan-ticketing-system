@@ -1,0 +1,203 @@
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+.head-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.row-skel {
+  height: 64px;
+}
+
+.count {
+  font-weight: 600;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+
+th {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  background: var(--surface-sunk);
+  position: sticky;
+  top: 0;
+}
+
+tbody tr:hover {
+  background: color-mix(in srgb, var(--surface-sunk) 50%, transparent);
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ticket {
+  font-weight: 700;
+  color: var(--kumkum);
+  font-size: 1.1rem;
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+}
+
+.who .muted {
+  font-size: 0.86rem;
+}
+
+.addr {
+  max-width: 36ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pay {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px 0 6px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font: 600 0.9rem var(--font-text);
+  cursor: pointer;
+}
+
+.knob {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--line-strong);
+  transition: background-color 0.15s ease;
+}
+
+.pay.on {
+  border-color: var(--leaf);
+  background: var(--leaf-soft);
+  color: var(--leaf);
+}
+
+.pay.on .knob {
+  background: var(--leaf);
+}
+
+.pay:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.danger {
+  color: var(--danger);
+}
+
+/* Phones: each devotee becomes a compact card. */
+@media (max-width: 720px) {
+  .filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .grow {
+    grid-column: 1 / -1;
+  }
+
+  thead {
+    display: none;
+  }
+
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+  }
+
+  tr {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 4px 12px;
+    padding: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  td {
+    border: 0;
+    padding: 0;
+  }
+
+  .ticket {
+    grid-row: 1 / 3;
+    align-self: start;
+    text-align: left;
+  }
+
+  .who {
+    min-width: 0;
+    grid-column: 2 / 4;
+  }
+
+  .addr {
+    max-width: 100%;
+  }
+
+  td[data-label='Phone'],
+  td[data-label='Coordinator'] {
+    grid-column: 2;
+    font-size: 0.92rem;
+  }
+
+  td[data-label='Coordinator'] {
+    color: var(--ink-soft);
+  }
+
+  td[data-label='Payment'] {
+    grid-column: 2;
+  }
+
+  .actions {
+    grid-column: 3;
+    grid-row: 3 / 5;
+    align-self: end;
+  }
+}

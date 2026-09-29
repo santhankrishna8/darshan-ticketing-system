@@ -1,0 +1,160 @@
+rules_version = '2';
+
+// Access model
+//  - config/owners {emails: [...]}: the main admin(s). Set once in the Firebase console.
+//  - seasons/{season}/staff/{uid}: anyone signed in with Google may file a *pending* request
+//    for themselves; only a main admin can approve it and choose the role.
+//  - The public can register (while registration is open) and fetch a ticket when they know
+//    the exact Aadhaar or phone number. Nobody outside the staff can list registrations.
+//  - Last year's top-level collections (devotees, tickets, submissions) stay in the database
+//    untouched, but the app can neither read nor change them. Only the Firebase console sees them.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownersDoc() {
+      return /databases/$(database)/documents/config/owners;
+    }
+
+    function isOwner() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && exists(ownersDoc())
+        && request.auth.token.email in get(ownersDoc()).data.emails;
+    }
+
+    function staffPath(season) {
+      return /databases/$(database)/documents/seasons/$(season)/staff/$(request.auth.uid);
+    }
+
+    function isApproved(season) {
+      return signedIn() && exists(staffPath(season)) && get(staffPath(season)).data.status == 'approved';
+    }
+
+    function isStaff(season) {
+      return isOwner() || isApproved(season);
+    }
+
+    function isAdmin(season) {
+      return isOwner() || (isApproved(season) && get(staffPath(season)).data.role == 'admin');
+    }
+
+    match /config/owners {
+      allow get: if signedIn() && request.auth.token.email in resource.data.emails;
+      allow list, write: if false;
+    }
+
+    // ---- previous year: preserved as-is, closed to every app user including admins ----
+    match /devotees/{id} {
+      allow read, write: if false;
+    }
+    match /tickets/{id} {
+      allow read, write: if false;
+    }
+    match /submissions/{id} {
+      allow read, write: if false;
+    }
+
+    // ---- one document per season ----
+    match /seasons/{season} {
+      function settings() {
+        return get(/databases/$(database)/documents/seasons/$(season)).data;
+      }
+      function counterPath() {
+        return /databases/$(database)/documents/seasons/$(season)/meta/counter;
+      }
+      function counterBefore() {
+        return get(counterPath()).data;
+      }
+      function counterAfter() {
+        return getAfter(counterPath()).data;
+      }
+      function regAfter(id) {
+        return getAfter(/databases/$(database)/documents/seasons/$(season)/registrations/$(id)).data;
+      }
+
+      allow get: if true;
+      allow list: if isOwner();
+      allow create, update: if isOwner();
+      allow delete: if false;
+
+      match /meta/counter {
+        allow get: if true;
+        allow create: if isOwner()
+          && request.resource.data.lastTicket == 0
+          && request.resource.data.lastSubmission == 0;
+        // Every registration moves the counter forward by exactly its own size.
+        allow update: if request.resource.data.keys().hasOnly(['lastTicket', 'lastSubmission', 'lastRegistrationId'])
+          && (settings().registrationOpen == true || isStaff(season))
+          && request.resource.data.lastSubmission == resource.data.lastSubmission + 1
+          && request.resource.data.lastTicket > resource.data.lastTicket
+          && request.resource.data.lastTicket - resource.data.lastTicket <= settings().maxPerGroup
+          && request.resource.data.lastTicket <= settings().totalTickets
+          && regAfter(request.resource.data.lastRegistrationId).submissionNo == request.resource.data.lastSubmission
+          && regAfter(request.resource.data.lastRegistrationId).members.size()
+               == request.resource.data.lastTicket - resource.data.lastTicket;
+      }
+
+      match /registrations/{id} {
+        allow get: if true;
+        allow list: if isStaff(season);
+        allow create: if counterAfter().lastRegistrationId == id
+          && request.resource.data.keys().hasOnly(['submissionNo', 'firstTicket', 'members', 'createdAt', 'createdBy'])
+          && request.resource.data.submissionNo == counterAfter().lastSubmission
+          && request.resource.data.firstTicket == counterBefore().lastTicket + 1
+          && request.resource.data.members.size() == counterAfter().lastTicket - counterBefore().lastTicket
+          && request.resource.data.createdAt == request.time
+          && (request.resource.data.createdBy == null || request.resource.data.createdBy == request.auth.uid);
+        // Staff mark payments; nothing else about a registration changes.
+        allow update: if isStaff(season)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'updatedAt'])
+          && request.resource.data.members.size() == resource.data.members.size();
+        allow delete: if isOwner();
+      }
+
+      // Keyed by SHA-256 of the Aadhaar number: blocks duplicates and lets a devotee find a ticket.
+      match /aadhaar/{hash} {
+        allow get: if true;
+        allow list: if isAdmin(season);
+        allow create: if request.resource.data.keys().hasOnly(['aadhaar', 'registrationId', 'ticketNumber'])
+          && request.resource.data.registrationId == counterAfter().lastRegistrationId
+          && request.resource.data.ticketNumber > counterBefore().lastTicket
+          && request.resource.data.ticketNumber <= counterAfter().lastTicket;
+        allow update: if false;
+        allow delete: if isOwner();
+      }
+
+      match /phones/{phone} {
+        allow get: if true;
+        allow list: if isStaff(season);
+        allow create: if request.resource.data.keys().hasOnly(['registrationIds'])
+          && request.resource.data.registrationIds == [counterAfter().lastRegistrationId];
+        allow update: if isOwner() || (
+          request.resource.data.keys().hasOnly(['registrationIds'])
+          && request.resource.data.registrationIds.size() == resource.data.registrationIds.size() + 1
+          && request.resource.data.registrationIds.hasAll(resource.data.registrationIds)
+          && request.resource.data.registrationIds.hasAll([counterAfter().lastRegistrationId]));
+        allow delete: if isOwner();
+      }
+
+      match /staff/{uid} {
+        allow get: if signedIn() && (request.auth.uid == uid || isStaff(season));
+        allow list: if isOwner();
+        allow create: if signedIn() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['uid', 'email', 'name', 'photoURL', 'status', 'role', 'biometricAllowed', 'requestedAt'])
+          && request.resource.data.uid == uid
+          && request.resource.data.email == request.auth.token.email
+          && request.resource.data.status == 'pending'
+          && request.resource.data.role == 'volunteer'
+          && request.resource.data.biometricAllowed == false;
+        allow update: if isOwner()
+          && request.resource.data.status in ['pending', 'approved', 'rejected', 'revoked']
+          && request.resource.data.role in ['admin', 'volunteer'];
+        allow delete: if isOwner();
+      }
+    }
+  }
+}

@@ -1,0 +1,98 @@
+<app-site-header />
+
+<main>
+  <section class="hero container">
+    <div class="hero-copy">
+      @switch (status()) {
+        @case ('loading') { <span class="chip skeleton status-skel" aria-hidden="true"></span> }
+        @case ('open') { <span data-tour="status" class="chip chip-ok"><i class="ph ph-ticket" aria-hidden="true"></i>{{ season.ticketsLeft() }} tickets left · {{ season.ticketsLeft() }} టికెట్లు ఉన్నాయి</span> }
+        @case ('full') { <span data-tour="status" class="chip chip-danger">All tickets are taken · టికెట్లు అయిపోయాయి</span> }
+        @case ('closed') { <span data-tour="status" class="chip chip-warn">Registration closed · నమోదు ముగిసింది</span> }
+        @default { <span data-tour="status" class="chip chip-warn">Registration opens soon · త్వరలో ప్రారంభం</span> }
+      }
+
+      <h1>
+        <span class="h1-te">గోవిందమాల దర్శనం {{ season.season }}</span>
+        <span class="h1-en">Govindamala Darshan {{ season.season }}</span>
+      </h1>
+
+      <p class="lede">
+        Register your family for darshan tickets. Scan each Aadhaar card with your phone camera and the details fill in by themselves.
+      </p>
+      <p class="lede-te">మీ కుటుంబ సభ్యుల ఆధార్ కార్డును ఫోటో తీస్తే వివరాలు వాటంతట అవే నిండుతాయి.</p>
+
+      <div class="ctas">
+        <a routerLink="/register" class="btn btn-primary btn-lg" data-tour="register-cta"><i class="ph ph-user-plus" aria-hidden="true"></i>నమోదు చేయండి · Register</a>
+        <a routerLink="/ticket" class="btn btn-lg" data-tour="ticket-cta"><i class="ph ph-download-simple" aria-hidden="true"></i>Download ticket</a>
+      </div>
+    </div>
+
+    <figure class="hero-art">
+      <img src="assets/p6.jpg" width="750" height="1000" alt="Sri Venkateswara decorated with garlands at the Govindamala utsavam" fetchpriority="high" />
+    </figure>
+  </section>
+
+  <section class="before container" aria-labelledby="before-title">
+    <h2 id="before-title">దర్శనానికి ముందు <span class="h2-en">Before you come</span></h2>
+
+    @if (season.settings(); as s) {
+      <ul class="rules">
+        <li>
+          <i class="ph ph-currency-inr" aria-hidden="true"></i>
+          <div>
+            <p class="rule-title">Darshan fee ₹{{ s.fee }}</p>
+            <p class="te">{{ s.paymentPlaceTe }}</p>
+            <p class="muted">{{ s.paymentPlaceEn }}</p>
+          </div>
+        </li>
+        <li>
+          <i class="ph ph-identification-card" aria-hidden="true"></i>
+          <div>
+            <p class="rule-title">Aadhaar photocopy</p>
+            <p class="te">ఆధార్ కార్డు జెరాక్స్ సమర్పించవలెను</p>
+            <p class="muted">Bring a photocopy for every devotee.</p>
+          </div>
+        </li>
+        <li>
+          <i class="ph ph-t-shirt" aria-hidden="true"></i>
+          <div>
+            <p class="rule-title">Yellow attire</p>
+            <p class="te">{{ s.dressCodeTe }}</p>
+            <p class="muted">{{ s.dressCodeEn }}</p>
+          </div>
+        </li>
+        <li>
+          <i class="ph ph-users" aria-hidden="true"></i>
+          <div>
+            <p class="rule-title">Up to {{ s.maxPerGroup }} per registration</p>
+            <p class="te">ఒకసారి గరిష్టంగా {{ s.maxPerGroup }} మంది</p>
+            <p class="muted">Ages {{ s.minAge }} to {{ s.maxAge }}.</p>
+          </div>
+        </li>
+      </ul>
+    } @else {
+      <div class="rules">
+        @for (i of [1, 2, 3, 4]; track i) { <div class="skeleton rule-skel"></div> }
+      </div>
+    }
+  </section>
+
+  <section class="install container" aria-label="Install">
+    <div class="install-row">
+      <app-install-button label="Add to home screen · హోమ్ స్క్రీన్‌కి జోడించండి" />
+    </div>
+  </section>
+
+  <section class="gallery" aria-labelledby="gallery-title">
+    <div class="container">
+      <h2 id="gallery-title">ఉత్సవ చిత్రాలు <span class="h2-en">From past utsavams</span></h2>
+    </div>
+    <div class="strip" tabindex="0" aria-label="Photo gallery, scroll sideways">
+      @for (src of gallery; track src) {
+        <img [src]="src" loading="lazy" decoding="async" alt="Utsavam photograph" />
+      }
+    </div>
+  </section>
+</main>
+
+<app-site-footer />

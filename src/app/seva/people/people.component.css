@@ -1,0 +1,118 @@
+h1 {
+  font-size: 2rem;
+}
+
+header .muted {
+  max-width: 62ch;
+}
+
+h2 {
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 10px;
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.person-skel {
+  height: 76px;
+}
+
+.person {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  box-shadow: none;
+}
+
+.person.quiet {
+  opacity: 0.8;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.who img,
+.initial {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.initial {
+  display: grid;
+  place-items: center;
+  background: var(--kumkum-soft);
+  color: var(--kumkum);
+  font-weight: 700;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.email {
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+
+.acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-sm {
+  min-height: 40px;
+  padding-block: 0.3em;
+  font-size: 0.95rem;
+}
+
+.inline {
+  flex-direction: row;
+}
+
+.pay {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font: 600 0.9rem var(--font-text);
+  cursor: pointer;
+}
+
+.pay.on {
+  border-color: var(--leaf);
+  background: var(--leaf-soft);
+  color: var(--leaf);
+}
+
+.danger {
+  color: var(--danger);
+}
+
+.empty {
+  padding: 4px 0 8px;
+}

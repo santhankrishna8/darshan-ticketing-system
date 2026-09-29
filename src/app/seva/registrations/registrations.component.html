@@ -1,0 +1,87 @@
+<header class="head">
+  <h1>Registrations</h1>
+  <div class="head-actions">
+    <a routerLink="/register" class="btn btn-sm"><i class="ph ph-user-plus" aria-hidden="true"></i>New</a>
+    <button type="button" class="btn btn-sm btn-primary" (click)="export()" [disabled]="exporting() || filtered().length === 0">
+      <i class="ph ph-download-simple" aria-hidden="true"></i>{{ exporting() ? 'Preparing…' : 'Excel' }}
+    </button>
+  </div>
+</header>
+
+<div class="filters">
+  <div class="field grow">
+    <label for="q">Search</label>
+    <input id="q" class="input" type="search" placeholder="Name, phone, ticket no. or last 4 of Aadhaar" [ngModel]="query()" (ngModelChange)="query.set($event)" />
+  </div>
+  <div class="field">
+    <label for="coord">Coordinator</label>
+    <select id="coord" class="input" [ngModel]="coordinator()" (ngModelChange)="coordinator.set($event)">
+      <option value="">Everyone</option>
+      @for (c of coordinators(); track c) { <option [value]="c">{{ c }}</option> }
+    </select>
+  </div>
+  <div class="field">
+    <label for="pay">Payment</label>
+    <select id="pay" class="input" [ngModel]="payment()" (ngModelChange)="payment.set($event)">
+      <option value="">All</option>
+      <option value="paid">Paid</option>
+      <option value="unpaid">Pending</option>
+    </select>
+  </div>
+</div>
+
+@if (data.error()) {
+  <div class="notice notice-error" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>Could not load registrations: {{ data.error() }}</p></div>
+}
+
+@if (data.registrations() === undefined) {
+  @for (i of [1, 2, 3, 4, 5]; track i) { <div class="skeleton row-skel"></div> }
+} @else if (filtered().length === 0) {
+  <div class="notice"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><p>{{ data.rows().length ? 'Nothing matches these filters.' : 'No registrations yet.' }}</p></div>
+} @else {
+  <p class="muted count">{{ filtered().length }} {{ filtered().length === 1 ? 'devotee' : 'devotees' }}</p>
+  <div class="table-wrap panel">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col" class="num">Ticket</th>
+          <th scope="col">Devotee</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Coordinator</th>
+          <th scope="col">Payment</th>
+          <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of filtered(); track key(r)) {
+          <tr>
+            <td class="num ticket" data-label="Ticket">{{ r.ticketNumber }}</td>
+            <td class="who" data-label="Devotee">
+              <strong>{{ r.name }}</strong>
+              <span class="muted">{{ r.age }} yrs · #{{ r.reg.submissionNo }} · XXXX {{ r.aadhaarLast4 }}</span>
+              <span class="muted addr">{{ r.address }}</span>
+            </td>
+            <td data-label="Phone"><a [href]="'tel:+91' + r.phone">{{ r.phone }}</a></td>
+            <td data-label="Coordinator">{{ r.coordinator || '-' }}</td>
+            <td data-label="Payment">
+              <button type="button" class="pay" role="switch" [attr.aria-checked]="r.paid" [class.on]="r.paid" (click)="togglePaid(r)" [disabled]="saving().has(key(r))"
+                [attr.aria-label]="'Paid, ticket ' + r.ticketNumber">
+                <span class="knob" aria-hidden="true"></span>{{ r.paid ? 'Paid' : 'Pending' }}
+              </button>
+            </td>
+            <td class="actions">
+              <button type="button" class="btn btn-quiet btn-sm" (click)="ticket(r)" [attr.aria-label]="'Ticket PDF for registration ' + r.reg.submissionNo">
+                <i class="ph ph-ticket" aria-hidden="true"></i>
+              </button>
+              @if (auth.isOwner()) {
+                <button type="button" class="btn btn-quiet btn-sm danger" (click)="remove(r)" [attr.aria-label]="'Delete registration ' + r.reg.submissionNo">
+                  <i class="ph ph-trash" aria-hidden="true"></i>
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

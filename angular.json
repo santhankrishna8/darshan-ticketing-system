@@ -24,33 +24,86 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              },"src/assets"
+              },
+              "src/assets",
+              {
+                "glob": "worker.min.js",
+                "input": "node_modules/tesseract.js/dist",
+                "output": "ocr"
+              },
+              {
+                "glob": "tesseract-core*-lstm.wasm.js",
+                "input": "node_modules/tesseract.js-core",
+                "output": "ocr/core"
+              },
+              {
+                "glob": "eng.traineddata.gz",
+                "input": "node_modules/@tesseract.js-data/eng/4.0.0_best_int",
+                "output": "ocr/lang"
+              },
+              {
+                "glob": "zxing_reader.wasm",
+                "input": "node_modules/zxing-wasm/dist/reader",
+                "output": "ocr"
+              }
             ],
             "styles": [
+              "node_modules/@fontsource/tiro-telugu/telugu-400.css",
+              "node_modules/@fontsource/tiro-telugu/latin-400.css",
+              "node_modules/@fontsource/hind-guntur/telugu-400.css",
+              "node_modules/@fontsource/hind-guntur/telugu-500.css",
+              "node_modules/@fontsource/hind-guntur/telugu-600.css",
+              "node_modules/@fontsource/hind-guntur/latin-400.css",
+              "node_modules/@fontsource/hind-guntur/latin-500.css",
+              "node_modules/@fontsource/hind-guntur/latin-600.css",
+              "node_modules/@phosphor-icons/web/src/regular/style.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "xlsx",
+              "tesseract.js",
+              "regenerator-runtime",
+              "html2canvas",
+              "canvg",
+              "core-js",
+              "rgbcolor",
+              "raf",
+              "dompurify"
+            ]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500MB",
-                  "maximumError": "1000MB"
+                  "maximumWarning": "1.5MB",
+                  "maximumError": "3MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "500MB",
-                  "maximumError": "800MB"
+                  "maximumWarning": "12kB",
+                  "maximumError": "24kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "emulator": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.emulator.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -63,6 +116,9 @@
             },
             "development": {
               "buildTarget": "registrationApp:build:development"
+            },
+            "emulator": {
+              "buildTarget": "registrationApp:build:emulator"
             }
           },
           "defaultConfiguration": "development"
@@ -83,9 +139,38 @@
                 "glob": "**/*",
                 "input": "public"
               },
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "worker.min.js",
+                "input": "node_modules/tesseract.js/dist",
+                "output": "ocr"
+              },
+              {
+                "glob": "tesseract-core*-lstm.wasm.js",
+                "input": "node_modules/tesseract.js-core",
+                "output": "ocr/core"
+              },
+              {
+                "glob": "eng.traineddata.gz",
+                "input": "node_modules/@tesseract.js-data/eng/4.0.0_best_int",
+                "output": "ocr/lang"
+              },
+              {
+                "glob": "zxing_reader.wasm",
+                "input": "node_modules/zxing-wasm/dist/reader",
+                "output": "ocr"
+              }
             ],
             "styles": [
+              "node_modules/@fontsource/tiro-telugu/telugu-400.css",
+              "node_modules/@fontsource/tiro-telugu/latin-400.css",
+              "node_modules/@fontsource/hind-guntur/telugu-400.css",
+              "node_modules/@fontsource/hind-guntur/telugu-500.css",
+              "node_modules/@fontsource/hind-guntur/telugu-600.css",
+              "node_modules/@fontsource/hind-guntur/latin-400.css",
+              "node_modules/@fontsource/hind-guntur/latin-500.css",
+              "node_modules/@fontsource/hind-guntur/latin-600.css",
+              "node_modules/@phosphor-icons/web/src/regular/style.css",
               "src/styles.css"
             ],
             "scripts": []
