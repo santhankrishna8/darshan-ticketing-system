@@ -5,12 +5,12 @@
   <p class="muted intro">Enter the Aadhaar number of any devotee in your registration, or the phone number you gave.</p>
 
   <form class="search panel" (ngSubmit)="search()">
-    <div class="field">
+    <div class="field" data-tour="lookup">
       <label for="q">Aadhaar or phone number <span class="te">ఆధార్ లేదా ఫోన్ నంబర్</span></label>
       <input id="q" name="q" class="input" inputmode="numeric" autocomplete="off" [(ngModel)]="query" placeholder="e.g. 98480 12345" />
       @if (error()) { <p class="error-text" role="alert">{{ error() }}</p> }
     </div>
-    <button class="btn btn-primary btn-lg" type="submit" [disabled]="searching()">
+    <button class="btn btn-primary btn-lg" type="submit" data-tour="find" [disabled]="searching()">
       @if (searching()) { <i class="ph ph-spinner-gap spin" aria-hidden="true"></i>Searching… }
       @else { <i class="ph ph-magnifying-glass" aria-hidden="true"></i>Find ticket · వెతకండి }
     </button>

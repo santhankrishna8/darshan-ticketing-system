@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChildren } from '@angular/core';
+import { Component, ElementRef, OnDestroy, computed, effect, inject, signal, untracked, viewChildren } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AadhaarScannerService } from '../../aadhaar/aadhaar-scanner.service';
@@ -13,6 +13,7 @@ import { downloadTicketPdf } from '../../core/ticket-pdf';
 import { SiteFooterComponent } from '../../shared/site-footer';
 import { SiteHeaderComponent } from '../../shared/site-header';
 import { ToastService } from '../../shared/toast';
+import { TourService, TourStep } from '../../shared/tour';
 
 type ScanState = 'idle' | 'scanning' | 'ok' | 'partial' | 'failed';
 type Field = 'name' | 'aadhaar' | 'age' | 'gender' | 'phone' | 'address';
@@ -52,17 +53,56 @@ class MemberRow {
   }
 }
 
+const TOUR: TourStep[] = [
+  {
+    target: '[data-tour=scan]',
+    title: 'Scan the Aadhaar card',
+    titleTe: 'ఆధార్ స్కాన్',
+    body: 'Tap here and take a photo of the card, front or letter. Keep it flat, in good light, filling the frame.',
+    bodyTe: 'ఇక్కడ నొక్కి కార్డు ఫోటో తీయండి. వెలుతురులో, కార్డు మొత్తం కనిపించేలా.',
+  },
+  {
+    target: '[data-tour=choose]',
+    title: 'Or pick a saved photo',
+    titleTe: 'లేదా ఫోటో ఎంచుకోండి',
+    body: 'Already have a photo or a downloaded e-Aadhaar? Choose it from the gallery.',
+    bodyTe: 'ఫోన్‌లో ఉన్న ఫోటోను కూడా ఎంచుకోవచ్చు.',
+  },
+  {
+    target: '[data-tour=fields]',
+    title: 'Check the details',
+    titleTe: 'వివరాలు సరిచూడండి',
+    body: 'Details read from the card are highlighted in yellow. Correct anything that is wrong, or type everything yourself.',
+    bodyTe: 'కార్డు నుండి వచ్చిన వివరాలు పసుపు రంగులో ఉంటాయి. తప్పు ఉంటే సరిచేయండి.',
+  },
+  {
+    target: '[data-tour=add]',
+    title: 'Add family members',
+    titleTe: 'కుటుంబ సభ్యులు',
+    body: 'Add everyone who is coming. Phone and address are copied from the previous person.',
+    bodyTe: 'వచ్చే అందరినీ జోడించండి. ఫోన్, చిరునామా ముందు వ్యక్తి నుండి వస్తాయి.',
+  },
+  {
+    target: '[data-tour=submit]',
+    title: 'Submit and get the ticket',
+    titleTe: 'సమర్పించండి',
+    body: 'Submit to get ticket numbers. The ticket PDF downloads straight away; pay the fee at the temple.',
+    bodyTe: 'సమర్పిస్తే టికెట్ PDF వస్తుంది. రుసుము మందిరంలో చెల్లించండి.',
+  },
+];
+
 @Component({
   selector: 'app-register',
   imports: [ReactiveFormsModule, RouterLink, SiteHeaderComponent, SiteFooterComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnDestroy {
   protected readonly season = inject(SeasonService);
   protected readonly scanner = inject(AadhaarScannerService);
   private readonly registrations = inject(RegistrationService);
   private readonly toast = inject(ToastService);
+  private readonly tour = inject(TourService);
   private readonly cards = viewChildren<ElementRef<HTMLElement>>('card');
 
   protected readonly rows = signal<MemberRow[]>([]);
@@ -92,6 +132,15 @@ export class RegisterComponent {
       const s = this.season.settings();
       if (s && untracked(this.rows).length === 0) this.rows.set([new MemberRow(s)]);
     });
+    // Offer the walkthrough once the form is actually on screen.
+    effect(() => {
+      if (this.state() === 'open' && !this.done()) untracked(() => this.tour.offer('register', TOUR));
+      else untracked(() => this.tour.withdraw('register'));
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.tour.withdraw('register');
   }
 
   protected addRow(): void {

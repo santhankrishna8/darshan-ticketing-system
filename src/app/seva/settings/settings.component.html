@@ -8,7 +8,7 @@
   <section class="setup panel">
     <i class="ph ph-ticket" aria-hidden="true"></i>
     <h2>Create the {{ season.season }} season</h2>
-    <p class="muted">This makes a new <code>seasons/{{ season.season }}</code> document in Firestore where all of this year's registrations, access requests and settings are stored. Last year's data stays exactly as it is.</p>
+    <p class="muted">This makes a new <code>seasons/{{ season.season }}</code> document in Firestore where all of this year's registrations, access requests and settings are stored.</p>
     <button type="button" class="btn btn-primary btn-lg" (click)="create()" [disabled]="creating()">
       {{ creating() ? 'Creating…' : 'Create season ' + season.season }}
     </button>

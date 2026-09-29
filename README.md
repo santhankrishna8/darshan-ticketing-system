@@ -10,7 +10,7 @@ Angular 20 + Firebase (Firestore, Google sign-in).
 
 | Path | What |
 | --- | --- |
-| `devotees`, `tickets`, `submissions` | **2025 data, untouched.** Read-only; admins can export it from *2025 archive*. |
+| `devotees`, `tickets`, `submissions` | **2025 data, untouched.** The app cannot read it; only the Firebase console shows it. |
 | `seasons/2026` | This year's settings (ticket count, fee, coordinators, open/closed). |
 | `seasons/2026/meta/counter` | Last ticket and registration number. |
 | `seasons/2026/registrations/{id}` | One document per family; Aadhaar shown only as last 4 digits. |
@@ -32,7 +32,7 @@ Next year: change `season` in `src/environments/environment.ts`, deploy, and cre
    review the numbers and coordinators, then **Open registration**.
 
 Volunteers open `/seva` and sign in; they appear under **People** for you to approve as *volunteer*
-(register, list, mark payments) or *admin* (also Excel export with full Aadhaar and the 2025 archive).
+(register, list, mark payments) or *admin* (also Excel export with full Aadhaar).
 You can also allow **fingerprint unlock** per person.
 
 ## Aadhaar scanning
@@ -46,6 +46,19 @@ Everything runs on the phone; the photo is never uploaded.
 
 Fields filled from the card are highlighted for the person to check. OCR engine files are served from
 `/ocr` (copied from `node_modules` at build time), so scanning does not depend on any CDN.
+
+## Install as an app (PWA)
+
+The production build includes a service worker and web manifest, so the site can be added to the
+home screen and opens full screen with its own icon. Android/Chrome shows an **Add to home screen**
+button on the home page; on iPhone the button explains Share > Add to Home Screen.
+The app shell loads offline; the scanner files are cached after the first scan. Registering still
+needs internet. When a new version is deployed, open apps show a **Reload** bar.
+
+## Guided tours
+
+The home, registration, ticket and seva desk pages each play a short bilingual walkthrough on the
+first visit. **Help** in the header replays it. Tours are remembered per device.
 
 ## Fingerprint unlock
 

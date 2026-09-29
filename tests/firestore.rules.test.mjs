@@ -236,13 +236,20 @@ describe('staff', () => {
     await assertFails(register(as(pend), [devotee(2)], { createdBy: 'pend' }));
   });
 
-  it('only admins export full Aadhaar numbers and read the 2025 archive', async () => {
+  it('only admins export full Aadhaar numbers', async () => {
     await register(as(null), [devotee(1)]);
     await assertFails(getDocs(collection(as(vol), `seasons/${S}/aadhaar`)));
     await assertSucceeds(getDocs(collection(as(adm), `seasons/${S}/aadhaar`)));
-    await assertFails(getDocs(collection(as(vol), 'devotees')));
-    await assertSucceeds(getDocs(collection(as(adm), 'devotees')));
-    await assertFails(setDoc(doc(as(OWNER), 'devotees/1'), { members: [] }));
+  });
+
+  it('nobody, not even the main admin, can read or change last year\'s data', async () => {
+    for (const user of [null, vol, adm, OWNER]) {
+      for (const c of ['devotees', 'tickets', 'submissions']) {
+        await assertFails(getDocs(collection(as(user), c)));
+        await assertFails(getDoc(doc(as(user), `${c}/1`)));
+      }
+      await assertFails(setDoc(doc(as(user), 'devotees/1'), { members: [] }));
+    }
   });
 
   it('only the main admin deletes registrations', async () => {

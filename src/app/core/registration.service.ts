@@ -183,27 +183,4 @@ export class RegistrationService {
     batch.delete(doc(registrations(), reg.id));
     await batch.commit();
   }
-
-  /** Previous year's data, stored at the top level. Read-only. */
-  async legacy2025(): Promise<Record<string, unknown>[]> {
-    const snap = await getDocs(collection(db, 'devotees'));
-    const rows: Record<string, unknown>[] = [];
-    snap.forEach(d => {
-      const data = d.data();
-      for (const m of (data['members'] as any[]) ?? []) {
-        rows.push({
-          SubmissionID: data['submissionId'],
-          TicketNumber: m.ticketNumber,
-          AllocatedPerson: m.allocatedPerson,
-          Name: m.name,
-          Age: m.age,
-          Aadhaar: m.aadhar,
-          Phone: m.phone,
-          Location: m.location,
-          Payment: m.paymentStatus || 'Not Paid',
-        });
-      }
-    });
-    return rows.sort((a, b) => Number(a['TicketNumber']) - Number(b['TicketNumber']));
-  }
 }

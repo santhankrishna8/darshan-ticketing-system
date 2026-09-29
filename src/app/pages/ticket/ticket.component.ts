@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { isValidAadhaar } from '../../aadhaar/verhoeff';
@@ -9,6 +9,7 @@ import { downloadTicketPdf } from '../../core/ticket-pdf';
 import { SiteFooterComponent } from '../../shared/site-footer';
 import { SiteHeaderComponent } from '../../shared/site-header';
 import { ToastService } from '../../shared/toast';
+import { TourService } from '../../shared/tour';
 
 /** Find a ticket by Aadhaar or phone. Lookups are exact-match documents, so nobody can browse others' data. */
 @Component({
@@ -17,10 +18,34 @@ import { ToastService } from '../../shared/toast';
   templateUrl: './ticket.component.html',
   styleUrl: './ticket.component.css',
 })
-export class TicketComponent {
+export class TicketComponent implements OnDestroy {
   protected readonly season = inject(SeasonService);
   private readonly registrations = inject(RegistrationService);
   private readonly toast = inject(ToastService);
+  private readonly tour = inject(TourService);
+
+  constructor() {
+    this.tour.offer('ticket', [
+      {
+        target: '[data-tour=lookup]',
+        title: 'Find your ticket',
+        titleTe: 'మీ టికెట్',
+        body: 'Type the Aadhaar number of anyone in your registration, or the phone number you gave.',
+        bodyTe: 'మీ నమోదులో ఎవరిదైనా ఆధార్ నంబర్ లేదా ఇచ్చిన ఫోన్ నంబర్ టైప్ చేయండి.',
+      },
+      {
+        target: '[data-tour=find]',
+        title: 'Download the PDF',
+        titleTe: 'PDF డౌన్‌లోడ్',
+        body: 'Your registration appears below with a Download button, and whether payment is done.',
+        bodyTe: 'కింద మీ నమోదు, డౌన్‌లోడ్ బటన్, చెల్లింపు స్థితి కనిపిస్తాయి.',
+      },
+    ]);
+  }
+
+  ngOnDestroy(): void {
+    this.tour.withdraw('ticket');
+  }
 
   protected query = '';
   protected readonly searching = signal(false);

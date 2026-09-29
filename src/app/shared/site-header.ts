@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { SeasonService } from '../core/season.service';
+import { TourButtonComponent } from './tour';
 
 @Component({
   selector: 'app-site-header',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, TourButtonComponent],
   template: `
     <div class="temple-band" aria-hidden="true"></div>
     <header class="container bar">
@@ -14,7 +15,8 @@ import { SeasonService } from '../core/season.service';
       </a>
       <nav aria-label="Main">
         <a routerLink="/register" routerLinkActive="active" class="nav-link">నమోదు <span class="en">Register</span></a>
-        <a routerLink="/ticket" routerLinkActive="active" class="nav-link">టికెట్ <span class="en">Ticket</span></a>
+        <a routerLink="/ticket" routerLinkActive="active" class="nav-link" data-tour="nav-ticket">టికెట్ <span class="en">Ticket</span></a>
+        <app-tour-button />
       </nav>
     </header>
   `,

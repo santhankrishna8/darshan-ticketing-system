@@ -5,10 +5,10 @@
     <div class="hero-copy">
       @switch (status()) {
         @case ('loading') { <span class="chip skeleton status-skel" aria-hidden="true"></span> }
-        @case ('open') { <span class="chip chip-ok"><i class="ph ph-ticket" aria-hidden="true"></i>{{ season.ticketsLeft() }} tickets left · {{ season.ticketsLeft() }} టికెట్లు ఉన్నాయి</span> }
-        @case ('full') { <span class="chip chip-danger">All tickets are taken · టికెట్లు అయిపోయాయి</span> }
-        @case ('closed') { <span class="chip chip-warn">Registration closed · నమోదు ముగిసింది</span> }
-        @default { <span class="chip chip-warn">Registration opens soon · త్వరలో ప్రారంభం</span> }
+        @case ('open') { <span data-tour="status" class="chip chip-ok"><i class="ph ph-ticket" aria-hidden="true"></i>{{ season.ticketsLeft() }} tickets left · {{ season.ticketsLeft() }} టికెట్లు ఉన్నాయి</span> }
+        @case ('full') { <span data-tour="status" class="chip chip-danger">All tickets are taken · టికెట్లు అయిపోయాయి</span> }
+        @case ('closed') { <span data-tour="status" class="chip chip-warn">Registration closed · నమోదు ముగిసింది</span> }
+        @default { <span data-tour="status" class="chip chip-warn">Registration opens soon · త్వరలో ప్రారంభం</span> }
       }
 
       <h1>
@@ -22,8 +22,8 @@
       <p class="lede-te">మీ కుటుంబ సభ్యుల ఆధార్ కార్డును ఫోటో తీస్తే వివరాలు వాటంతట అవే నిండుతాయి.</p>
 
       <div class="ctas">
-        <a routerLink="/register" class="btn btn-primary btn-lg"><i class="ph ph-user-plus" aria-hidden="true"></i>నమోదు చేయండి · Register</a>
-        <a routerLink="/ticket" class="btn btn-lg"><i class="ph ph-download-simple" aria-hidden="true"></i>Download ticket</a>
+        <a routerLink="/register" class="btn btn-primary btn-lg" data-tour="register-cta"><i class="ph ph-user-plus" aria-hidden="true"></i>నమోదు చేయండి · Register</a>
+        <a routerLink="/ticket" class="btn btn-lg" data-tour="ticket-cta"><i class="ph ph-download-simple" aria-hidden="true"></i>Download ticket</a>
       </div>
     </div>
 
@@ -75,6 +75,12 @@
         @for (i of [1, 2, 3, 4]; track i) { <div class="skeleton rule-skel"></div> }
       </div>
     }
+  </section>
+
+  <section class="install container" aria-label="Install">
+    <div class="install-row">
+      <app-install-button label="Add to home screen · హోమ్ స్క్రీన్‌కి జోడించండి" />
+    </div>
   </section>
 
   <section class="gallery" aria-labelledby="gallery-title">

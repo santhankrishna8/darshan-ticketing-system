@@ -6,7 +6,8 @@ rules_version = '2';
 //    for themselves; only a main admin can approve it and choose the role.
 //  - The public can register (while registration is open) and fetch a ticket when they know
 //    the exact Aadhaar or phone number. Nobody outside the staff can list registrations.
-//  - Last year's top-level collections (devotees, tickets, submissions) are a read-only archive.
+//  - Last year's top-level collections (devotees, tickets, submissions) stay in the database
+//    untouched, but the app can neither read nor change them. Only the Firebase console sees them.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -46,18 +47,15 @@ service cloud.firestore {
       allow list, write: if false;
     }
 
-    // ---- 2025: kept exactly as it is, readable by this season's admins only ----
+    // ---- previous year: preserved as-is, closed to every app user including admins ----
     match /devotees/{id} {
-      allow read: if isAdmin('2026');
-      allow write: if false;
+      allow read, write: if false;
     }
     match /tickets/{id} {
-      allow read: if isAdmin('2026');
-      allow write: if false;
+      allow read, write: if false;
     }
     match /submissions/{id} {
-      allow read: if isAdmin('2026');
-      allow write: if false;
+      allow read, write: if false;
     }
 
     // ---- one document per season ----

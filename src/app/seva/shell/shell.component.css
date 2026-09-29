@@ -67,9 +67,14 @@
 
 .side-head {
   padding: 18px 18px 8px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
   gap: 12px;
+}
+
+.side-head .who {
+  grid-column: 1 / -1;
 }
 
 .who {
@@ -138,6 +143,7 @@ nav a.active i {
 @media (max-width: 860px) {
   .desk {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
   }
 
   .side {
@@ -148,10 +154,13 @@ nav a.active i {
   }
 
   .side-head {
-    flex-direction: row;
     align-items: center;
-    justify-content: space-between;
     padding-bottom: 4px;
+  }
+
+  /* The signed-in person is shown on the "This device" page; keep the phone header to one line. */
+  .side-head .who {
+    display: none;
   }
 
   nav {

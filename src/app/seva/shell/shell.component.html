@@ -9,19 +9,17 @@
             @if (auth.user()?.photoURL) { <img [src]="auth.user()!.photoURL" alt="" width="28" height="28" referrerpolicy="no-referrer" /> }
             <span>{{ firstName() }}<small>{{ roleLabel() }}</small></span>
           </p>
+          <app-tour-button />
         </div>
         <nav aria-label="Seva desk">
-          <a routerLink="overview" routerLinkActive="active"><i class="ph ph-chart-bar" aria-hidden="true"></i>Overview</a>
-          <a routerLink="registrations" routerLinkActive="active"><i class="ph ph-list" aria-hidden="true"></i>Registrations</a>
-          <a routerLink="/register"><i class="ph ph-user-plus" aria-hidden="true"></i>New registration</a>
+          <a routerLink="overview" routerLinkActive="active" data-tour="nav-overview"><i class="ph ph-chart-bar" aria-hidden="true"></i>Overview</a>
+          <a routerLink="registrations" routerLinkActive="active" data-tour="nav-registrations"><i class="ph ph-list" aria-hidden="true"></i>Registrations</a>
+          <a routerLink="/register" data-tour="nav-new"><i class="ph ph-user-plus" aria-hidden="true"></i>New registration</a>
           @if (auth.isOwner()) {
-            <a routerLink="people" routerLinkActive="active"><i class="ph ph-users" aria-hidden="true"></i>People</a>
-            <a routerLink="settings" routerLinkActive="active"><i class="ph ph-gear" aria-hidden="true"></i>Settings</a>
+            <a routerLink="people" routerLinkActive="active" data-tour="nav-people"><i class="ph ph-users" aria-hidden="true"></i>People</a>
+            <a routerLink="settings" routerLinkActive="active" data-tour="nav-settings"><i class="ph ph-gear" aria-hidden="true"></i>Settings</a>
           }
-          @if (auth.canAdmin()) {
-            <a routerLink="archive" routerLinkActive="active"><i class="ph ph-archive" aria-hidden="true"></i>2025 archive</a>
-          }
-          <a routerLink="device" routerLinkActive="active"><i class="ph ph-fingerprint" aria-hidden="true"></i>This device</a>
+          <a routerLink="device" routerLinkActive="active" data-tour="nav-device"><i class="ph ph-fingerprint" aria-hidden="true"></i>This device</a>
         </nav>
       </aside>
       <main class="content">
