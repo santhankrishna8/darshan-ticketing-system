@@ -111,7 +111,7 @@ export const DEFAULT_SETTINGS = (season: string): SeasonSettings => ({
   dressCodeEn: 'Yellow attire is mandatory for darshan',
   contactName: 'వి. బాలకృష్ణ',
   contactPhone: '9347580090',
-  registrationOpen: false,
+  registrationOpen: true,
   coordinators: [],
   ticketsPerCoordinator: 50,
 });

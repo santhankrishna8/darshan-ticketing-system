@@ -5,8 +5,8 @@
 @if (season.settings() === undefined) {
   <div class="skeleton block-skel"></div>
 } @else if (season.settings() === null) {
-  <section class="setup panel">
-    <i class="ph ph-ticket" aria-hidden="true"></i>
+  <section class="setup card">
+    <app-icon name="ticket" />
     <h2>Create the {{ season.season }} season</h2>
     <p class="muted">This makes a new <code>seasons/{{ season.season }}</code> document in Firestore where all of this year's registrations, access requests and settings are stored.</p>
     <button type="button" class="btn btn-primary btn-lg" (click)="create()" [disabled]="creating()">
@@ -14,7 +14,7 @@
     </button>
   </section>
 } @else {
-  <section class="open panel" [class.is-open]="season.settings()!.registrationOpen">
+  <section class="open card" [class.is-open]="season.settings()!.registrationOpen">
     <div>
       <h2>{{ season.settings()!.registrationOpen ? 'Registration is open' : 'Registration is closed' }}</h2>
       <p class="muted">{{ season.settings()!.registrationOpen ? 'Anyone with the link can register.' : 'Only signed-in staff can register families.' }}</p>
@@ -25,7 +25,7 @@
   </section>
 
   @if (draft; as d) {
-    <form class="panel form" (ngSubmit)="save()" (input)="dirty = true" (change)="dirty = true">
+    <form class="card form" (ngSubmit)="save()" (input)="dirty = true" (change)="dirty = true">
       <fieldset>
         <legend>Tickets</legend>
         <div class="grid">

@@ -4,11 +4,12 @@ import { Unsubscribe } from 'firebase/firestore';
 import { AuthService } from '../../core/auth.service';
 import { StaffMember, StaffRole } from '../../core/models';
 import { ToastService } from '../../shared/toast';
+import { IconComponent } from '../../shared/icon';
 
 /** Main admin: approve or reject access requests, choose roles, allow biometric unlock. */
 @Component({
   selector: 'app-people',
-  imports: [NgTemplateOutlet],
+  imports: [IconComponent, NgTemplateOutlet],
   templateUrl: './people.component.html',
   styleUrl: './people.component.css',
 })

@@ -10,11 +10,12 @@ import { SiteFooterComponent } from '../../shared/site-footer';
 import { SiteHeaderComponent } from '../../shared/site-header';
 import { ToastService } from '../../shared/toast';
 import { TourService } from '../../shared/tour';
+import { IconComponent } from '../../shared/icon';
 
 /** Find a ticket by Aadhaar or phone. Lookups are exact-match documents, so nobody can browse others' data. */
 @Component({
   selector: 'app-ticket',
-  imports: [FormsModule, RouterLink, SiteHeaderComponent, SiteFooterComponent],
+  imports: [IconComponent, FormsModule, RouterLink, SiteHeaderComponent, SiteFooterComponent],
   templateUrl: './ticket.component.html',
   styleUrl: './ticket.component.css',
 })

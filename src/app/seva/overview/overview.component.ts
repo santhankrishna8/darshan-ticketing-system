@@ -2,10 +2,11 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SeasonService } from '../../core/season.service';
 import { StaffDataService } from '../staff-data.service';
+import { IconComponent } from '../../shared/icon';
 
 @Component({
   selector: 'app-overview',
-  imports: [RouterLink],
+  imports: [IconComponent, RouterLink],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.css',
 })

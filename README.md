@@ -3,7 +3,7 @@
 Darshan ticket registration for Sri Vakulamatha Devi Govindamala Bhakta Brundam, Peruru.
 Angular 20 + Firebase (Firestore, Google sign-in).
 
-- **Public site**: `/` home, `/register` registration with Aadhaar scanning, `/ticket` ticket download.
+- **Public site**: `/` opens straight on the registration form (with Aadhaar scanning), `/ticket` ticket download.
 - **Seva desk** (`/seva`): staff sign in with Google; the main admin approves who gets in.
 
 ## How data is stored
@@ -29,8 +29,8 @@ The main admin is **santhankrishna18@gmail.com**. To change it, edit `ownerEmail
 1. **Authentication > Sign-in method**: enable **Google**.
    **Authentication > Settings > Authorized domains**: add the site's domain (for example the Vercel domain).
 2. Deploy the security rules: `npx firebase deploy --only firestore:rules`.
-3. Open `/seva`, sign in with the main admin account (santhankrishna18@gmail.com), go to **Settings**, click **Create season 2026**,
-   review the numbers and coordinators, then **Open registration**.
+3. Open `/seva` and sign in with the main admin account (santhankrishna18@gmail.com). The 2026 season is
+   created automatically and registration is open. Review the numbers and coordinators under **Settings**.
 
 Volunteers open `/seva` and sign in; they appear under **People** for you to approve as *volunteer*
 (register, list, mark payments) or *admin* (also Excel export with full Aadhaar).
@@ -56,9 +56,15 @@ button on the home page; on iPhone the button explains Share > Add to Home Scree
 The app shell loads offline; the scanner files are cached after the first scan. Registering still
 needs internet. When a new version is deployed, open apps show a **Reload** bar.
 
+## Look and feel
+
+Monochrome theme (tokens in `src/styles.css`, written as hex equivalents of the supplied oklch values),
+Geist for Latin text with Noto Sans Telugu for Telugu, and Phosphor icons bundled as inline SVG.
+Light and dark follow the phone's setting; `class="dark"` on `<html>` forces dark.
+
 ## Guided tours
 
-The home, registration, ticket and seva desk pages each play a short bilingual walkthrough on the
+The registration, ticket and seva desk pages each play a short bilingual walkthrough on the
 first visit. **Help** in the header replays it. Tours are remembered per device.
 
 ## Fingerprint unlock

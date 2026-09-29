@@ -1,7 +1,7 @@
 <header class="head">
   <h1>Overview <span class="muted">{{ season.season }}</span></h1>
   @if (season.settings(); as s) {
-    <span class="chip" [class.chip-ok]="s.registrationOpen" [class.chip-warn]="!s.registrationOpen">
+    <span class="chip" [class.chip-solid]="s.registrationOpen">
       {{ s.registrationOpen ? 'Registration open' : 'Registration closed' }}
     </span>
   }
@@ -37,11 +37,11 @@
 
   @if (stats().devotees === 0) {
     <div class="notice">
-      <i class="ph ph-ticket" aria-hidden="true"></i>
+      <app-icon name="ticket" />
       <p>No registrations yet. Share the website link once registration is open, or <a routerLink="/register">register a family yourself</a>.</p>
     </div>
   } @else {
-    <section class="coord panel" aria-labelledby="coord-title">
+    <section class="coord card" aria-labelledby="coord-title">
       <h2 id="coord-title">By coordinator</h2>
       <table>
         <thead><tr><th scope="col">Coordinator</th><th scope="col" class="num">Tickets</th><th scope="col" class="num">Paid</th><th scope="col" class="num">Pending</th></tr></thead>

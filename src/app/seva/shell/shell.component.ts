@@ -5,10 +5,11 @@ import { BiometricService } from '../../core/biometric.service';
 import { SeasonService } from '../../core/season.service';
 import { TourButtonComponent, TourService } from '../../shared/tour';
 import { StaffDataService } from '../staff-data.service';
+import { IconComponent } from '../../shared/icon';
 
 @Component({
   selector: 'app-seva-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TourButtonComponent],
+  imports: [IconComponent, RouterOutlet, RouterLink, RouterLinkActive, TourButtonComponent],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.css',
 })
@@ -20,6 +21,7 @@ export class SevaShellComponent implements OnDestroy {
   private readonly tour = inject(TourService);
 
   protected readonly busy = signal(false);
+  private creatingSeason = false;
   protected readonly unlockError = signal<string | null>(null);
   protected readonly firstName = computed(() => (this.auth.user()?.displayName ?? '').split(' ')[0]);
   protected readonly roleLabel = computed(() => ({ owner: 'Main admin', admin: 'Admin', volunteer: 'Volunteer' })[this.auth.role() ?? 'volunteer']);
@@ -30,6 +32,16 @@ export class SevaShellComponent implements OnDestroy {
     effect(() => {
       if (this.auth.access() === 'approved') this.tour.offer(this.auth.isOwner() ? 'seva-owner' : 'seva', this.tourSteps());
       else this.tour.withdraw(this.auth.isOwner() ? 'seva-owner' : 'seva');
+    });
+    // First time the main admin opens the desk: create this season (open for registration).
+    effect(() => {
+      if (this.auth.access() === 'approved' && this.auth.isOwner() && this.season.settings() === null && !this.creatingSeason) {
+        this.creatingSeason = true;
+        this.season.createSeason().catch(e => {
+          console.error(e);
+          this.creatingSeason = false;
+        });
+      }
     });
     // If the main admin withdrew biometric permission, a locked device must sign in with Google again.
     effect(() => {

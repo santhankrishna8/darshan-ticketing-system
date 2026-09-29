@@ -10,6 +10,7 @@ import { MemberInput, Registration, SeasonSettings } from '../../core/models';
 import { RegistrationError, RegistrationService } from '../../core/registration.service';
 import { SeasonService } from '../../core/season.service';
 import { downloadTicketPdf } from '../../core/ticket-pdf';
+import { IconComponent } from '../../shared/icon';
 import { SiteFooterComponent } from '../../shared/site-footer';
 import { SiteHeaderComponent } from '../../shared/site-header';
 import { ToastService } from '../../shared/toast';
@@ -93,7 +94,7 @@ const TOUR: TourStep[] = [
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, SiteHeaderComponent, SiteFooterComponent],
+  imports: [ReactiveFormsModule, RouterLink, SiteHeaderComponent, SiteFooterComponent, IconComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })

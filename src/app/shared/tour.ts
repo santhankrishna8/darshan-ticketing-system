@@ -1,4 +1,5 @@
 import { Component, ElementRef, Injectable, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { IconComponent } from './icon';
 
 export interface TourStep {
   /** CSS selector of the element to highlight; omitted for a centred intro card. */
@@ -94,6 +95,7 @@ interface Box {
 
 @Component({
   selector: 'app-tour',
+  imports: [IconComponent],
   host: { '(window:resize)': 'measure()', '(window:scroll)': 'measure()', '(document:keydown)': 'key($event)' },
   template: `
     @if (tour.step(); as s) {
@@ -112,7 +114,7 @@ interface Box {
           <button type="button" class="btn btn-quiet btn-sm" (click)="tour.finish()">Skip</button>
           <span class="grow"></span>
           @if (tour.index() > 0) {
-            <button type="button" class="btn btn-sm" (click)="tour.back()"><i class="ph ph-arrow-left" aria-hidden="true"></i>Back</button>
+            <button type="button" class="btn btn-sm" (click)="tour.back()"><app-icon name="arrow-left" />Back</button>
           }
           <button type="button" class="btn btn-primary btn-sm" (click)="tour.next()">
             {{ tour.index() === tour.active()!.steps.length - 1 ? 'Done · సరే' : 'Next · తర్వాత' }}
@@ -125,15 +127,15 @@ interface Box {
     .veil { position: fixed; inset: 0; z-index: 60; }
     .veil.center { background: rgb(27 15 10 / 0.55); }
     .spot { position: absolute; z-index: 61; border-radius: 14px; pointer-events: none;
-      box-shadow: 0 0 0 3px var(--turmeric), 0 0 0 9999px rgb(27 15 10 / 0.55); transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease; }
+      box-shadow: 0 0 0 3px var(--chart-1), 0 0 0 9999px rgb(27 15 10 / 0.55); transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease; }
     .card { position: fixed; z-index: 62; width: min(360px, calc(100vw - 32px)); padding: 18px 18px 14px;
-      background: var(--surface); color: var(--ink); border-radius: var(--radius-lg); border-top: 4px solid var(--turmeric);
+      background: var(--card); color: var(--foreground); border-radius: var(--radius);
       box-shadow: 0 20px 50px -12px rgb(0 0 0 / .45); outline: none; }
     .card.middle { transform: translate(-50%, -50%); }
-    .count { font-size: .8rem; font-weight: 700; color: var(--ink-soft); }
-    h2 { font-size: 1.35rem; color: var(--kumkum); margin: 2px 0 8px; }
-    h2 span { display: block; font-family: var(--font-text); font-size: .95rem; font-weight: 700; color: var(--ink); }
-    .te { color: var(--ink-soft); margin-top: 4px; }
+    .count { font-size: .8rem; font-weight: 700; color: var(--muted-foreground); }
+    h2 { font-size: 1.35rem; color: var(--primary); margin: 2px 0 8px; }
+    h2 span { display: block; font-family: var(--font-sans); font-size: .95rem; font-weight: 700; color: var(--foreground); }
+    .te { color: var(--muted-foreground); margin-top: 4px; }
     .acts { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
     .grow { flex: 1; }
   `,
@@ -193,18 +195,19 @@ export class TourComponent {
 /** Header button that replays the current page's tour. */
 @Component({
   selector: 'app-tour-button',
+  imports: [IconComponent],
   template: `
     @if (tour.available()) {
       <button type="button" class="help" data-tour="help" (click)="tour.play()" aria-label="Show me around · సహాయం">
-        <i class="ph ph-question" aria-hidden="true"></i><span>Help</span>
+        <app-icon name="question" /><span>Help</span>
       </button>
     }
   `,
   styles: `
     .help { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 12px; border: 0; border-radius: var(--radius);
-      background: transparent; color: var(--ink); font: 600 .95rem var(--font-text); cursor: pointer; }
-    .help:hover { background: var(--surface-sunk); }
-    .help i { font-size: 1.3rem; color: var(--kumkum); }
+      background: transparent; color: var(--foreground); font: 600 .95rem var(--font-sans); cursor: pointer; }
+    .help:hover { background: var(--muted); }
+    .help i { font-size: 1.3rem; color: var(--primary); }
     @media (max-width: 480px) { span { display: none; } }
   `,
 })

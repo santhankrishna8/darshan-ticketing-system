@@ -48,15 +48,13 @@
               }
             ],
             "styles": [
-              "node_modules/@fontsource/tiro-telugu/telugu-400.css",
-              "node_modules/@fontsource/tiro-telugu/latin-400.css",
-              "node_modules/@fontsource/hind-guntur/telugu-400.css",
-              "node_modules/@fontsource/hind-guntur/telugu-500.css",
-              "node_modules/@fontsource/hind-guntur/telugu-600.css",
-              "node_modules/@fontsource/hind-guntur/latin-400.css",
-              "node_modules/@fontsource/hind-guntur/latin-500.css",
-              "node_modules/@fontsource/hind-guntur/latin-600.css",
-              "node_modules/@phosphor-icons/web/src/regular/style.css",
+              "node_modules/@fontsource/geist-sans/latin-400.css",
+              "node_modules/@fontsource/geist-sans/latin-500.css",
+              "node_modules/@fontsource/geist-sans/latin-600.css",
+              "node_modules/@fontsource/geist-mono/latin-400.css",
+              "node_modules/@fontsource/noto-sans-telugu/telugu-400.css",
+              "node_modules/@fontsource/noto-sans-telugu/telugu-500.css",
+              "node_modules/@fontsource/noto-sans-telugu/telugu-600.css",
               "src/styles.css"
             ],
             "scripts": [],
@@ -70,7 +68,10 @@
               "rgbcolor",
               "raf",
               "dompurify"
-            ]
+            ],
+            "loader": {
+              ".svg": "text"
+            }
           },
           "configurations": {
             "production": {
@@ -162,18 +163,19 @@
               }
             ],
             "styles": [
-              "node_modules/@fontsource/tiro-telugu/telugu-400.css",
-              "node_modules/@fontsource/tiro-telugu/latin-400.css",
-              "node_modules/@fontsource/hind-guntur/telugu-400.css",
-              "node_modules/@fontsource/hind-guntur/telugu-500.css",
-              "node_modules/@fontsource/hind-guntur/telugu-600.css",
-              "node_modules/@fontsource/hind-guntur/latin-400.css",
-              "node_modules/@fontsource/hind-guntur/latin-500.css",
-              "node_modules/@fontsource/hind-guntur/latin-600.css",
-              "node_modules/@phosphor-icons/web/src/regular/style.css",
+              "node_modules/@fontsource/geist-sans/latin-400.css",
+              "node_modules/@fontsource/geist-sans/latin-500.css",
+              "node_modules/@fontsource/geist-sans/latin-600.css",
+              "node_modules/@fontsource/geist-mono/latin-400.css",
+              "node_modules/@fontsource/noto-sans-telugu/telugu-400.css",
+              "node_modules/@fontsource/noto-sans-telugu/telugu-500.css",
+              "node_modules/@fontsource/noto-sans-telugu/telugu-600.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "loader": {
+              ".svg": "text"
+            }
           }
         }
       }

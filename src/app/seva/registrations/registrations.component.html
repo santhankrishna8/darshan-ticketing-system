@@ -1,9 +1,9 @@
 <header class="head">
   <h1>Registrations</h1>
   <div class="head-actions">
-    <a routerLink="/register" class="btn btn-sm"><i class="ph ph-user-plus" aria-hidden="true"></i>New</a>
+    <a routerLink="/register" class="btn btn-sm"><app-icon name="user-plus" />New</a>
     <button type="button" class="btn btn-sm btn-primary" (click)="export()" [disabled]="exporting() || filtered().length === 0">
-      <i class="ph ph-download-simple" aria-hidden="true"></i>{{ exporting() ? 'Preparing…' : 'Excel' }}
+      <app-icon name="download-simple" />{{ exporting() ? 'Preparing…' : 'Excel' }}
     </button>
   </div>
 </header>
@@ -31,16 +31,16 @@
 </div>
 
 @if (data.error()) {
-  <div class="notice notice-error" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>Could not load registrations: {{ data.error() }}</p></div>
+  <div class="notice notice-error" role="alert"><app-icon name="warning-circle" /><p>Could not load registrations: {{ data.error() }}</p></div>
 }
 
 @if (data.registrations() === undefined) {
   @for (i of [1, 2, 3, 4, 5]; track i) { <div class="skeleton row-skel"></div> }
 } @else if (filtered().length === 0) {
-  <div class="notice"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><p>{{ data.rows().length ? 'Nothing matches these filters.' : 'No registrations yet.' }}</p></div>
+  <div class="notice"><app-icon name="magnifying-glass" /><p>{{ data.rows().length ? 'Nothing matches these filters.' : 'No registrations yet.' }}</p></div>
 } @else {
   <p class="muted count">{{ filtered().length }} {{ filtered().length === 1 ? 'devotee' : 'devotees' }}</p>
-  <div class="table-wrap panel">
+  <div class="table-wrap card">
     <table>
       <thead>
         <tr>
@@ -71,11 +71,11 @@
             </td>
             <td class="actions">
               <button type="button" class="btn btn-quiet btn-sm" (click)="ticket(r)" [attr.aria-label]="'Ticket PDF for registration ' + r.reg.submissionNo">
-                <i class="ph ph-ticket" aria-hidden="true"></i>
+                <app-icon name="ticket" />
               </button>
               @if (auth.isOwner()) {
                 <button type="button" class="btn btn-quiet btn-sm danger" (click)="remove(r)" [attr.aria-label]="'Delete registration ' + r.reg.submissionNo">
-                  <i class="ph ph-trash" aria-hidden="true"></i>
+                  <app-icon name="trash" />
                 </button>
               }
             </td>
