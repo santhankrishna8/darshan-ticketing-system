@@ -40,12 +40,6 @@
   line-height: 1.25;
 }
 
-.brand span {
-  font-size: 0.8rem;
-  font-weight: 400;
-  color: var(--muted-foreground);
-}
-
 .desk {
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);

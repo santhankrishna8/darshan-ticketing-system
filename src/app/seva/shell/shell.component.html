@@ -3,7 +3,7 @@
     <div class="desk">
       <aside class="side">
                 <div class="side-head">
-          <a routerLink="/" class="brand">Seva desk {{ season.season }}<span>గోవిందమాల దర్శనం</span></a>
+          <a routerLink="/" class="brand">Seva desk {{ season.season }}</a>
           <p class="who">
             @if (auth.user()?.photoURL) { <img [src]="auth.user()!.photoURL" alt="" width="28" height="28" referrerpolicy="no-referrer" /> }
             <span>{{ firstName() }}<small>{{ roleLabel() }}</small></span>
@@ -46,7 +46,7 @@
   @default {
     <div class="gate">
             <section class="gate-card card">
-        <a routerLink="/" class="brand">Seva desk<span>గోవిందమాల దర్శనం</span></a>
+        <a routerLink="/" class="brand">Seva desk</a>
 
         @switch (auth.access()) {
           @case ('loading') {
