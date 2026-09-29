@@ -4,11 +4,12 @@ import { SeasonSettings } from '../../core/models';
 import { SeasonService } from '../../core/season.service';
 import { ToastService } from '../../shared/toast';
 import { IconComponent } from '../../shared/icon';
+import { CoordinatorsComponent } from './coordinators';
 
 /** Main admin: the season's ticket limits, fee, instructions and coordinators. */
 @Component({
   selector: 'app-settings',
-  imports: [IconComponent, FormsModule],
+  imports: [IconComponent, FormsModule, CoordinatorsComponent],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.css',
 })
@@ -17,7 +18,6 @@ export class SettingsComponent {
   private readonly toast = inject(ToastService);
 
   protected draft: SeasonSettings | null = null;
-  protected coordinatorsText = '';
   protected readonly saving = signal(false);
   protected readonly creating = signal(false);
   protected dirty = false;
@@ -28,7 +28,6 @@ export class SettingsComponent {
       const s = this.season.settings();
       if (s && !this.dirty) {
         this.draft = structuredClone(s);
-        this.coordinatorsText = s.coordinators.join('\n');
       }
     });
   }
@@ -49,14 +48,14 @@ export class SettingsComponent {
   protected async save(): Promise<void> {
     if (!this.draft) return;
     const d = this.draft;
-    const coordinators = this.coordinatorsText.split('\n').map(s => s.trim()).filter(Boolean);
     if (d.totalTickets < this.season.registered()) {
       this.toast.show(`Total tickets cannot be less than the ${this.season.registered()} already registered.`, 'error');
       return;
     }
     this.saving.set(true);
     try {
-      const { season: _season, ...changes } = { ...d, coordinators };
+      // Coordinators save on their own, straight away; never overwrite them from this form.
+      const { season: _season, coordinators: _c, ticketsPerCoordinator: _t, ...changes } = d;
       await this.season.saveSettings({
         ...changes,
         totalTickets: Number(d.totalTickets),
@@ -64,7 +63,6 @@ export class SettingsComponent {
         minAge: Number(d.minAge),
         maxAge: Number(d.maxAge),
         fee: Number(d.fee),
-        ticketsPerCoordinator: Number(d.ticketsPerCoordinator),
         contactPhone: String(d.contactPhone).replace(/\D/g, ''),
       });
       this.dirty = false;

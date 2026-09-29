@@ -24,6 +24,8 @@
     </button>
   </section>
 
+  <app-coordinators />
+
   @if (draft; as d) {
     <form class="card form" (ngSubmit)="save()" (input)="dirty = true" (change)="dirty = true">
       <fieldset>
@@ -35,15 +37,6 @@
           <div class="field"><label for="maxAge">Maximum age</label><input id="maxAge" name="maxAge" class="input" type="number" [(ngModel)]="d.maxAge" /></div>
           <div class="field"><label for="fee">Darshan fee (₹)</label><input id="fee" name="fee" class="input" type="number" min="0" [(ngModel)]="d.fee" /></div>
           <div class="field"><label for="date">Darshan date</label><input id="date" name="date" class="input" [(ngModel)]="d.darshanDate" placeholder="e.g. 18 December 2026" /></div>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Coordinators</legend>
-        <p class="hint">Tickets are given to coordinators in blocks, in this order. One name per line.</p>
-        <div class="grid">
-          <div class="field"><label for="coords">Names</label><textarea id="coords" name="coords" class="input" rows="6" [(ngModel)]="coordinatorsText"></textarea></div>
-          <div class="field"><label for="block">Tickets per coordinator</label><input id="block" name="block" class="input" type="number" min="1" [(ngModel)]="d.ticketsPerCoordinator" /></div>
         </div>
       </fieldset>
 
