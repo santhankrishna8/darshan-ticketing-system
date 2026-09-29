@@ -107,21 +107,43 @@
 
                 <div class="field span-2">
                   <label [for]="'aadhaar' + row.id">{{ i18n.t('Aadhaar number', 'ఆధార్ నంబర్') }}</label>
-                  <input #aadhaarEl [id]="'aadhaar' + row.id" class="input mono" formControlName="aadhaar" inputmode="numeric" autocomplete="off"
-                    placeholder="0000 0000 0000" maxlength="14"
-                    [class.from-card]="row.fromCard().has('aadhaar')" [class.invalid]="show(row, 'aadhaar') || row.duplicate() === 'taken'"
-                    (input)="onAadhaarInput(row, aadhaarEl)" />
-                  @if (show(row, 'aadhaar')) {
-                    <p class="error-text">
-                      @if (row.form.controls.aadhaar.hasError('required')) { {{ i18n.t('Aadhaar number is required', 'ఆధార్ నంబర్ తప్పనిసరి') }} }
-                      @else if (row.form.controls.aadhaar.hasError('length')) { {{ i18n.t('Aadhaar has 12 digits', 'ఆధార్‌లో 12 అంకెలు ఉంటాయి') }} }
-                      @else { {{ i18n.t('This number is not valid. Check each digit.', 'ఈ నంబర్ సరైనది కాదు. ప్రతి అంకె సరిచూడండి.') }} }
-                    </p>
-                  } @else if (row.duplicate() === 'taken') {
-                    <p class="error-text">{{ i18n.t('Already registered.', 'ఇప్పటికే నమోదైంది.') }} <a routerLink="/ticket">{{ i18n.t('Find that ticket', 'ఆ టికెట్ వెతకండి') }}</a></p>
-                  } @else if (row.duplicate() === 'free') {
-                    <p class="hint ok"><app-icon name="check-circle" />{{ i18n.t('Valid Aadhaar number', 'సరైన ఆధార్ నంబర్') }}</p>
-                  }
+                  <div class="with-status">
+                    <input #aadhaarEl [id]="'aadhaar' + row.id" class="input mono" formControlName="aadhaar" inputmode="numeric" autocomplete="off"
+                      placeholder="0000 0000 0000" maxlength="14" [attr.aria-describedby]="'aadhaar-msg' + row.id"
+                      [attr.aria-invalid]="showAadhaarError(row) || row.duplicate() === 'taken' || row.duplicate() === 'repeat'"
+                      [class.from-card]="row.fromCard().has('aadhaar')" [class.invalid]="showAadhaarError(row) || row.duplicate() === 'taken' || row.duplicate() === 'repeat'"
+                      (input)="onAadhaarInput(row, aadhaarEl)" (blur)="row.duplicate() === 'unknown' && checkDuplicate(row)" />
+                    <span class="status" aria-hidden="true">
+                      @switch (row.duplicate()) {
+                        @case ('checking') { <app-icon name="spinner-gap" class="spin" /> }
+                        @case ('free') { <app-icon name="check-circle" class="ok" /> }
+                        @case ('taken') { <app-icon name="warning-circle" class="bad" /> }
+                        @case ('repeat') { <app-icon name="warning-circle" class="bad" /> }
+                      }
+                    </span>
+                  </div>
+                  <div [id]="'aadhaar-msg' + row.id" aria-live="polite">
+                    @if (showAadhaarError(row)) {
+                      <p class="error-text">
+                        @if (row.form.controls.aadhaar.hasError('required')) { {{ i18n.t('Aadhaar number is required', 'ఆధార్ నంబర్ తప్పనిసరి') }} }
+                        @else if (row.form.controls.aadhaar.hasError('length')) { {{ i18n.t('Aadhaar has 12 digits', 'ఆధార్‌లో 12 అంకెలు ఉంటాయి') }} }
+                        @else { {{ i18n.t('This number is not valid. Check each digit.', 'ఈ నంబర్ సరైనది కాదు. ప్రతి అంకె సరిచూడండి.') }} }
+                      </p>
+                    } @else {
+                      @switch (row.duplicate()) {
+                        @case ('checking') { <p class="hint">{{ i18n.t('Checking…', 'సరిచూస్తోంది…') }}</p> }
+                        @case ('taken') {
+                          <p class="error-text">
+                            {{ i18n.t('This Aadhaar is already registered', 'ఈ ఆధార్ ఇప్పటికే నమోదైంది') }}@if (row.takenTicket()) {<span> · {{ i18n.t('Ticket', 'టికెట్') }} {{ row.takenTicket() }}</span>}.
+                            <a routerLink="/ticket">{{ i18n.t('Find that ticket', 'ఆ టికెట్ వెతకండి') }}</a>
+                          </p>
+                        }
+                        @case ('repeat') { <p class="error-text">{{ i18n.t('Same Aadhaar as Devotee ' + row.repeatOf() + ' in this form', 'ఈ ఫారంలో భక్తుడు ' + row.repeatOf() + ' ఆధార్ ఇదే') }}</p> }
+                        @case ('free') { <p class="hint ok">{{ i18n.t('Valid, not registered yet', 'సరైనది, ఇంకా నమోదు కాలేదు') }}</p> }
+                        @case ('error') { <p class="hint">{{ i18n.t('Could not check right now. It will be checked again when you submit.', 'ఇప్పుడు సరిచూడలేకపోయాము. సమర్పించినప్పుడు మళ్ళీ సరిచూస్తాం.') }}</p> }
+                      }
+                    }
+                  </div>
                 </div>
 
                 <div class="field">

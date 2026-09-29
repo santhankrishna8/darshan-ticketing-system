@@ -200,3 +200,28 @@ h2 {
     flex: 1 1 100%;
   }
 }
+
+.with-status {
+  position: relative;
+}
+
+.with-status .input {
+  padding-right: 40px;
+}
+
+.status {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  pointer-events: none;
+}
+
+.status .ok {
+  color: #16a34a;
+}
+
+.status .bad {
+  color: var(--destructive);
+}

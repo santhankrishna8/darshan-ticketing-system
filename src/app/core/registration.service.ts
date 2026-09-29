@@ -47,8 +47,10 @@ export function coordinatorFor(ticket: number, s: Pick<SeasonSettings, 'coordina
 
 @Injectable({ providedIn: 'root' })
 export class RegistrationService {
-  async isRegistered(aadhaar: string): Promise<boolean> {
-    return (await getDoc(doc(aadhaarIndex(), await aadhaarKey(aadhaar)))).exists();
+  /** The ticket number an Aadhaar number is already registered under, or null if it is free. */
+  async registeredTicket(aadhaar: string): Promise<number | null> {
+    const snap = await getDoc(doc(aadhaarIndex(), await aadhaarKey(aadhaar)));
+    return snap.exists() ? ((snap.data() as AadhaarIndex).ticketNumber ?? 0) : null;
   }
 
   /**

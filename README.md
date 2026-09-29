@@ -64,7 +64,9 @@ the choice is remembered on the device. It also holds the tour and install. Admi
 
 The production build includes a service worker and web manifest, so the site can be added to the
 home screen and opens full screen with its own icon. Android/Chrome shows an **Add to home screen**
-button in Settings; on iPhone it explains Share > Add to Home Screen.
+button in Settings. iPhone/iPad never show an install prompt: Settings > Install app shows the
+Share > Add to Home Screen steps for the browser in use. Safari works on every iOS version; Chrome, Edge
+and Firefox work from iOS 16.4; in-app browsers (WhatsApp, Instagram, Gmail) cannot, so open the link in Safari.
 The app shell loads offline; the scanner files are cached after the first scan. Registering still
 needs internet. When a new version is deployed, open apps show a **Reload** bar.
 

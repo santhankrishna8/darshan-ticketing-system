@@ -41,7 +41,10 @@ class MemberRow {
   readonly scan = signal<ScanState>('idle');
   readonly missing = signal<string[]>([]);
   readonly fromCard = signal<Set<Field>>(new Set());
-  readonly duplicate = signal<'unknown' | 'checking' | 'free' | 'taken'>('unknown');
+  /** Live "already registered" check, like a username check: taken = registered before, repeat = twice in this form. */
+  readonly duplicate = signal<'unknown' | 'checking' | 'free' | 'taken' | 'repeat' | 'error'>('unknown');
+  readonly takenTicket = signal<number | null>(null);
+  readonly repeatOf = signal<number | null>(null);
 
   constructor(settings: SeasonSettings, prev?: MemberRow) {
     this.form.controls.age.addValidators([Validators.min(settings.minAge), Validators.max(settings.maxAge)]);
@@ -226,25 +229,41 @@ export class RegisterComponent implements OnDestroy {
     if (formatted !== el.value) row.form.controls.aadhaar.setValue(formatted);
     row.duplicate.set('unknown');
     this.edited(row, 'aadhaar');
-    if (row.form.controls.aadhaar.valid) this.checkDuplicate(row);
+    // Re-check every row: changing one number can create or clear a repeat elsewhere in the form.
+    for (const r of this.rows()) if (r === row || r.duplicate() === 'repeat') this.checkDuplicate(r);
   }
 
   protected async checkDuplicate(row: MemberRow): Promise<void> {
     const digits = row.form.controls.aadhaar.value.replace(/\D/g, '');
-    if (!isValidAadhaar(digits)) return;
-    const others = this.rows().filter(r => r !== row && r.form.controls.aadhaar.value.replace(/\D/g, '') === digits);
-    if (others.length) {
-      row.duplicate.set('taken');
+    if (!isValidAadhaar(digits)) {
+      row.duplicate.set('unknown');
+      return;
+    }
+    const rows = this.rows();
+    const first = rows.findIndex(r => r.form.controls.aadhaar.value.replace(/\D/g, '') === digits);
+    if (rows[first] !== row) {
+      row.repeatOf.set(first + 1);
+      row.duplicate.set('repeat');
       return;
     }
     row.duplicate.set('checking');
     try {
-      const taken = await this.registrations.isRegistered(digits);
-      if (row.form.controls.aadhaar.value.replace(/\D/g, '') === digits) row.duplicate.set(taken ? 'taken' : 'free');
-    } catch {
-      row.duplicate.set('unknown');
+      const ticket = await this.registrations.registeredTicket(digits);
+      if (row.form.controls.aadhaar.value.replace(/\D/g, '') !== digits) return; // typed on meanwhile
+      row.takenTicket.set(ticket);
+      row.duplicate.set(ticket === null ? 'free' : 'taken');
+    } catch (e) {
+      console.error('Aadhaar check failed', e);
+      if (row.form.controls.aadhaar.value.replace(/\D/g, '') === digits) row.duplicate.set('error');
     }
   }
+
+  /** Aadhaar errors show as soon as all 12 digits are in, without waiting for the field to lose focus. */
+  protected showAadhaarError(row: MemberRow): boolean {
+    const c = row.form.controls.aadhaar;
+    return c.invalid && (c.touched || this.attempted() || c.value.replace(/\D/g, '').length === 12);
+  }
+
 
   protected show(row: MemberRow, field: Field): boolean {
     const c = row.form.controls[field];
@@ -256,7 +275,7 @@ export class RegisterComponent implements OnDestroy {
     this.submitError.set(null);
     const rows = this.rows();
     rows.forEach(r => r.form.markAllAsTouched());
-    const firstBad = rows.findIndex(r => r.form.invalid || r.duplicate() === 'taken');
+    const firstBad = rows.findIndex(r => r.form.invalid || r.duplicate() === 'taken' || r.duplicate() === 'repeat');
     if (firstBad >= 0) {
       this.cards()[firstBad]?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       this.toast.show(this.i18n.t('Please fix the highlighted details', 'గుర్తించిన వివరాలు సరిచేయండి'), 'error');
