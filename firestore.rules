@@ -1,7 +1,7 @@
 rules_version = '2';
 
 // Access model
-//  - config/owners {emails: [...]}: the main admin(s). Set once in the Firebase console.
+//  - The main admin is the Google account listed in isOwner() (same as environment.ownerEmails).
 //  - seasons/{season}/staff/{uid}: anyone signed in with Google may file a *pending* request
 //    for themselves; only a main admin can approve it and choose the role.
 //  - The public can register (while registration is open) and fetch a ticket when they know
@@ -15,15 +15,10 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function ownersDoc() {
-      return /databases/$(database)/documents/config/owners;
-    }
-
     function isOwner() {
       return signedIn()
         && request.auth.token.email_verified == true
-        && exists(ownersDoc())
-        && request.auth.token.email in get(ownersDoc()).data.emails;
+        && request.auth.token.email in ['santhankrishna18@gmail.com'];
     }
 
     function staffPath(season) {
@@ -40,11 +35,6 @@ service cloud.firestore {
 
     function isAdmin(season) {
       return isOwner() || (isApproved(season) && get(staffPath(season)).data.role == 'admin');
-    }
-
-    match /config/owners {
-      allow get: if signedIn() && request.auth.token.email in resource.data.emails;
-      allow list, write: if false;
     }
 
     // ---- previous year: preserved as-is, closed to every app user including admins ----

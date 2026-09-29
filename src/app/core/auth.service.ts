@@ -10,7 +10,8 @@ import {
   signInWithRedirect,
   signOut,
 } from 'firebase/auth';
-import { collection, doc, getDoc, onSnapshot, serverTimestamp, setDoc, Unsubscribe, updateDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, serverTimestamp, setDoc, Unsubscribe, updateDoc } from 'firebase/firestore';
+import { environment } from '../../environments/environment';
 import { BiometricService } from './biometric.service';
 import { SEASON, db } from './firebase';
 import { auth } from './firebase-auth';
@@ -23,7 +24,7 @@ const staffCollection = () => collection(db, 'seasons', SEASON, 'staff');
 
 /**
  * Staff sign-in with Google and a permission-request model: anyone may sign in, which
- * files an access request; the main admin (listed in config/owners) approves it and
+ * files an access request; the main admin (environment.ownerEmails) approves it and
  * picks a role. Firestore rules enforce the same model on the server.
  */
 @Injectable({ providedIn: 'root' })
@@ -109,16 +110,8 @@ export class AuthService {
     this.user.set(user);
     if (!user) return this.markReady();
 
-    // The rules only let listed people read config/owners. Also check the list itself, so an
-    // open database (rules not deployed yet) cannot make everyone the main admin.
-    try {
-      const owners = await getDoc(doc(db, 'config', 'owners'));
-      const emails: unknown = owners.data()?.['emails'];
-      const mine = (user.email ?? '').toLowerCase();
-      this.isOwner.set(Array.isArray(emails) && emails.some(e => String(e).trim().toLowerCase() === mine) && user.emailVerified);
-    } catch {
-      this.isOwner.set(false);
-    }
+    const email = (user.email ?? '').toLowerCase();
+    this.isOwner.set(user.emailVerified && environment.ownerEmails.includes(email));
     if (this.isOwner()) this.markReady();
 
     const ref = doc(staffCollection(), user.uid);

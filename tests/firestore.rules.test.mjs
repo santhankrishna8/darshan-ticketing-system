@@ -16,7 +16,7 @@ import {
 } from 'firebase/firestore';
 
 const S = '2026';
-const OWNER = { uid: 'owner', email: 'owner@example.com' };
+const OWNER = { uid: 'owner', email: 'santhankrishna18@gmail.com' };
 let env;
 
 const settings = (over = {}) => ({
@@ -36,7 +36,6 @@ const as = user =>
 async function seed(extra = async () => {}) {
   await env.withSecurityRulesDisabled(async ctx => {
     const db = ctx.firestore();
-    await setDoc(doc(db, 'config/owners'), { emails: [OWNER.email] });
     await setDoc(doc(db, `seasons/${S}`), settings());
     await setDoc(doc(db, `seasons/${S}/meta/counter`), { lastTicket: 0, lastSubmission: 0, lastRegistrationId: '' });
     await setDoc(doc(db, 'devotees/1'), { submissionId: 1, members: [{ name: 'Old', aadhar: '1' }] });
@@ -151,9 +150,8 @@ describe('public', () => {
     await assertFails(updateDoc(doc(as(null), `seasons/${S}`), { totalTickets: 9999 }));
   });
 
-  it('cannot read last year or the owners list', async () => {
+  it('cannot read last year', async () => {
     await assertFails(getDocs(collection(as(null), 'devotees')));
-    await assertFails(getDoc(doc(as({ uid: 'x', email: 'x@example.com' }), 'config/owners')));
   });
 });
 
@@ -202,6 +200,12 @@ describe('access requests', () => {
     const unverified = env.authenticatedContext('owner', { email: OWNER.email, email_verified: false }).firestore();
     await assertFails(updateDoc(doc(unverified, `seasons/${S}`), { totalTickets: 10 }));
     await assertSucceeds(updateDoc(doc(as(OWNER), `seasons/${S}`), { totalTickets: 10 }));
+  });
+
+  it('any other Google account is not the main admin', async () => {
+    const other = { uid: 'x', email: 'someone.else@gmail.com' };
+    await assertFails(updateDoc(doc(as(other), `seasons/${S}`), { totalTickets: 10 }));
+    await assertFails(getDocs(collection(as(other), `seasons/${S}/staff`)));
   });
 });
 

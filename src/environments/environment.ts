@@ -6,5 +6,7 @@ export const environment = {
   season: '2026',
   /** Local testing against the Firebase emulators (npm run start:emulators). */
   useEmulators: false,
+  /** Main admin(s). Must match isOwner() in firestore.rules. */
+  ownerEmails: ['santhankrishna18@gmail.com'],
   firebaseConfig,
 };
