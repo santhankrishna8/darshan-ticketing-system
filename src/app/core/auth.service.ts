@@ -109,10 +109,13 @@ export class AuthService {
     this.user.set(user);
     if (!user) return this.markReady();
 
-    // config/owners is readable only by the people it lists, so a successful read means "main admin".
+    // The rules only let listed people read config/owners. Also check the list itself, so an
+    // open database (rules not deployed yet) cannot make everyone the main admin.
     try {
       const owners = await getDoc(doc(db, 'config', 'owners'));
-      this.isOwner.set(owners.exists());
+      const emails: unknown = owners.data()?.['emails'];
+      const mine = (user.email ?? '').toLowerCase();
+      this.isOwner.set(Array.isArray(emails) && emails.some(e => String(e).trim().toLowerCase() === mine) && user.emailVerified);
     } catch {
       this.isOwner.set(false);
     }
