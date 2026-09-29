@@ -37,7 +37,7 @@ export class AadhaarScannerService {
 
       this.stage.set('reading');
       const worker = await workerPromise;
-      const { PSM } = await import('tesseract.js');
+      const { PSM } = await loadTesseract();
       const canvas = prepareForOcr(bitmap, 0);
 
       await worker.setParameters({ tessedit_pageseg_mode: PSM.AUTO, preserve_interword_spaces: '1' });
@@ -88,7 +88,7 @@ export class AadhaarScannerService {
   }
 
   private getWorker(): Promise<OcrWorker> {
-    this.worker ??= import('tesseract.js').then(({ createWorker, OEM }) => {
+    this.worker ??= loadTesseract().then(({ createWorker, OEM }) => {
       const base = new URL('ocr/', document.baseURI).href;
       return createWorker('eng', OEM.LSTM_ONLY, {
         workerPath: base + 'worker.min.js',
@@ -120,6 +120,15 @@ export class AadhaarScannerService {
     const results = await readBarcodes(data, { formats: ['QRCode'], tryHarder: true, maxNumberOfSymbols: 2 });
     return results.map(r => r.text).find(t => parseAadhaarQr(t)) ?? null;
   }
+}
+
+/**
+ * tesseract.js is a CommonJS package. The development build exposes its exports directly,
+ * but the optimised production build wraps them in `default`, so accept both shapes.
+ */
+async function loadTesseract(): Promise<typeof import('tesseract.js')> {
+  const mod: any = await import('tesseract.js');
+  return mod.createWorker ? mod : mod.default;
 }
 
 async function loadBitmap(file: Blob): Promise<ImageBitmap> {
