@@ -198,8 +198,8 @@ export class TourComponent {
   imports: [IconComponent],
   template: `
     @if (tour.available()) {
-      <button type="button" class="help" data-tour="help" (click)="tour.play()" aria-label="Show me around · సహాయం">
-        <app-icon name="question" /><span>Help</span>
+      <button type="button" class="help" data-tour="help" (click)="tour.play()" [attr.aria-label]="i18n.t('Show me around', 'సహాయం')">
+        <app-icon name="question" /><span>{{ i18n.t('Help', 'సహాయం') }}</span>
       </button>
     }
   `,
@@ -213,4 +213,5 @@ export class TourComponent {
 })
 export class TourButtonComponent {
   protected readonly tour = inject(TourService);
+  protected readonly i18n = inject(I18nService);
 }

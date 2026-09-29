@@ -16,7 +16,7 @@ import { ToastService } from '../../shared/toast';
       <div class="head">
         <div>
           <h2 id="coord-title">Coordinators</h2>
-          <p class="hint">Tickets are handed out in blocks, top to bottom. Changes apply to new registrations.</p>
+          <p class="hint">Each coordinator gets a block of ticket numbers, top to bottom. The last one also gets all tickets after that. Changes apply to new registrations.</p>
         </div>
         <label class="per">
           <span>Tickets each</span>
@@ -30,7 +30,7 @@ import { ToastService } from '../../shared/toast';
             <li>
               <span class="num mono">{{ i + 1 }}</span>
               <span class="name">{{ name }}</span>
-              <span class="range mono">{{ range(i, last) }}</span>
+              <span class="range" [title]="'Ticket numbers for ' + name">Tickets <span class="mono">{{ range(i, last) }}</span></span>
               <span class="acts">
                 <button type="button" class="btn btn-ghost btn-sm" (click)="move(i, -1)" [disabled]="i === 0 || busy()" [attr.aria-label]="'Move ' + name + ' up'"><app-icon name="caret-up" /></button>
                 <button type="button" class="btn btn-ghost btn-sm" (click)="move(i, 1)" [disabled]="last || busy()" [attr.aria-label]="'Move ' + name + ' down'"><app-icon name="caret-down" /></button>
@@ -51,7 +51,7 @@ import { ToastService } from '../../shared/toast';
   `,
   styles: `
     .box { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-    .head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+    .head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
     h2 { font-size: 1rem; }
     .per { display: flex; flex-direction: column; gap: 6px; font-size: .875rem; color: var(--muted-foreground); }
     .per .input { width: 110px; }
