@@ -60,7 +60,7 @@ needs internet. When a new version is deployed, open apps show a **Reload** bar.
 
 Monochrome theme (tokens in `src/styles.css`, written as hex equivalents of the supplied oklch values),
 Geist for Latin text with Noto Sans Telugu for Telugu, and Phosphor icons bundled as inline SVG.
-Light and dark follow the phone's setting; `class="dark"` on `<html>` forces dark.
+The site is always light (white background, black buttons), even when the phone uses dark mode.
 
 ## Guided tours
 
