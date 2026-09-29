@@ -1,0 +1,55 @@
+<app-site-header />
+
+<main class="container page">
+  <h1>టికెట్ డౌన్‌లోడ్ <span class="h-en">Download your ticket</span></h1>
+  <p class="muted intro">Enter the Aadhaar number of any devotee in your registration, or the phone number you gave.</p>
+
+  <form class="search panel" (ngSubmit)="search()">
+    <div class="field">
+      <label for="q">Aadhaar or phone number <span class="te">ఆధార్ లేదా ఫోన్ నంబర్</span></label>
+      <input id="q" name="q" class="input" inputmode="numeric" autocomplete="off" [(ngModel)]="query" placeholder="e.g. 98480 12345" />
+      @if (error()) { <p class="error-text" role="alert">{{ error() }}</p> }
+    </div>
+    <button class="btn btn-primary btn-lg" type="submit" [disabled]="searching()">
+      @if (searching()) { <i class="ph ph-spinner-gap spin" aria-hidden="true"></i>Searching… }
+      @else { <i class="ph ph-magnifying-glass" aria-hidden="true"></i>Find ticket · వెతకండి }
+    </button>
+  </form>
+
+  @if (searching()) {
+    <div class="skeleton result-skel"></div>
+  } @else if (results(); as list) {
+    @if (list.length === 0) {
+      <div class="notice">
+        <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+        <div>
+          <p><strong>No registration found.</strong> Check the number, or try the other devotees' Aadhaar numbers.</p>
+          <p class="te">నమోదు కనబడలేదు.</p>
+          <a routerLink="/register">Register now</a>
+        </div>
+      </div>
+    }
+    @for (reg of list; track reg.id) {
+      <article class="result panel">
+        <header class="result-head">
+          <div>
+            <h2>Registration #{{ reg.submissionNo }}</h2>
+            <p class="muted">{{ reg.members.length }} {{ reg.members.length === 1 ? 'devotee' : 'devotees' }}</p>
+          </div>
+          <button type="button" class="btn btn-primary" (click)="download(reg)"><i class="ph ph-download-simple" aria-hidden="true"></i>Download PDF</button>
+        </header>
+        <ol class="members">
+          @for (m of reg.members; track m.ticketNumber) {
+            <li>
+              <span class="ticket-no">{{ m.ticketNumber }}</span>
+              <span class="name">{{ m.name }}</span>
+              <span class="chip" [class.chip-ok]="m.paymentStatus === 'Paid'">{{ m.paymentStatus === 'Paid' ? 'Paid' : 'Payment pending' }}</span>
+            </li>
+          }
+        </ol>
+      </article>
+    }
+  }
+</main>
+
+<app-site-footer />

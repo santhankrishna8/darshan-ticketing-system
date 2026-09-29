@@ -1,0 +1,61 @@
+<header class="head">
+  <h1>Overview <span class="muted">{{ season.season }}</span></h1>
+  @if (season.settings(); as s) {
+    <span class="chip" [class.chip-ok]="s.registrationOpen" [class.chip-warn]="!s.registrationOpen">
+      {{ s.registrationOpen ? 'Registration open' : 'Registration closed' }}
+    </span>
+  }
+</header>
+
+@if (data.registrations() === undefined) {
+  <div class="stats">
+    @for (i of [1, 2, 3]; track i) { <div class="skeleton stat-skel"></div> }
+  </div>
+} @else {
+  <section class="stats" aria-label="Totals">
+    <div class="stat lead">
+      <p class="label">Tickets registered</p>
+      <p class="value">{{ stats().devotees }}<span> / {{ season.settings()?.totalTickets }}</span></p>
+      <p class="muted">{{ season.ticketsLeft() }} left, in {{ stats().groups }} registrations</p>
+    </div>
+    <div class="stat">
+      <p class="label">Paid</p>
+      <p class="value">{{ stats().paid }}</p>
+      <p class="muted">₹{{ stats().collected.toLocaleString('en-IN') }} collected</p>
+    </div>
+    <div class="stat">
+      <p class="label">Payment pending</p>
+      <p class="value">{{ stats().unpaid }}</p>
+      <p class="muted">₹{{ stats().due.toLocaleString('en-IN') }} to collect</p>
+    </div>
+    <div class="stat">
+      <p class="label">Filled by scanning</p>
+      <p class="value">{{ stats().scanned }}</p>
+      <p class="muted">of {{ stats().devotees }} devotees</p>
+    </div>
+  </section>
+
+  @if (stats().devotees === 0) {
+    <div class="notice">
+      <i class="ph ph-ticket" aria-hidden="true"></i>
+      <p>No registrations yet. Share the website link once registration is open, or <a routerLink="/register">register a family yourself</a>.</p>
+    </div>
+  } @else {
+    <section class="coord panel" aria-labelledby="coord-title">
+      <h2 id="coord-title">By coordinator</h2>
+      <table>
+        <thead><tr><th scope="col">Coordinator</th><th scope="col" class="num">Tickets</th><th scope="col" class="num">Paid</th><th scope="col" class="num">Pending</th></tr></thead>
+        <tbody>
+          @for (c of byCoordinator(); track c.name) {
+            <tr>
+              <td><a [routerLink]="['../registrations']" [queryParams]="{ coordinator: c.name }">{{ c.name }}</a></td>
+              <td class="num">{{ c.total }}</td>
+              <td class="num">{{ c.paid }}</td>
+              <td class="num">{{ c.total - c.paid }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+}

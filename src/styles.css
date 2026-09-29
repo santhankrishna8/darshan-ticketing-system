@@ -1,8 +1,406 @@
-/* You can add global styles to this file, and also import other style files */
-*{
-    overflow-x: hidden;
-    font-family: Arial, Helvetica, sans-serif;
+/*
+ * Design tokens. A temple-print palette: kumkum red for action, turmeric for ornament,
+ * sandal-ivory paper. Chosen deliberately for a devotional, traditional audience.
+ */
+:root {
+  color-scheme: light;
+  --paper: #fcf5e8;
+  --surface: #fffcf6;
+  --surface-sunk: #f6ead4;
+  --ink: #2a1b14;
+  --ink-soft: #5e4a3c;
+  --line: #e4d2b4;
+  --line-strong: #cdb38c;
+  --kumkum: #9e1b32;
+  --kumkum-hover: #841528;
+  --kumkum-soft: #f7e3e3;
+  --on-kumkum: #fff8ec;
+  --turmeric: #d99a1c;
+  --turmeric-soft: #fbeccb;
+  --leaf: #2f6b3a;
+  --leaf-soft: #e3f0df;
+  --danger: #b3261e;
+  --danger-soft: #fbe6e3;
+  --focus: #1c5d99;
+
+  --font-display: 'Tiro Telugu', 'Noto Serif Telugu', Georgia, serif;
+  --font-text: 'Hind Guntur', 'Noto Sans Telugu', system-ui, sans-serif;
+
+  --radius: 10px;
+  --radius-lg: 16px;
+  --shadow: 0 1px 2px rgb(94 58 20 / 0.08), 0 8px 24px -12px rgb(94 58 20 / 0.25);
+  --gutter: clamp(16px, 4vw, 32px);
 }
-.swal2-timer-progress-bar {
-  display: none !important;
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper: #1b1310;
+    --surface: #251a15;
+    --surface-sunk: #2f221b;
+    --ink: #f3e7d6;
+    --ink-soft: #cdb9a3;
+    --line: #43322a;
+    --line-strong: #5d473b;
+    --kumkum: #e0697c;
+    --kumkum-hover: #eb8494;
+    --kumkum-soft: #3b1f24;
+    --on-kumkum: #22110f;
+    --turmeric: #e6b54a;
+    --turmeric-soft: #3a2d17;
+    --leaf: #8cc79a;
+    --leaf-soft: #1f3024;
+    --danger: #f19b90;
+    --danger-soft: #3d1f1c;
+    --focus: #8cbcf0;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 17px;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.25;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--kumkum);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.te {
+  font-family: var(--font-text);
+}
+
+.muted {
+  color: var(--ink-soft);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.container {
+  width: 100%;
+  max-width: 1080px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Ornamental band, like the border of a silk sari. Pure CSS so it scales crisply. */
+.temple-band {
+  height: 10px;
+  background:
+    linear-gradient(135deg, var(--turmeric) 25%, transparent 25%) -5px 0 / 10px 10px,
+    linear-gradient(225deg, var(--turmeric) 25%, transparent 25%) -5px 0 / 10px 10px,
+    var(--kumkum);
+}
+
+/* ---- Buttons ---- */
+.btn {
+  --bg: var(--surface);
+  --fg: var(--ink);
+  --bd: var(--line-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: 48px;
+  padding: 0.55em 1.2em;
+  border: 1.5px solid var(--bd);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--fg);
+  font: 600 1rem/1.2 var(--font-text);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+  border-color: var(--kumkum);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  --bg: var(--kumkum);
+  --fg: var(--on-kumkum);
+  --bd: var(--kumkum);
+}
+
+.btn-primary:hover:not(:disabled) {
+  --bg: var(--kumkum-hover);
+  --bd: var(--kumkum-hover);
+}
+
+.btn-quiet {
+  --bg: transparent;
+  --bd: transparent;
+  color: var(--kumkum);
+  padding-inline: 0.6em;
+}
+
+.btn-quiet:hover {
+  --bd: transparent;
+  background: var(--kumkum-soft);
+}
+
+.btn-danger {
+  --fg: var(--danger);
+  --bd: var(--danger);
+  --bg: transparent;
+}
+
+.btn-lg {
+  min-height: 56px;
+  font-size: 1.08rem;
+  padding-inline: 1.5em;
+}
+
+.btn-sm {
+  min-height: 38px;
+  font-size: 0.92rem;
+  padding: 0.35em 0.8em;
+}
+
+.btn i[class^='ph'] {
+  font-size: 1.25em;
+}
+
+/* ---- Form fields ---- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field label,
+.field .label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.field label .te,
+.field .label .te {
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0.6em 0.8em;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: 500 1.05rem/1.4 var(--font-text);
+  transition: border-color 0.15s ease, background-color 0.3s ease;
+}
+
+.input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.75;
+}
+
+.input:focus {
+  border-color: var(--kumkum);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--kumkum-soft);
+}
+
+.input.from-card {
+  background: var(--turmeric-soft);
+  border-color: var(--turmeric);
+}
+
+.input.invalid {
+  border-color: var(--danger);
+}
+
+textarea.input {
+  min-height: 84px;
+  resize: vertical;
+}
+
+select.input {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 55%, calc(100% - 14px) 55%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 2.4em;
+}
+
+.hint {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.error-text {
+  font-size: 0.9rem;
+  color: var(--danger);
+  font-weight: 500;
+}
+
+/* ---- Panels & notices ---- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.notice {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface-sunk);
+}
+
+.notice i[class^='ph'] {
+  font-size: 1.4rem;
+  flex: none;
+  margin-top: 1px;
+}
+
+.notice-ok {
+  background: var(--leaf-soft);
+  border-color: color-mix(in srgb, var(--leaf) 35%, transparent);
+}
+
+.notice-ok i[class^='ph'] {
+  color: var(--leaf);
+}
+
+.notice-warn {
+  background: var(--turmeric-soft);
+  border-color: color-mix(in srgb, var(--turmeric) 50%, transparent);
+}
+
+.notice-error {
+  background: var(--danger-soft);
+  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+}
+
+.notice-error i[class^='ph'] {
+  color: var(--danger);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.15em 0.65em;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--surface-sunk);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.chip-ok {
+  background: var(--leaf-soft);
+  color: var(--leaf);
+}
+
+.chip-warn {
+  background: var(--turmeric-soft);
+  color: var(--ink);
+}
+
+.chip-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* Skeleton shimmer for loading states. */
+.skeleton {
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--surface-sunk) 25%, var(--line) 50%, var(--surface-sunk) 75%) 0 0 / 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  display: inline-block;
+  animation: spin 0.9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

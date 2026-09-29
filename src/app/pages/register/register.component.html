@@ -1,0 +1,206 @@
+<app-site-header />
+
+<main class="container page">
+  @if (done(); as reg) {
+    <section class="done panel" aria-live="polite">
+      <i class="ph ph-check-circle done-icon" aria-hidden="true"></i>
+      <h1>నమోదు పూర్తయింది <span class="h-en">Registration complete</span></h1>
+      <p>Registration <strong>#{{ reg.submissionNo }}</strong> for {{ reg.members.length }} {{ reg.members.length === 1 ? 'devotee' : 'devotees' }}. Your ticket PDF is downloading.</p>
+
+      <ol class="done-list">
+        @for (m of reg.members; track m.ticketNumber) {
+          <li>
+            <span class="ticket-no">{{ m.ticketNumber }}</span>
+            <span class="done-name">{{ m.name }}</span>
+            <span class="muted">Aadhaar XXXX {{ m.aadhaarLast4 }}</span>
+          </li>
+        }
+      </ol>
+
+      <div class="notice notice-warn">
+        <i class="ph ph-currency-inr" aria-hidden="true"></i>
+        <div>
+          <p><strong>Pay ₹{{ season.settings()?.fee }} per devotee.</strong> {{ season.settings()?.paymentPlaceEn }}.</p>
+          <p class="te">{{ season.settings()?.paymentPlaceTe }}.</p>
+        </div>
+      </div>
+
+      <div class="done-actions">
+        <button type="button" class="btn btn-primary btn-lg" (click)="download(reg)"><i class="ph ph-download-simple" aria-hidden="true"></i>Download ticket again</button>
+        <button type="button" class="btn btn-lg" (click)="startOver()"><i class="ph ph-user-plus" aria-hidden="true"></i>Register another family</button>
+      </div>
+    </section>
+  } @else {
+    <header class="page-head">
+      <a routerLink="/" class="btn btn-quiet btn-sm back"><i class="ph ph-arrow-left" aria-hidden="true"></i>Home</a>
+      <h1>దర్శన నమోదు <span class="h-en">Darshan registration {{ season.season }}</span></h1>
+      @if (state() === 'open') {
+        <p class="left"><strong>{{ season.ticketsLeft() }}</strong> tickets left · {{ season.ticketsLeft() }} టికెట్లు మిగిలి ఉన్నాయి</p>
+      }
+    </header>
+
+    @switch (state()) {
+      @case ('loading') {
+        <div class="skeleton card-skel" aria-label="Loading"></div>
+      }
+      @case ('not-ready') {
+        <div class="notice notice-warn"><i class="ph ph-hourglass-medium" aria-hidden="true"></i><div><p><strong>Registration opens soon.</strong></p><p class="te">నమోదు త్వరలో ప్రారంభమవుతుంది.</p></div></div>
+      }
+      @case ('closed') {
+        <div class="notice notice-warn"><i class="ph ph-lock-simple" aria-hidden="true"></i><div><p><strong>Registration is closed.</strong> You can still download a ticket you already have.</p><p class="te">నమోదు ముగిసింది.</p><a routerLink="/ticket">Download ticket</a></div></div>
+      }
+      @case ('full') {
+        <div class="notice notice-error"><i class="ph ph-warning-circle" aria-hidden="true"></i><div><p><strong>All tickets have been taken.</strong></p><p class="te">టికెట్లు అన్నీ అయిపోయాయి.</p></div></div>
+      }
+      @case ('open') {
+        <div class="how notice">
+          <i class="ph ph-scan" aria-hidden="true"></i>
+          <p>Tap <strong>Scan Aadhaar</strong> and photograph the card. Details fill in by themselves; check them, then submit. The photo stays on this phone.
+          <span class="te">ఆధార్ కార్డు ఫోటో తీయండి, వివరాలు నిండుతాయి. సరిచూసి సమర్పించండి.</span></p>
+        </div>
+
+        <form (submit)="$event.preventDefault(); submit()" novalidate>
+          @for (row of rows(); track row.id; let i = $index) {
+            <section #card class="member panel" [attr.aria-labelledby]="'m' + row.id">
+              <div class="member-head">
+                <h2 [id]="'m' + row.id">భక్తుడు {{ i + 1 }} <span class="h-en">Devotee {{ i + 1 }}</span></h2>
+                @if (rows().length > 1) {
+                  <button type="button" class="btn btn-quiet btn-sm" (click)="removeRow(row)" [attr.aria-label]="'Remove devotee ' + (i + 1)">
+                    <i class="ph ph-trash" aria-hidden="true"></i>Remove
+                  </button>
+                }
+              </div>
+
+              <div class="scan" [class.busy]="row.scan() === 'scanning'">
+                <input #camera type="file" accept="image/*" capture="environment" class="visually-hidden" tabindex="-1" (change)="onPhoto(row, $event)" />
+                <input #gallery type="file" accept="image/*" class="visually-hidden" tabindex="-1" (change)="onPhoto(row, $event)" />
+
+                @if (row.scan() === 'scanning') {
+                  <div class="scan-progress" role="status">
+                    <i class="ph ph-spinner-gap spin" aria-hidden="true"></i>
+                    <div>
+                      <p><strong>
+                        @switch (scanner.stage()) {
+                          @case ('qr') { Looking for the QR code… }
+                          @case ('reading') { Reading the card… }
+                          @case ('rereading') { Looking closer… }
+                          @default { Preparing the scanner… }
+                        }
+                      </strong></p>
+                      <p class="te">కార్డు చదువుతోంది, దయచేసి వేచి ఉండండి</p>
+                    </div>
+                  </div>
+                } @else {
+                  <button type="button" class="btn btn-primary scan-btn" (click)="pickPhoto(camera)" [disabled]="scanningAny()">
+                    <i class="ph ph-camera" aria-hidden="true"></i>Scan Aadhaar · ఆధార్ స్కాన్
+                  </button>
+                  <button type="button" class="btn btn-quiet" (click)="pickPhoto(gallery)" [disabled]="scanningAny()">
+                    <i class="ph ph-image" aria-hidden="true"></i>Choose photo
+                  </button>
+                }
+              </div>
+
+              @switch (row.scan()) {
+                @case ('ok') {
+                  <div class="notice notice-ok scan-note"><i class="ph ph-check-circle" aria-hidden="true"></i><p>Filled from the card. Please check the highlighted details. <span class="te">వివరాలు సరిచూడండి.</span></p></div>
+                }
+                @case ('partial') {
+                  <div class="notice notice-warn scan-note"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>Some details were filled. Please type the {{ row.missing().join(', ') }}. <span class="te">మిగిలినవి టైప్ చేయండి.</span></p></div>
+                }
+                @case ('failed') {
+                  <div class="notice notice-error scan-note"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>Could not read this photo. Place the card flat in good light, fill the frame and try again, or type the details below. <span class="te">మళ్ళీ ప్రయత్నించండి లేదా టైప్ చేయండి.</span></p></div>
+                }
+              }
+
+              <div class="grid" [formGroup]="row.form">
+                <div class="field span-2">
+                  <label [for]="'name' + row.id">Full name <span class="te">పూర్తి పేరు</span></label>
+                  <input [id]="'name' + row.id" class="input" formControlName="name" autocomplete="off" autocapitalize="words"
+                    [class.from-card]="row.fromCard().has('name')" [class.invalid]="show(row, 'name')" (input)="edited(row, 'name')" />
+                  @if (show(row, 'name')) { <p class="error-text">Enter the name as on Aadhaar · పేరు తప్పనిసరి</p> }
+                </div>
+
+                <div class="field span-2">
+                  <label [for]="'aadhaar' + row.id">Aadhaar number <span class="te">ఆధార్ నంబర్</span></label>
+                  <input #aadhaarEl [id]="'aadhaar' + row.id" class="input mono" formControlName="aadhaar" inputmode="numeric" autocomplete="off"
+                    placeholder="0000 0000 0000" maxlength="14"
+                    [class.from-card]="row.fromCard().has('aadhaar')" [class.invalid]="show(row, 'aadhaar') || row.duplicate() === 'taken'"
+                    (input)="onAadhaarInput(row, aadhaarEl)" />
+                  @if (show(row, 'aadhaar')) {
+                    <p class="error-text">
+                      @if (row.form.controls.aadhaar.hasError('required')) { Aadhaar number is required · ఆధార్ తప్పనిసరి }
+                      @else if (row.form.controls.aadhaar.hasError('length')) { Aadhaar has 12 digits · ఆధార్ 12 అంకెలు }
+                      @else { This number is not valid. Please check each digit · నంబర్ సరిచూడండి }
+                    </p>
+                  } @else if (row.duplicate() === 'taken') {
+                    <p class="error-text">Already registered · ఇప్పటికే నమోదైంది. <a routerLink="/ticket">Download that ticket</a></p>
+                  } @else if (row.duplicate() === 'free') {
+                    <p class="hint ok"><i class="ph ph-check-circle" aria-hidden="true"></i> Valid Aadhaar number</p>
+                  }
+                </div>
+
+                <div class="field">
+                  <label [for]="'age' + row.id">Age <span class="te">వయసు</span></label>
+                  <input [id]="'age' + row.id" class="input" type="number" inputmode="numeric" formControlName="age"
+                    [class.from-card]="row.fromCard().has('age')" [class.invalid]="show(row, 'age')" (input)="edited(row, 'age')" />
+                  @if (show(row, 'age')) {
+                    <p class="error-text">Age {{ season.settings()?.minAge }} to {{ season.settings()?.maxAge }} · వయసు {{ season.settings()?.minAge }}-{{ season.settings()?.maxAge }}</p>
+                  }
+                </div>
+
+                <fieldset class="field gender" [class.from-card]="row.fromCard().has('gender')">
+                  <legend class="label">Gender <span class="te">లింగం</span></legend>
+                  <div class="seg">
+                    @for (g of [['Male', 'పురుషుడు'], ['Female', 'స్త్రీ'], ['Transgender', 'ఇతర']]; track g[0]) {
+                      <label class="seg-opt">
+                        <input type="radio" [value]="g[0]" formControlName="gender" (change)="edited(row, 'gender')" />
+                        <span>{{ g[1] }}<small>{{ g[0] === 'Transgender' ? 'Other' : g[0] }}</small></span>
+                      </label>
+                    }
+                  </div>
+                  @if (show(row, 'gender')) { <p class="error-text">Choose one · ఎంచుకోండి</p> }
+                </fieldset>
+
+                <div class="field span-2">
+                  <label [for]="'phone' + row.id">Phone number <span class="te">ఫోన్ నంబర్</span></label>
+                  <input [id]="'phone' + row.id" class="input" type="tel" inputmode="numeric" maxlength="10" formControlName="phone" autocomplete="tel-national"
+                    [class.from-card]="row.fromCard().has('phone')" [class.invalid]="show(row, 'phone')" (input)="edited(row, 'phone')" />
+                  @if (show(row, 'phone')) { <p class="error-text">Enter a 10-digit mobile number · 10 అంకెల ఫోన్ నంబర్</p> }
+                </div>
+
+                <div class="field span-2">
+                  <label [for]="'address' + row.id">Village / address <span class="te">గ్రామం / చిరునామా</span></label>
+                  <textarea [id]="'address' + row.id" class="input" rows="2" formControlName="address"
+                    [class.from-card]="row.fromCard().has('address')" [class.invalid]="show(row, 'address')" (input)="edited(row, 'address')"></textarea>
+                  @if (show(row, 'address')) { <p class="error-text">Address is required · చిరునామా తప్పనిసరి</p> }
+                </div>
+              </div>
+            </section>
+          }
+
+          @if (rows().length < maxRows()) {
+            <button type="button" class="btn add" (click)="addRow()">
+              <i class="ph ph-plus" aria-hidden="true"></i>Add another devotee · మరొకరిని జోడించండి
+            </button>
+          } @else {
+            <p class="hint center">Maximum {{ maxRows() }} devotees in one registration.</p>
+          }
+
+          @if (submitError()) {
+            <div class="notice notice-error" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>{{ submitError() }}</p></div>
+          }
+
+          <div class="submit-bar">
+            <p class="count"><strong>{{ rows().length }}</strong> {{ rows().length === 1 ? 'devotee' : 'devotees' }} · ₹{{ (season.settings()?.fee ?? 0) * rows().length }}</p>
+            <button type="submit" class="btn btn-primary btn-lg" [disabled]="submitting() || scanningAny()">
+              @if (submitting()) { <i class="ph ph-spinner-gap spin" aria-hidden="true"></i>Saving… }
+              @else { <i class="ph ph-ticket" aria-hidden="true"></i>Submit · సమర్పించండి }
+            </button>
+          </div>
+        </form>
+      }
+    }
+  }
+</main>
+
+<app-site-footer />

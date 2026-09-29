@@ -1,19 +1,17 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './login/login.component';
-import { AdminComponent } from './admin/admin.component';
-import { RefMemberComponent } from './ref-member/ref-member.component';
-import { DevoteeFormComponent } from './devotee-form/devotee-form.component';
-import { SearchComponent } from './search/search.component';
-import { HomeComponent } from './home/home.component';
-
+import { HomeComponent } from './pages/home/home.component';
 
 export const routes: Routes = [
-  // { path: '', redirectTo: 'form', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'admin-dashboard', component: AdminComponent },
-  { path: 'reference-dashboard', component: RefMemberComponent },
-  {path:'form',component:DevoteeFormComponent},
-  {path:'search',component:SearchComponent},
-  {path:'home',component:HomeComponent},
-  { path: '**', redirectTo: 'home' }
+  { path: '', component: HomeComponent, title: 'గోవిందమాల దర్శనం' },
+  { path: 'register', loadComponent: () => import('./pages/register/register.component').then(m => m.RegisterComponent), title: 'Register | నమోదు' },
+  { path: 'ticket', loadComponent: () => import('./pages/ticket/ticket.component').then(m => m.TicketComponent), title: 'My ticket | టికెట్' },
+  { path: 'seva', loadChildren: () => import('./seva/seva.routes').then(m => m.SEVA_ROUTES), title: 'Seva desk' },
+  // Links shared last year keep working.
+  { path: 'form', redirectTo: 'register' },
+  { path: 'search', redirectTo: 'ticket' },
+  { path: 'home', redirectTo: '' },
+  { path: 'login', redirectTo: 'seva' },
+  { path: 'admin-dashboard', redirectTo: 'seva' },
+  { path: 'reference-dashboard', redirectTo: 'seva' },
+  { path: '**', redirectTo: '' },
 ];

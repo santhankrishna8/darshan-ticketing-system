@@ -1,0 +1,83 @@
+<header>
+  <h1>People</h1>
+  <p class="muted">Anyone who signs in with Google appears here as a request. Approve the people who help with registration.</p>
+</header>
+
+@if (error()) {
+  <div class="notice notice-error" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><p>{{ error() }}</p></div>
+}
+
+<div class="roles notice">
+  <i class="ph ph-shield-check" aria-hidden="true"></i>
+  <p><strong>Volunteer</strong> can register families, see the list and mark payments. <strong>Admin</strong> can also export Excel with full Aadhaar numbers and open the 2025 archive. Only you manage people and settings.</p>
+</div>
+
+@if (people() === undefined) {
+  @for (i of [1, 2, 3]; track i) { <div class="skeleton person-skel"></div> }
+} @else {
+  <section aria-labelledby="pending-title">
+    <h2 id="pending-title">Waiting for approval <span class="chip" [class.chip-warn]="pending().length">{{ pending().length }}</span></h2>
+    @for (p of pending(); track p.uid) {
+      <div class="person panel">
+        <ng-container *ngTemplateOutlet="who; context: { $implicit: p }" />
+        <div class="acts">
+          <button type="button" class="btn btn-primary btn-sm" (click)="approve(p, 'volunteer')" [disabled]="busy() === p.uid">Approve as volunteer</button>
+          <button type="button" class="btn btn-sm" (click)="approve(p, 'admin')" [disabled]="busy() === p.uid">Approve as admin</button>
+          <button type="button" class="btn btn-quiet btn-sm danger" (click)="decide(p, { status: 'rejected' }, 'Request declined')" [disabled]="busy() === p.uid">Decline</button>
+        </div>
+      </div>
+    } @empty {
+      <p class="muted empty">No one is waiting. New requests appear here as soon as someone signs in at /seva.</p>
+    }
+  </section>
+
+  <section aria-labelledby="approved-title">
+    <h2 id="approved-title">Approved <span class="chip">{{ approved().length }}</span></h2>
+    @for (p of approved(); track p.uid) {
+      <div class="person panel">
+        <ng-container *ngTemplateOutlet="who; context: { $implicit: p }" />
+        <div class="acts">
+          <label class="field inline">
+            <span class="visually-hidden">Role for {{ p.email }}</span>
+            <select class="input input-sm" [value]="p.role" (change)="setRole(p, $any($event.target).value)" [disabled]="busy() === p.uid">
+              <option value="volunteer">Volunteer</option>
+              <option value="admin">Admin</option>
+            </select>
+          </label>
+          <button type="button" class="pay" role="switch" [class.on]="p.biometricAllowed" [attr.aria-checked]="p.biometricAllowed" [disabled]="busy() === p.uid"
+            (click)="decide(p, { biometricAllowed: !p.biometricAllowed }, p.biometricAllowed ? 'Fingerprint unlock turned off' : 'Fingerprint unlock allowed')">
+            <i class="ph ph-fingerprint" aria-hidden="true"></i>{{ p.biometricAllowed ? 'Fingerprint allowed' : 'Fingerprint off' }}
+          </button>
+          <button type="button" class="btn btn-quiet btn-sm danger" (click)="revoke(p)" [disabled]="busy() === p.uid">Remove</button>
+        </div>
+      </div>
+    } @empty {
+      <p class="muted empty">Nobody approved yet.</p>
+    }
+  </section>
+
+  @if (others().length) {
+    <section aria-labelledby="others-title">
+      <h2 id="others-title">Declined or removed</h2>
+      @for (p of others(); track p.uid) {
+        <div class="person panel quiet">
+          <ng-container *ngTemplateOutlet="who; context: { $implicit: p }" />
+          <div class="acts">
+            <button type="button" class="btn btn-sm" (click)="approve(p, 'volunteer')" [disabled]="busy() === p.uid">Approve as volunteer</button>
+          </div>
+        </div>
+      }
+    </section>
+  }
+}
+
+<ng-template #who let-p>
+  <div class="who">
+    @if (p.photoURL) { <img [src]="p.photoURL" alt="" width="40" height="40" referrerpolicy="no-referrer" /> }
+    @else { <span class="initial" aria-hidden="true">{{ (p.name || p.email).charAt(0).toUpperCase() }}</span> }
+    <div>
+      <p class="name">{{ p.name || p.email }}</p>
+      <p class="muted email">{{ p.email }}</p>
+    </div>
+  </div>
+</ng-template>

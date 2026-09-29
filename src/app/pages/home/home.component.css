@@ -1,0 +1,191 @@
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: center;
+  gap: clamp(24px, 5vw, 64px);
+  padding-block: clamp(24px, 5vw, 56px);
+}
+
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.status-skel {
+  width: 220px;
+  height: 28px;
+}
+
+h1 {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.h1-te {
+  font-size: clamp(2.1rem, 5vw, 3.4rem);
+  color: var(--kumkum);
+}
+
+.h1-en {
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  color: var(--ink-soft);
+}
+
+.lede {
+  font-size: 1.1rem;
+  max-width: 46ch;
+}
+
+.lede-te {
+  color: var(--ink-soft);
+  max-width: 46ch;
+  margin-top: -8px;
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+/* Temple-arch frame for the deity photograph. */
+.hero-art {
+  margin: 0;
+  justify-self: center;
+  width: min(100%, 400px);
+  padding: 10px;
+  border-radius: 999px 999px 18px 18px;
+  background: linear-gradient(var(--turmeric), color-mix(in srgb, var(--turmeric) 60%, var(--kumkum)));
+  box-shadow: var(--shadow);
+}
+
+.hero-art img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 999px 999px 12px 12px;
+  border: 3px solid var(--surface);
+}
+
+h2 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin-bottom: 24px;
+}
+
+.h2-en {
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.before {
+  padding-block: 32px;
+}
+
+.rules {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  border-top: 2px solid var(--turmeric);
+}
+
+.rules li {
+  display: flex;
+  gap: 16px;
+  padding: 22px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.rules li:nth-child(odd) {
+  padding-right: 24px;
+}
+
+.rules li i {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--kumkum-soft);
+  color: var(--kumkum);
+  font-size: 1.5rem;
+}
+
+.rule-title {
+  font-weight: 600;
+  font-size: 1.08rem;
+}
+
+.rule-skel {
+  height: 96px;
+  margin: 12px;
+}
+
+.gallery {
+  padding-block: 32px 0;
+}
+
+.strip {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 4px var(--gutter) 16px;
+  scroll-padding-inline: var(--gutter);
+}
+
+@media (min-width: 1080px) {
+  .strip {
+    padding-inline: calc((100vw - 1080px) / 2 + var(--gutter));
+  }
+}
+
+.strip img {
+  flex: none;
+  height: clamp(220px, 34vw, 320px);
+  width: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 999px 999px 12px 12px;
+  scroll-snap-align: start;
+  background: var(--surface-sunk);
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-art {
+    order: -1;
+    width: min(62%, 260px);
+  }
+
+  .rules {
+    grid-template-columns: 1fr;
+  }
+
+  .rules li:nth-child(odd) {
+    padding-right: 8px;
+  }
+
+  .ctas .btn {
+    flex: 1 1 100%;
+  }
+}

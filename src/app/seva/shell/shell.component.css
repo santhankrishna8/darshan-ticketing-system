@@ -1,0 +1,168 @@
+.gate {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.gate-card {
+  width: min(100% - 32px, 440px);
+  margin: clamp(32px, 12vh, 120px) auto 32px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  border-top: 4px solid var(--turmeric);
+}
+
+.gate-card h1 {
+  font-size: 1.8rem;
+}
+
+.gate-card .btn-primary {
+  width: 100%;
+}
+
+.gate-icon {
+  font-size: 2.4rem;
+  color: var(--kumkum);
+}
+
+.gate-skel {
+  width: 100%;
+  height: 160px;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--kumkum);
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.brand span {
+  font-family: var(--font-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.desk {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+.side {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+}
+
+.side-head {
+  padding: 18px 18px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.who img {
+  border-radius: 50%;
+}
+
+.who small {
+  display: block;
+  font-weight: 500;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px 20px;
+  gap: 2px;
+}
+
+nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+nav a i {
+  font-size: 1.25rem;
+  color: var(--ink-soft);
+}
+
+nav a:hover {
+  background: var(--surface-sunk);
+}
+
+nav a.active {
+  background: var(--kumkum-soft);
+  color: var(--kumkum);
+}
+
+nav a.active i {
+  color: var(--kumkum);
+}
+
+.content {
+  padding: clamp(16px, 3vw, 32px);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 860px) {
+  .desk {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .side-head {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 4px;
+  }
+
+  nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 6px 10px 10px;
+    scroll-snap-type: x proximity;
+  }
+
+  nav a {
+    flex: none;
+    scroll-snap-align: start;
+  }
+}
