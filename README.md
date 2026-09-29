@@ -58,7 +58,7 @@ Fields filled from the card are highlighted for the person to check. OCR engine 
 ## Language
 
 One language at a time, English by default. The gear (Settings) in the header switches to Telugu;
-the choice is remembered on the device. It also holds the tour and install. Admins open `/seva` directly; "New registration" there opens the form inside the admin desk.
+the choice is remembered on the device. It also holds the tour, **Organizer sign in** (the way into `/seva` from the installed app) and install. Admins open `/seva` directly; "New registration" there opens the form inside the admin desk.
 
 ## Install as an app (PWA)
 
