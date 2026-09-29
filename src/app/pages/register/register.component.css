@@ -75,6 +75,13 @@ h2 {
   gap: 8px;
 }
 
+/* Small phones: the two buttons do not fit side by side. */
+@media (max-width: 360px) {
+  .scan {
+    grid-template-columns: 1fr;
+  }
+}
+
 .scan-progress {
   display: flex;
   align-items: center;

@@ -67,7 +67,7 @@ function register(db, members, { createdBy = null, tamper = {} } = {}) {
     tx.set(regRef, {
       submissionNo: c.lastSubmission + 1,
       firstTicket: first,
-      members: members.map((m, i) => ({ ticketNumber: first + i, name: m.name, paymentStatus: 'Not Paid', aadhaarLast4: m.aadhaar.slice(-4) })),
+      members: members.map((m, i) => ({ ticketNumber: first + i, name: m.name, paymentStatus: 'Not Paid', aadhaarLast4: m.aadhaar.slice(-4), ...tamper.member?.(i) })),
       createdAt: serverTimestamp(),
       createdBy,
       ...tamper.registration,
@@ -134,6 +134,12 @@ describe('public', () => {
     await assertFails(register(as(null), [devotee(1)], { tamper: { counter: { lastTicket: 3 } } }));
     await assertFails(register(as(null), [devotee(1)], { tamper: { registration: { firstTicket: 7 } } }));
     await assertFails(register(as(null), [devotee(1)], { createdBy: 'owner' }));
+  });
+
+  it('cannot register devotees as already paid or with shuffled ticket numbers', async () => {
+    await assertFails(register(as(null), [devotee(1), devotee(2)], { tamper: { member: i => (i === 1 ? { paymentStatus: 'Paid' } : {}) } }));
+    await assertFails(register(as(null), [devotee(1), devotee(2)], { tamper: { member: i => ({ ticketNumber: 2 - i }) } }));
+    await assertSucceeds(register(as(null), [devotee(1), devotee(2)]));
   });
 
   it('fetches a registration by id but cannot list registrations or the Aadhaar index', async () => {

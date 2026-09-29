@@ -1,5 +1,6 @@
 import { Component, OnDestroy, computed, effect, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { BiometricService } from '../../core/biometric.service';
 import { SeasonService } from '../../core/season.service';
@@ -38,6 +39,13 @@ export class SevaShellComponent implements OnDestroy {
   protected readonly roleLabel = computed(() => ({ owner: 'Main admin', admin: 'Admin', volunteer: 'Organizer' })[this.auth.role() ?? 'volunteer']);
 
   constructor() {
+    // On phones the tabs scroll sideways: keep the current one in view.
+    inject(Router)
+      .events.pipe(takeUntilDestroyed())
+      .subscribe(e => {
+        if (e instanceof NavigationEnd)
+          setTimeout(() => document.querySelector('nav[aria-label="Seva desk"] a.active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
+      });
     // Only listen to registrations while an approved, unlocked person is here.
     effect(() => (this.auth.access() === 'approved' ? this.data.start() : this.data.stop()));
     effect(() => {

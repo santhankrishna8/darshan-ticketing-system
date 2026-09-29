@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnDestroy, computed, effect, inject, signal, untracked, viewChildren } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AadhaarScannerService } from '../../aadhaar/aadhaar-scanner.service';
 import { AadhaarDetails, ageFrom, formatAadhaar } from '../../aadhaar/aadhaar.types';
@@ -90,8 +91,8 @@ const TOUR: TourStep[] = [
     target: '[data-tour=submit]',
     title: 'Submit and get the ticket',
     titleTe: 'సమర్పించండి',
-    body: 'Submit to get ticket numbers. The ticket PDF downloads straight away; pay the fee at the temple.',
-    bodyTe: 'సమర్పిస్తే టికెట్ PDF వస్తుంది. రుసుము మందిరంలో చెల్లించండి.',
+    body: 'Submit to get ticket numbers, then download the ticket PDF. Pay the fee at the temple.',
+    bodyTe: 'సమర్పిస్తే టికెట్ నంబర్లు వస్తాయి, తర్వాత టికెట్ PDF డౌన్‌లోడ్ చేసుకోండి. రుసుము మందిరంలో చెల్లించండి.',
   },
   {
     target: '[data-tour=settings]',
@@ -104,7 +105,7 @@ const TOUR: TourStep[] = [
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, SiteHeaderComponent, IconComponent],
+  imports: [NgTemplateOutlet, ReactiveFormsModule, RouterLink, SiteHeaderComponent, IconComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })
@@ -140,8 +141,9 @@ export class RegisterComponent implements OnDestroy {
   protected readonly maxRows = computed(() => Math.min(this.season.settings()?.maxPerGroup ?? 10, this.season.ticketsLeft()));
   protected readonly formatAadhaar = formatAadhaar;
 
+  private readonly stopAuth = onAuthStateChanged(auth, user => this.signedIn.set(!!user));
+
   constructor() {
-    onAuthStateChanged(auth, user => this.signedIn.set(!!user));
     effect(() => {
       const s = this.season.settings();
       if (s && untracked(this.rows).length === 0) this.rows.set([new MemberRow(s)]);
@@ -154,6 +156,7 @@ export class RegisterComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.stopAuth();
     this.tour.withdraw('register');
   }
 

@@ -167,6 +167,10 @@ nav a.active i {
     overflow-x: auto;
     padding: 6px 10px 10px;
     scroll-snap-type: x proximity;
+    /* Fade the right edge so it is clear more tabs are there. */
+    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+    scrollbar-width: none;
+    padding-right: 40px;
   }
 
   nav a {

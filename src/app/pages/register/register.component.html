@@ -1,6 +1,13 @@
 @if (!embedded) { <app-site-header /> }
 
-<main class="container page" [class.embedded]="embedded">
+<!-- Inside the seva desk the shell already provides the page's <main>. -->
+@if (embedded) {
+  <div class="container page embedded"><ng-container [ngTemplateOutlet]="page" /></div>
+} @else {
+  <main class="container page"><ng-container [ngTemplateOutlet]="page" /></main>
+}
+
+<ng-template #page>
   @if (done(); as reg) {
     <section class="card done" aria-live="polite">
       <app-icon name="check-circle" class="done-icon" />
@@ -58,8 +65,8 @@
                 }
               </div>
 
-              <input #camera type="file" accept="image/*" capture="environment" class="visually-hidden" tabindex="-1" (change)="onPhoto(row, $event)" />
-              <input #gallery type="file" accept="image/*" class="visually-hidden" tabindex="-1" (change)="onPhoto(row, $event)" />
+              <input #camera type="file" accept="image/*" capture="environment" class="visually-hidden" tabindex="-1" [attr.aria-label]="i18n.t('Take a photo of the Aadhaar card', 'ఆధార్ కార్డు ఫోటో తీయండి')" (change)="onPhoto(row, $event)" />
+              <input #gallery type="file" accept="image/*" class="visually-hidden" tabindex="-1" [attr.aria-label]="i18n.t('Choose a photo of the Aadhaar card', 'ఆధార్ కార్డు ఫోటో ఎంచుకోండి')" (change)="onPhoto(row, $event)" />
 
               @if (row.scan() === 'scanning') {
                 <div class="scan-progress" role="status">
@@ -207,4 +214,4 @@
       }
     }
   }
-</main>
+</ng-template>

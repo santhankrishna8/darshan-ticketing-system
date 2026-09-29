@@ -58,7 +58,7 @@
             <td class="num ticket" data-label="Ticket">{{ r.ticketNumber }}</td>
             <td class="who" data-label="Devotee">
               <strong>{{ r.name }}</strong>
-              <span class="muted">{{ r.age }} yrs · #{{ r.reg.submissionNo }} · XXXX {{ r.aadhaarLast4 }}</span>
+              <span class="muted">{{ r.age }} yrs · Reg {{ r.reg.submissionNo }} · XXXX {{ r.aadhaarLast4 }}</span>
               <span class="muted addr">{{ r.address }}</span>
             </td>
             <td data-label="Phone"><a [href]="'tel:+91' + r.phone">{{ r.phone }}</a></td>

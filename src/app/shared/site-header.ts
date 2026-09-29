@@ -27,6 +27,7 @@ import { SettingsSheetComponent } from './settings-sheet';
     nav { display: flex; align-items: center; gap: 2px; }
     .link { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 10px; border-radius: var(--radius); text-decoration: none; font-size: 0.9rem; color: var(--muted-foreground); }
     .link:hover, .link.active { background: var(--accent); color: var(--foreground); }
+    @media (max-width: 360px) { .bar { gap: 4px; } .brand { font-size: 0.875rem; } .brand span { display: none; } .link { padding: 0 8px; } }
   `,
 })
 export class SiteHeaderComponent {

@@ -62,6 +62,19 @@ service cloud.firestore {
       function counterAfter() {
         return getAfter(counterPath()).data;
       }
+      // New registrations: every devotee starts unpaid, numbered in order from firstTicket.
+      // Rules cannot loop, so each of the (at most 20) places is checked in turn.
+      function memberOk(members, i, first) {
+        return members.size() <= i
+          || (members[i].paymentStatus == 'Not Paid' && members[i].ticketNumber == first + i);
+      }
+      function membersOk(m, f) {
+        return m.size() <= 20
+          && memberOk(m, 0, f) && memberOk(m, 1, f) && memberOk(m, 2, f) && memberOk(m, 3, f) && memberOk(m, 4, f)
+          && memberOk(m, 5, f) && memberOk(m, 6, f) && memberOk(m, 7, f) && memberOk(m, 8, f) && memberOk(m, 9, f)
+          && memberOk(m, 10, f) && memberOk(m, 11, f) && memberOk(m, 12, f) && memberOk(m, 13, f) && memberOk(m, 14, f)
+          && memberOk(m, 15, f) && memberOk(m, 16, f) && memberOk(m, 17, f) && memberOk(m, 18, f) && memberOk(m, 19, f);
+      }
       function regAfter(id) {
         return getAfter(/databases/$(database)/documents/seasons/$(season)/registrations/$(id)).data;
       }
@@ -96,6 +109,7 @@ service cloud.firestore {
           && request.resource.data.submissionNo == counterAfter().lastSubmission
           && request.resource.data.firstTicket == counterBefore().lastTicket + 1
           && request.resource.data.members.size() == counterAfter().lastTicket - counterBefore().lastTicket
+          && membersOk(request.resource.data.members, request.resource.data.firstTicket)
           && request.resource.data.createdAt == request.time
           && (request.resource.data.createdBy == null || request.resource.data.createdBy == request.auth.uid);
         // Staff mark payments; nothing else about a registration changes.
