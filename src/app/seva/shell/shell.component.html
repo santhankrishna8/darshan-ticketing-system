@@ -19,6 +19,9 @@
             <a routerLink="settings" routerLinkActive="active" data-tour="nav-settings"><app-icon name="gear" />Settings</a>
           }
           <a routerLink="device" routerLinkActive="active" data-tour="nav-device"><app-icon name="fingerprint" />This device</a>
+          @if (biometric.isEnrolled(auth.user()?.uid)) {
+            <button type="button" class="nav-lock" (click)="auth.lock()"><app-icon name="lock-simple" />Lock</button>
+          }
         </nav>
       </aside>
       <main class="content">

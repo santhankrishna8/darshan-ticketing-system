@@ -256,6 +256,26 @@ describe('staff', () => {
     }
   });
 
+  it('admins correct an Aadhaar number; organizers and the public cannot', async () => {
+    const id = await register(as(null), [devotee(1)]);
+    const move = db => runTransaction(db, async tx => {
+      tx.set(doc(db, `seasons/${S}/aadhaar/fixed`), { aadhaar: 'fixed', registrationId: id, ticketNumber: 1 });
+      tx.delete(doc(db, `seasons/${S}/aadhaar/a1`));
+    });
+    await assertFails(move(as(null)));
+    await assertFails(move(as(vol)));
+    await assertSucceeds(move(as(adm)));
+  });
+
+  it('organizers move a registration to a corrected phone number; the public cannot', async () => {
+    const id = await register(as(null), [devotee(1)]);
+    await register(as(null), [devotee(2)]); // so the first is no longer the latest registration
+    await assertFails(setDoc(doc(as(null), `seasons/${S}/phones/9000000001`), { registrationIds: [id] }));
+    await assertSucceeds(setDoc(doc(as(vol), `seasons/${S}/phones/9000000001`), { registrationIds: [id] }));
+    await assertSucceeds(updateDoc(doc(as(vol), `seasons/${S}/phones/${devotee(1).phone}`), { registrationIds: [] }));
+    await assertFails(updateDoc(doc(as(null), `seasons/${S}/phones/9000000001`), { registrationIds: [] }));
+  });
+
   it('only the main admin deletes registrations', async () => {
     const id = await register(as(null), [devotee(1)]);
     await assertFails(deleteDoc(doc(as(adm), `seasons/${S}/registrations/${id}`)));

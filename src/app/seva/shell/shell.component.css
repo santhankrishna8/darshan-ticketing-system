@@ -99,7 +99,8 @@ nav {
   gap: 2px;
 }
 
-nav a {
+nav a,
+.nav-lock {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -116,7 +117,8 @@ nav a i {
   color: var(--muted-foreground);
 }
 
-nav a:hover {
+nav a:hover,
+.nav-lock:hover {
   background: var(--muted);
 }
 
@@ -185,4 +187,12 @@ nav a.active i {
 .fp-actions {
   display: flex;
   gap: 6px;
+}
+
+.nav-lock {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
 }

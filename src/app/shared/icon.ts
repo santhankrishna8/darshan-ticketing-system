@@ -34,10 +34,12 @@ import xSvg from '@phosphor-icons/core/assets/regular/x.svg';
 import translateSvg from '@phosphor-icons/core/assets/regular/translate.svg';
 import signInSvg from '@phosphor-icons/core/assets/regular/sign-in.svg';
 import caretRightSvg from '@phosphor-icons/core/assets/regular/caret-right.svg';
+import pencilSimpleSvg from '@phosphor-icons/core/assets/regular/pencil-simple.svg';
 
 // Phosphor icons (regular), bundled as SVG text at build time so they always render,
 // even offline or when a web font would be blocked.
 const ICONS = {
+  'pencil-simple': pencilSimpleSvg,
   'caret-right': caretRightSvg,
   'sign-in': signInSvg,
   'translate': translateSvg,

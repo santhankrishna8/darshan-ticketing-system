@@ -33,11 +33,22 @@ import { IconComponent } from '../../shared/icon';
       }
     </section>
 
+    @if (enrolled()) {
+      <section class="card box">
+        <app-icon name="lock-simple" class="big-icon" />
+        <div class="text">
+          <h2>Lock now</h2>
+          <p class="muted">Close the seva desk on this phone without signing out. Your fingerprint opens it again.</p>
+        </div>
+        <button type="button" class="btn" (click)="auth.lock()">Lock</button>
+      </section>
+    }
+
     <section class="card box">
       <app-icon name="sign-out" class="big-icon" />
       <div class="text">
         <h2>Sign out</h2>
-        <p class="muted">Signed in as {{ auth.user()?.email }}. Signing out also removes fingerprint unlock from this phone.</p>
+        <p class="muted">Signed in as {{ auth.user()?.email }}. After signing out you sign in with Google again; fingerprint setup stays on this phone.</p>
       </div>
       <button type="button" class="btn" (click)="auth.signOut()">Sign out</button>
     </section>
@@ -73,8 +84,8 @@ export class DeviceComponent {
   }
 
   protected turnOff(): void {
-    this.biometric.forget();
-    this.biometric.markUnlocked(this.auth.user()?.uid ?? null);
+    const uid = this.auth.user()?.uid;
+    if (uid) this.biometric.forget(uid);
     this.toast.show('Fingerprint unlock turned off', 'ok');
   }
 }

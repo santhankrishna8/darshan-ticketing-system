@@ -110,19 +110,23 @@ service cloud.firestore {
         allow get: if true;
         allow list: if isAdmin(season);
         allow create: if request.resource.data.keys().hasOnly(['aadhaar', 'registrationId', 'ticketNumber'])
-          && request.resource.data.registrationId == counterAfter().lastRegistrationId
-          && request.resource.data.ticketNumber > counterBefore().lastTicket
-          && request.resource.data.ticketNumber <= counterAfter().lastTicket;
+          && ((request.resource.data.registrationId == counterAfter().lastRegistrationId
+                && request.resource.data.ticketNumber > counterBefore().lastTicket
+                && request.resource.data.ticketNumber <= counterAfter().lastTicket)
+              // Admins correcting a devotee's Aadhaar number on an existing registration.
+              || (isAdmin(season)
+                && exists(/databases/$(database)/documents/seasons/$(season)/registrations/$(request.resource.data.registrationId))));
         allow update: if false;
-        allow delete: if isOwner();
+        allow delete: if isAdmin(season);
       }
 
       match /phones/{phone} {
         allow get: if true;
         allow list: if isStaff(season);
         allow create: if request.resource.data.keys().hasOnly(['registrationIds'])
-          && request.resource.data.registrationIds == [counterAfter().lastRegistrationId];
-        allow update: if isOwner() || (
+          && (request.resource.data.registrationIds == [counterAfter().lastRegistrationId] || isStaff(season));
+        // Staff move a registration between phone numbers when correcting a devotee's phone.
+        allow update: if isStaff(season) || (
           request.resource.data.keys().hasOnly(['registrationIds'])
           && request.resource.data.registrationIds.size() == resource.data.registrationIds.size() + 1
           && request.resource.data.registrationIds.hasAll(resource.data.registrationIds)

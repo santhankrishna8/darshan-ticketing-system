@@ -3,9 +3,15 @@ import { Injectable, signal } from '@angular/core';
 const STORE = 'seva.biometric';
 const UNLOCKED = 'seva.unlocked';
 
-interface Enrollment {
-  uid: string;
-  credentialId: string;
+/** Fingerprint credentials set up on this device, per signed-in person (uid -> credential id). */
+type Enrollments = Record<string, string>;
+
+function loadEnrollments(): Enrollments {
+  const stored = read<any>(localStorage, STORE);
+  if (!stored) return {};
+  // Earlier versions stored a single { uid, credentialId }.
+  if (typeof stored.uid === 'string' && typeof stored.credentialId === 'string') return { [stored.uid]: stored.credentialId };
+  return stored;
 }
 
 const b64url = (buf: ArrayBuffer) =>
@@ -39,7 +45,7 @@ function write(storage: Storage, key: string, value: unknown): void {
 @Injectable({ providedIn: 'root' })
 export class BiometricService {
   readonly supported = signal(false);
-  private readonly enrollment = signal<Enrollment | null>(read(localStorage, STORE));
+  private readonly enrollments = signal<Enrollments>(loadEnrollments());
   private readonly unlockedUid = signal<string | null>(read(sessionStorage, UNLOCKED));
 
   constructor() {
@@ -50,7 +56,7 @@ export class BiometricService {
   }
 
   isEnrolled(uid: string | undefined): boolean {
-    return !!uid && this.enrollment()?.uid === uid;
+    return !!uid && !!this.enrollments()[uid];
   }
 
   isUnlocked(uid: string | undefined): boolean {
@@ -78,21 +84,19 @@ export class BiometricService {
       },
     })) as PublicKeyCredential | null;
     if (!cred) throw new Error('Fingerprint setup was cancelled.');
-    const enrollment = { uid: user.uid, credentialId: b64url(cred.rawId) };
-    this.enrollment.set(enrollment);
-    write(localStorage, STORE, enrollment);
+    this.save({ ...this.enrollments(), [user.uid]: b64url(cred.rawId) });
     this.markUnlocked(user.uid);
   }
 
   /** Resolves true only when the device confirmed the person with fingerprint, face or device PIN. */
   async unlock(uid: string): Promise<boolean> {
-    const e = this.enrollment();
-    if (!e || e.uid !== uid) return false;
+    const credentialId = this.enrollments()[uid];
+    if (!credentialId) return false;
     const assertion = (await navigator.credentials.get({
       publicKey: {
         challenge: challenge(),
         rpId: location.hostname,
-        allowCredentials: [{ type: 'public-key', id: fromB64url(e.credentialId), transports: ['internal'] }],
+        allowCredentials: [{ type: 'public-key', id: fromB64url(credentialId), transports: ['internal'] }],
         userVerification: 'required',
         timeout: 60_000,
       },
@@ -103,9 +107,19 @@ export class BiometricService {
     return userVerified;
   }
 
-  forget(): void {
-    this.enrollment.set(null);
-    write(localStorage, STORE, null);
+  /** Locks the desk on this device; the fingerprint (or Google) opens it again. */
+  lock(): void {
     this.markUnlocked(null);
+  }
+
+  /** Turns fingerprint unlock off for one person on this device. */
+  forget(uid: string): void {
+    const { [uid]: _removed, ...rest } = this.enrollments();
+    this.save(rest);
+  }
+
+  private save(enrollments: Enrollments): void {
+    this.enrollments.set(enrollments);
+    write(localStorage, STORE, Object.keys(enrollments).length ? enrollments : null);
   }
 }

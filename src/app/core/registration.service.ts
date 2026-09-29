@@ -7,9 +7,11 @@ import {
   getDoc,
   getDocs,
   onSnapshot,
+  query,
   runTransaction,
   serverTimestamp,
   Unsubscribe,
+  where,
   writeBatch,
 } from 'firebase/firestore';
 import { SEASON, db } from './firebase';
@@ -154,6 +156,65 @@ export class RegistrationService {
       if (!snap.exists()) throw new Error('Registration not found');
       const members = (snap.data()['members'] as Member[]).map(m => (m.ticketNumber === ticketNumber ? { ...m, paymentStatus: status } : m));
       tx.update(ref, { members, updatedAt: serverTimestamp() });
+    });
+  }
+
+  /** Admins: the full Aadhaar number of one devotee. */
+  async aadhaarOf(registrationId: string, ticketNumber: number): Promise<string | null> {
+    const snap = await getDocs(query(aadhaarIndex(), where('registrationId', '==', registrationId)));
+    const hit = snap.docs.map(d => d.data() as AadhaarIndex).find(a => a.ticketNumber === ticketNumber);
+    return hit?.aadhaar ?? null;
+  }
+
+  /**
+   * Corrects one devotee's details. Changing the Aadhaar number (admins) moves its duplicate-check
+   * entry; changing the phone moves the registration between phone lookups. All in one transaction.
+   */
+  async updateMember(
+    registrationId: string,
+    ticketNumber: number,
+    changes: Pick<Member, 'name' | 'age' | 'gender' | 'phone' | 'address'>,
+    aadhaar?: { from: string; to: string },
+  ): Promise<void> {
+    const ref = doc(registrations(), registrationId);
+    const keys = aadhaar && aadhaar.to !== aadhaar.from ? { from: await aadhaarKey(aadhaar.from), to: await aadhaarKey(aadhaar.to) } : null;
+
+    await runTransaction(db, async tx => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error('Registration not found');
+      const members = snap.data()['members'] as Member[];
+      const index = members.findIndex(m => m.ticketNumber === ticketNumber);
+      if (index < 0) throw new Error('Devotee not found');
+      const before = members[index];
+
+      if (keys && (await tx.get(doc(aadhaarIndex(), keys.to))).exists())
+        throw new RegistrationError('duplicate', 'This Aadhaar number is already registered.', [aadhaar!.to]);
+
+      const phoneChanged = changes.phone !== before.phone;
+      const newPhoneSnap = phoneChanged ? await tx.get(doc(phoneIndex(), changes.phone)) : null;
+      const oldPhoneSnap = phoneChanged ? await tx.get(doc(phoneIndex(), before.phone)) : null;
+
+      const updated: Member = {
+        ...before,
+        ...changes,
+        name: changes.name.trim(),
+        address: changes.address.trim(),
+        age: Number(changes.age),
+        aadhaarLast4: keys ? aadhaar!.to.slice(-4) : before.aadhaarLast4,
+      };
+      const next = members.map((m, i) => (i === index ? updated : m));
+      tx.update(ref, { members: next, updatedAt: serverTimestamp() });
+
+      if (keys) {
+        tx.set(doc(aadhaarIndex(), keys.to), { aadhaar: aadhaar!.to, registrationId, ticketNumber } satisfies AadhaarIndex);
+        tx.delete(doc(aadhaarIndex(), keys.from));
+      }
+      if (phoneChanged) {
+        if (newPhoneSnap!.exists()) tx.update(doc(phoneIndex(), changes.phone), { registrationIds: arrayUnion(registrationId) });
+        else tx.set(doc(phoneIndex(), changes.phone), { registrationIds: [registrationId] });
+        const stillUsed = next.some(m => m.phone === before.phone);
+        if (!stillUsed && oldPhoneSnap!.exists()) tx.update(doc(phoneIndex(), before.phone), { registrationIds: arrayRemove(registrationId) });
+      }
     });
   }
 

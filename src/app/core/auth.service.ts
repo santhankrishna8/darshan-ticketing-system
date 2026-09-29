@@ -84,8 +84,14 @@ export class AuthService {
     }
   }
 
+  /** Locks the desk without signing out, so the fingerprint can open it again. */
+  lock(): void {
+    this.biometric.lock();
+  }
+
   async signOut(): Promise<void> {
-    this.biometric.forget();
+    // Fingerprint setup stays on this device; signing out only locks it.
+    this.biometric.lock();
     await signOut(auth);
   }
 

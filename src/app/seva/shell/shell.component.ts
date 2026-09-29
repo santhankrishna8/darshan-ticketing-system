@@ -56,7 +56,11 @@ export class SevaShellComponent implements OnDestroy {
     });
     // If the main admin withdrew biometric permission, a locked device must sign in with Google again.
     effect(() => {
-      if (this.auth.access() === 'locked' && this.auth.staff() !== undefined && !this.auth.biometricAllowed()) this.auth.signOut();
+      const uid = this.auth.user()?.uid;
+      if (uid && this.auth.access() === 'locked' && this.auth.staff() !== undefined && !this.auth.biometricAllowed()) {
+        this.biometric.forget(uid);
+        this.auth.signOut();
+      }
     });
   }
 

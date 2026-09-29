@@ -8,11 +8,12 @@ import { downloadTicketPdf } from '../../core/ticket-pdf';
 import { ToastService } from '../../shared/toast';
 import { downloadExcel, stamp } from '../excel';
 import { Row, StaffDataService } from '../staff-data.service';
+import { EditMemberComponent } from './edit-member';
 import { IconComponent } from '../../shared/icon';
 
 @Component({
   selector: 'app-registrations',
-  imports: [IconComponent, FormsModule, RouterLink],
+  imports: [IconComponent, FormsModule, RouterLink, EditMemberComponent],
   templateUrl: './registrations.component.html',
   styleUrl: './registrations.component.css',
 })
