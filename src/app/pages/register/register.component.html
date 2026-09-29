@@ -1,21 +1,20 @@
-<app-site-header />
+@if (!embedded) { <app-site-header /> }
 
-<main class="container page">
+<main class="container page" [class.embedded]="embedded">
   @if (done(); as reg) {
     <section class="card done" aria-live="polite">
       <app-icon name="check-circle" class="done-icon" />
       <h1>{{ i18n.t('Registration complete', 'నమోదు పూర్తయింది') }}</h1>
       <p class="muted">
         {{ i18n.t('Registration', 'నమోదు') }} #{{ reg.submissionNo }} · {{ reg.members.length }} {{ i18n.t(reg.members.length === 1 ? 'devotee' : 'devotees', 'మంది') }}.
-        {{ i18n.t('The ticket PDF is downloading.', 'టికెట్ PDF డౌన్‌లోడ్ అవుతోంది.') }}
+        {{ i18n.t('Please note the ticket numbers.', 'టికెట్ నంబర్లు గుర్తుంచుకోండి.') }}
       </p>
 
       <ul class="done-list">
         @for (m of reg.members; track m.ticketNumber) {
           <li>
-            <span class="ticket-no mono">{{ m.ticketNumber }}</span>
-            <span class="done-name">{{ m.name }}</span>
-            <span class="muted mono">XXXX {{ m.aadhaarLast4 }}</span>
+            <span class="ticket-no mono" [attr.aria-label]="i18n.t('Ticket number', 'టికెట్ నంబర్') + ' ' + m.ticketNumber">{{ m.ticketNumber }}</span>
+            <span class="done-name">{{ m.name }}<span class="muted mono">XXXX {{ m.aadhaarLast4 }}</span></span>
           </li>
         }
       </ul>

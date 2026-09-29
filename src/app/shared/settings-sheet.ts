@@ -1,14 +1,13 @@
 import { Component, ElementRef, inject, viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { I18nService } from './i18n.service';
 import { IconComponent } from './icon';
 import { InstallButtonComponent } from './install-button';
 import { TourService } from './tour';
 
-/** Header gear: language, tour, install and admin sign-in in one small panel. */
+/** Header gear: language, tour and install in one small panel. */
 @Component({
   selector: 'app-settings-sheet',
-  imports: [RouterLink, IconComponent, InstallButtonComponent],
+  imports: [IconComponent, InstallButtonComponent],
   template: `
     <button type="button" class="trigger" (click)="open()" [attr.aria-label]="i18n.t('Settings', 'సెట్టింగ్స్')" data-tour="settings">
       <app-icon name="gear" />
@@ -28,12 +27,11 @@ import { TourService } from './tour';
           </div>
         </fieldset>
 
-        <div class="list">
-          @if (tour.available()) {
+        @if (tour.available()) {
+          <div class="list">
             <button type="button" class="row" (click)="showTour()"><app-icon name="question" />{{ i18n.t('Show me around', 'ఎలా వాడాలి') }}<app-icon name="caret-right" class="end" /></button>
-          }
-          <a routerLink="/seva" class="row" (click)="close()"><app-icon name="sign-in" />{{ i18n.t('Admin sign in', 'అడ్మిన్ సైన్ ఇన్') }}<app-icon name="caret-right" class="end" /></a>
-        </div>
+          </div>
+        }
 
         <div class="install"><app-install-button variant="btn-block" [label]="i18n.t('Install app', 'యాప్ ఇన్‌స్టాల్ చేయండి')" /></div>
       </div>

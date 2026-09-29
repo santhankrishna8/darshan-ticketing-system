@@ -1,5 +1,12 @@
 .page {
-  padding-block: 24px 0;
+  padding-block: 24px 48px;
+}
+
+/* Inside the seva desk: no page gutter or header offset of its own. */
+.page.embedded {
+  padding: 0;
+  margin: 0;
+  max-width: 720px;
 }
 
 .page-head {
@@ -104,6 +111,11 @@ h2 {
   text-align: center;
 }
 
+.page.embedded .submit-bar {
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
 .submit-bar {
   position: sticky;
   bottom: 0;
@@ -149,7 +161,7 @@ h2 {
 
 .done-list li {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: 12px;
   padding: 10px 0;
@@ -157,16 +169,24 @@ h2 {
 }
 
 .ticket-no {
-  min-width: 44px;
-  padding: 2px 8px;
-  border-radius: calc(var(--radius) - 2px);
+  min-width: 64px;
+  padding: 6px 10px;
+  border-radius: var(--radius);
   background: var(--muted);
+  font-size: 1.5rem;
+  line-height: 1.2;
   text-align: center;
 }
 
 .done-name {
   min-width: 0;
   overflow-wrap: anywhere;
+  display: flex;
+  flex-direction: column;
+}
+
+.done-name .muted {
+  font-size: 0.85rem;
 }
 
 .actions {
@@ -176,14 +196,6 @@ h2 {
 }
 
 @media (max-width: 480px) {
-  .done-list li {
-    grid-template-columns: auto 1fr;
-  }
-
-  .done-list li .muted {
-    grid-column: 2;
-  }
-
   .actions .btn {
     flex: 1 1 100%;
   }

@@ -13,7 +13,7 @@
         <nav aria-label="Seva desk">
           <a routerLink="overview" routerLinkActive="active" data-tour="nav-overview"><app-icon name="chart-bar" />Overview</a>
           <a routerLink="registrations" routerLinkActive="active" data-tour="nav-registrations"><app-icon name="list" />Registrations</a>
-          <a routerLink="/register" data-tour="nav-new"><app-icon name="user-plus" />New registration</a>
+          <a routerLink="register" routerLinkActive="active" data-tour="nav-new"><app-icon name="user-plus" />New registration</a>
           @if (auth.isOwner()) {
             <a routerLink="people" routerLinkActive="active" data-tour="nav-people"><app-icon name="users" />People</a>
             <a routerLink="settings" routerLinkActive="active" data-tour="nav-settings"><app-icon name="gear" />Settings</a>

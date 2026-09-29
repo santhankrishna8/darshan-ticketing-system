@@ -1,7 +1,7 @@
 <header class="head">
   <h1>Registrations</h1>
   <div class="head-actions">
-    <a routerLink="/register" class="btn btn-sm"><app-icon name="user-plus" />New</a>
+    <a routerLink="/seva/register" class="btn btn-sm"><app-icon name="user-plus" />New</a>
     <button type="button" class="btn btn-sm btn-primary" (click)="export()" [disabled]="exporting() || filtered().length === 0">
       <app-icon name="download-simple" />{{ exporting() ? 'Preparing…' : 'Excel' }}
     </button>

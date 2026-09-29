@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnDestroy, computed, effect, inject, signal, untracked, viewChildren } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AadhaarScannerService } from '../../aadhaar/aadhaar-scanner.service';
 import { AadhaarDetails, ageFrom, formatAadhaar } from '../../aadhaar/aadhaar.types';
 import { isValidAadhaar } from '../../aadhaar/verhoeff';
@@ -94,8 +94,8 @@ const TOUR: TourStep[] = [
     target: '[data-tour=settings]',
     title: 'Settings',
     titleTe: 'సెట్టింగ్స్',
-    body: 'Switch between English and Telugu, see this tour again, or sign in as admin.',
-    bodyTe: 'ఇంగ్లీష్ / తెలుగు మార్చుకోవచ్చు, ఈ వివరణ మళ్ళీ చూడవచ్చు, అడ్మిన్ సైన్ ఇన్ చేయవచ్చు.',
+    body: 'Switch between English and Telugu, or see this tour again.',
+    bodyTe: 'ఇంగ్లీష్ / తెలుగు మార్చుకోవచ్చు లేదా ఈ వివరణ మళ్ళీ చూడవచ్చు.',
   },
 ];
 
@@ -109,6 +109,8 @@ export class RegisterComponent implements OnDestroy {
   protected readonly season = inject(SeasonService);
   protected readonly scanner = inject(AadhaarScannerService);
   protected readonly i18n = inject(I18nService);
+  /** Inside the seva desk the admin sidebar replaces the public header. */
+  protected readonly embedded = !!inject(ActivatedRoute).snapshot.data['embedded'];
   private readonly registrations = inject(RegistrationService);
   private readonly toast = inject(ToastService);
   private readonly tour = inject(TourService);
@@ -280,7 +282,6 @@ export class RegisterComponent implements OnDestroy {
       const reg = await this.registrations.register(members, auth.currentUser?.uid ?? null);
       this.done.set(reg);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      this.download(reg);
     } catch (e: any) {
       console.error(e);
       if (e instanceof RegistrationError && e.code === 'duplicate') {
