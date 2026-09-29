@@ -39,7 +39,7 @@ export class PwaService {
         if (e.type === 'VERSION_READY') this.updateReady.set(true);
       });
       this.sw.unrecoverable.subscribe(() => location.reload());
-      // Long-open volunteer phones should still pick up fixes.
+      // Long-open organizer phones should still pick up fixes.
       setInterval(() => this.sw.checkForUpdate().catch(() => undefined), 30 * 60_000);
     }
   }

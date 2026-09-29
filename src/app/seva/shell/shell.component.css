@@ -172,3 +172,17 @@ nav a.active i {
     scroll-snap-align: start;
   }
 }
+
+.fingerprint {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fingerprint p {
+  flex: 1 1 220px;
+}
+
+.fp-actions {
+  display: flex;
+  gap: 6px;
+}

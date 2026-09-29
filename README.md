@@ -32,9 +32,9 @@ The main admin is **santhankrishna18@gmail.com**. To change it, edit `ownerEmail
 3. Open `/seva` and sign in with the main admin account (santhankrishna18@gmail.com). The 2026 season is
    created automatically and registration is open. Review the numbers and coordinators under **Settings**.
 
-Volunteers open `/seva` and sign in; they appear under **People** for you to approve as *volunteer*
+Organizers open `/seva` and sign in; they appear under **People** for you to approve as *organizer*
 (register, list, mark payments) or *admin* (also Excel export with full Aadhaar).
-You can also allow **fingerprint unlock** per person.
+**Fingerprint unlock** is allowed for everyone you approve; turn it off per person if needed.
 
 ## Aadhaar scanning
 

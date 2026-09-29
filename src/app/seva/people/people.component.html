@@ -9,7 +9,7 @@
 
 <div class="roles notice">
   <app-icon name="shield-check" />
-  <p><strong>Volunteer</strong> can register families, see the list and mark payments. <strong>Admin</strong> can also export Excel with full Aadhaar numbers. Only you manage people and settings.</p>
+  <p><strong>Organizer</strong> can register families, see the list and mark payments. <strong>Admin</strong> can also export Excel with full Aadhaar numbers. Only you manage people and settings. Fingerprint unlock is on for everyone you approve; you can turn it off per person.</p>
 </div>
 
 @if (people() === undefined) {
@@ -21,7 +21,7 @@
       <div class="person card">
         <ng-container *ngTemplateOutlet="who; context: { $implicit: p }" />
         <div class="acts">
-          <button type="button" class="btn btn-primary btn-sm" (click)="approve(p, 'volunteer')" [disabled]="busy() === p.uid">Approve as volunteer</button>
+          <button type="button" class="btn btn-primary btn-sm" (click)="approve(p, 'volunteer')" [disabled]="busy() === p.uid">Approve as organizer</button>
           <button type="button" class="btn btn-sm" (click)="approve(p, 'admin')" [disabled]="busy() === p.uid">Approve as admin</button>
           <button type="button" class="btn btn-ghost btn-sm danger" (click)="decide(p, { status: 'rejected' }, 'Request declined')" [disabled]="busy() === p.uid">Decline</button>
         </div>
@@ -40,7 +40,7 @@
           <label class="field inline">
             <span class="visually-hidden">Role for {{ p.email }}</span>
             <select class="input input-sm" [value]="p.role" (change)="setRole(p, $any($event.target).value)" [disabled]="busy() === p.uid">
-              <option value="volunteer">Volunteer</option>
+              <option value="volunteer">Organizer</option>
               <option value="admin">Admin</option>
             </select>
           </label>
@@ -63,7 +63,7 @@
         <div class="person card quiet">
           <ng-container *ngTemplateOutlet="who; context: { $implicit: p }" />
           <div class="acts">
-            <button type="button" class="btn btn-sm" (click)="approve(p, 'volunteer')" [disabled]="busy() === p.uid">Approve as volunteer</button>
+            <button type="button" class="btn btn-sm" (click)="approve(p, 'volunteer')" [disabled]="busy() === p.uid">Approve as organizer</button>
           </div>
         </div>
       }

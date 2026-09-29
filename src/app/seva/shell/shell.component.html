@@ -25,6 +25,16 @@
         @if (season.settings() === null && !auth.isOwner()) {
           <div class="notice notice-warn"><app-icon name="hourglass-medium" /><p>The {{ season.season }} season has not been set up yet. The main admin can create it in Settings.</p></div>
         }
+        @if (offerFingerprint()) {
+          <div class="notice fingerprint">
+            <app-icon name="fingerprint" />
+            <p>Unlock the seva desk with your fingerprint on this phone next time.</p>
+            <div class="fp-actions">
+              <button type="button" class="btn btn-sm btn-primary" (click)="enableFingerprint()" [disabled]="enrolling()">Turn on</button>
+              <button type="button" class="btn btn-sm btn-ghost" (click)="dismissFingerprint()">Not now</button>
+            </div>
+          </div>
+        }
         <router-outlet />
       </main>
     </div>
@@ -42,7 +52,7 @@
 
           @case ('signed-out') {
             <h1>Admin sign in</h1>
-            <p class="muted">Organisers and volunteers sign in with their Google account. New people are let in after the main admin approves them.</p>
+            <p class="muted">Organizers sign in with their Google account. New people are let in after the main admin approves them.</p>
             <button type="button" class="btn btn-primary btn-lg" (click)="signIn()" [disabled]="busy()">
               <app-icon name="google-logo" />Sign in with Google
             </button>
@@ -67,7 +77,7 @@
           @case ('rejected') {
             <app-icon name="warning-circle" class="gate-icon" />
             <h1>Request not approved</h1>
-            <p class="muted">The main admin has not given {{ auth.user()?.email }} access. Please speak to the organisers if this is a mistake.</p>
+            <p class="muted">The main admin has not given {{ auth.user()?.email }} access. Please speak to the main admin if this is a mistake.</p>
             <button type="button" class="btn" (click)="auth.signOut()"><app-icon name="sign-out" />Sign out</button>
           }
 

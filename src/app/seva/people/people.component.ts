@@ -51,11 +51,11 @@ export class PeopleComponent implements OnDestroy {
   }
 
   protected approve(p: StaffMember, role: StaffRole): void {
-    this.decide(p, { status: 'approved', role }, `${p.name || p.email} can now use the seva desk`);
+    this.decide(p, { status: 'approved', role, biometricAllowed: true }, `${p.name || p.email} can now use the seva desk`);
   }
 
   protected setRole(p: StaffMember, role: string): void {
-    this.decide(p, { role: role as StaffRole }, `${p.name || p.email} is now ${role === 'admin' ? 'an admin' : 'a volunteer'}`);
+    this.decide(p, { role: role as StaffRole }, `${p.name || p.email} is now ${role === 'admin' ? 'an admin' : 'an organizer'}`);
   }
 
   protected revoke(p: StaffMember): void {
