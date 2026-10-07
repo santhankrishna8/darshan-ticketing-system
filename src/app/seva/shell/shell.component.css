@@ -52,8 +52,10 @@
   top: 0;
   height: 100dvh;
   overflow-y: auto;
-  background: var(--sidebar);
-  border-right: 1px solid var(--sidebar-border);
+  background: hsl(0 0% 100% / 0.8);
+  backdrop-filter: saturate(1.8) blur(20px);
+  -webkit-backdrop-filter: saturate(1.8) blur(20px);
+  border-right: 1px solid hsl(0 0% 0% / 0.08);
 }
 
 .side-head {
@@ -117,12 +119,13 @@ nav a:hover,
 }
 
 nav a.active {
-  background: var(--accent);
-  color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 500;
 }
 
 nav a.active i {
-  color: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .content {

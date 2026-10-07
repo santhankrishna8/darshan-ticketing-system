@@ -1,4 +1,4 @@
-import { Component, OnDestroy, computed, effect, inject, signal } from '@angular/core';
+import { Component, OnDestroy, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
@@ -70,6 +70,15 @@ export class SevaShellComponent implements OnDestroy {
         this.auth.signOut();
       }
     });
+    // Opening the app on a locked phone asks for the fingerprint straight away (once per page load,
+    // so pressing Lock does not re-prompt). Browsers that need a tap first fall back to the button.
+    let prompted = false;
+    effect(() => {
+      if (!prompted && this.auth.access() === 'locked' && this.auth.biometricAllowed()) {
+        prompted = true;
+        untracked(() => this.unlock(true));
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -125,13 +134,14 @@ export class SevaShellComponent implements OnDestroy {
     }
   }
 
-  protected async unlock(): Promise<void> {
+  protected async unlock(auto = false): Promise<void> {
     const uid = this.auth.user()?.uid;
     if (!uid) return;
     this.unlockError.set(null);
     try {
       if (!(await this.biometric.unlock(uid))) this.unlockError.set('The device could not confirm it is you. Try again or use Google.');
     } catch (e: any) {
+      if (auto) return; // no tap yet, or dismissed: the button is right there
       this.unlockError.set(e?.name === 'NotAllowedError' ? 'Unlock was cancelled.' : 'This device could not unlock. Use Google sign-in instead.');
     }
   }

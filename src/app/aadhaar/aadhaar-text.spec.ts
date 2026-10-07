@@ -100,6 +100,38 @@ describe('parseAadhaarText', () => {
     expect(aadhaarVerified).toBeFalse();
   });
 
+  it('reads a Tamil card front, including a name with an initial', () => {
+    const { details, aadhaarVerified } = parseAadhaarText(`
+Qbbu yrerte
+Government of India
+@. smiPéa
+R. Karthikeyan
+Lmibs sréir/DOB: 15/08/1985
+gsrewr / MALE
+2345 6789 0124
+aT gr, rer ewwtaut
+`);
+    expect(details.name).toBe('R. Karthikeyan');
+    expect(details.dob).toBe('15/08/1985');
+    expect(details.gender).toBe('Male');
+    expect(aadhaarVerified).toBeTrue();
+  });
+
+  it('reads a Hindi card front with the name after the initial', () => {
+    const { details } = parseAadhaarText(`
+Ra Wane
+Government of India
+Ub ow
+Lakshmi K
+STH Afar/DOB: 02/03/1990
+afer / FEMALE
+2345 6789 0124
+`);
+    expect(details.name).toBe('Lakshmi K');
+    expect(details.dob).toBe('02/03/1990');
+    expect(details.gender).toBe('Female');
+  });
+
   it('returns nothing for text that is not an Aadhaar card', () => {
     const { details } = parseAadhaarText('Hello world\nThis is a shopping list\nMilk 2 packets\n');
     expect(details.aadhaar).toBeUndefined();

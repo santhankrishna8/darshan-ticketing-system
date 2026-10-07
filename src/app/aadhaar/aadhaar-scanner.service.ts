@@ -14,11 +14,14 @@ export class AadhaarScannerService {
   readonly stage = signal<ScanStage>('idle');
 
   private worker?: Promise<OcrWorker>;
+  /** Second worker for the sparse-text pass, so it runs alongside the main read on multi-core phones. */
+  private sparseWorker?: Promise<OcrWorker>;
   private zxingReady?: Promise<typeof import('zxing-wasm/reader')>;
 
   /** Start downloading the OCR engine early (e.g. when the scan button is tapped). */
   warmUp(): void {
     this.getWorker().catch(() => (this.worker = undefined));
+    this.getSparseWorker()?.catch(() => (this.sparseWorker = undefined));
   }
 
   async scan(file: Blob): Promise<ScanResult> {
@@ -44,6 +47,18 @@ export class AadhaarScannerService {
       const source = Math.abs(tilt) >= 1 ? await rotateBitmap(bitmap, -tilt) : bitmap;
       const canvas = prepareForOcr(source, 0);
 
+      // Step 3's sparse-text pass needs only this canvas, so with a second worker it starts now
+      // and is usually finished by the time we know whether it is needed.
+      // ponytail: on clear photos it is wasted CPU (not wall time); drop it if phones run hot.
+      const sparseWorker = this.getSparseWorker();
+      const sparseRead = (w: OcrWorker) =>
+        w
+          .setParameters({ tessedit_pageseg_mode: T.PSM.SPARSE_TEXT, tessedit_char_whitelist: '' })
+          .then(() => w.recognize(canvas))
+          .then(r => r.data.text);
+      let sparse = sparseWorker?.then(sparseRead);
+      sparse?.catch(() => {});
+
       // 1. Read the whole card once, keeping where every line sits.
       await worker.setParameters({ tessedit_pageseg_mode: T.PSM.AUTO, preserve_interword_spaces: '1', tessedit_char_whitelist: '' });
       const page = await readPage(worker, canvas);
@@ -62,8 +77,7 @@ export class AadhaarScannerService {
       // 3. Still missing something: a sparse-text pass finds text that layout analysis skipped.
       if (!complete()) {
         this.stage.set('rereading');
-        await worker.setParameters({ tessedit_pageseg_mode: T.PSM.SPARSE_TEXT, tessedit_char_whitelist: '' });
-        text += '\n' + (await worker.recognize(canvas)).data.text;
+        text += '\n' + (await (sparse ?? sparseRead(worker)).catch(() => sparseRead(worker)));
         const merged = parseAadhaarText(text);
         parsed = {
           details: { ...merged.details, ...definedOnly(parsed.details) },
@@ -105,16 +119,15 @@ export class AadhaarScannerService {
   }
 
   private getWorker(): Promise<OcrWorker> {
-    this.worker ??= loadTesseract().then(({ createWorker, OEM }) => {
-      const base = new URL('ocr/', document.baseURI).href;
-      return createWorker('eng', OEM.LSTM_ONLY, {
-        workerPath: base + 'worker.min.js',
-        corePath: base + 'core',
-        langPath: base + 'lang',
-        gzip: true,
-      });
-    });
+    this.worker ??= createOcrWorker();
     return this.worker;
+  }
+
+  /** Only on phones with 4+ cores; elsewhere a second worker would just slow the first one down. */
+  private getSparseWorker(): Promise<OcrWorker> | undefined {
+    if ((navigator.hardwareConcurrency || 1) < 4) return undefined;
+    this.sparseWorker ??= createOcrWorker();
+    return this.sparseWorker;
   }
 
   private async readQr(bitmap: ImageBitmap): Promise<string | null> {
@@ -146,6 +159,21 @@ export class AadhaarScannerService {
 async function loadTesseract(): Promise<typeof import('tesseract.js')> {
   const mod: any = await import('tesseract.js');
   return mod.createWorker ? mod : mod.default;
+}
+
+async function createOcrWorker(): Promise<OcrWorker> {
+  const { createWorker, OEM } = await loadTesseract();
+  const base = new URL('ocr/', document.baseURI).href;
+  const worker = await createWorker('eng', OEM.LSTM_ONLY, {
+    workerPath: base + 'worker.min.js',
+    corePath: base + 'core',
+    langPath: base + 'lang',
+    gzip: true,
+  });
+  // By default every doubtful line is read a second time as white-on-black text. Aadhaar
+  // text is dark on light, so that only costs time (~15% per scan, same results).
+  await worker.setParameters({ tessedit_do_invert: '0' } as any);
+  return worker;
 }
 
 async function loadBitmap(file: Blob): Promise<ImageBitmap> {

@@ -53,7 +53,7 @@
         <div class="notice notice-error"><app-icon name="warning-circle" /><p>{{ i18n.t('All tickets have been taken.', 'టికెట్లు అన్నీ అయిపోయాయి.') }}</p></div>
       }
       @case ('open') {
-        <form (submit)="$event.preventDefault(); submit()" novalidate>
+        <form (submit)="$event.preventDefault(); submit()" (input)="save()" (change)="save()" novalidate>
           @for (row of rows(); track row.id; let i = $index) {
             <section #card class="card member" [attr.aria-labelledby]="'m' + row.id">
               <div class="member-head">
@@ -83,7 +83,7 @@
                 </div>
               } @else {
                 <div class="scan">
-                  <button type="button" class="btn btn-primary" [attr.data-tour]="i === 0 ? 'scan' : null" (click)="pickPhoto(camera)" [disabled]="scanningAny()">
+                  <button type="button" class="btn btn-primary" [attr.data-tour]="i === 0 ? 'scan' : null" (click)="openCamera(row, camera)" [disabled]="scanningAny()">
                     <app-icon name="camera" />{{ i18n.t('Scan Aadhaar', 'ఆధార్ స్కాన్') }}
                   </button>
                   <button type="button" class="btn" [attr.data-tour]="i === 0 ? 'choose' : null" (click)="pickPhoto(gallery)" [disabled]="scanningAny()">
@@ -211,6 +211,15 @@
             </button>
           </div>
         </form>
+
+        <dialog #camDialog class="camera" (cancel)="closeCamera()" [attr.aria-label]="i18n.t('Take a photo of the Aadhaar card', 'ఆధార్ కార్డు ఫోటో తీయండి')">
+          <video #camVideo playsinline muted></video>
+          <p>{{ i18n.t('Fit the whole card in the frame, in good light.', 'కార్డు మొత్తం కనిపించేలా, వెలుతురులో ఉంచండి.') }}</p>
+          <div class="camera-actions">
+            <button type="button" class="btn" (click)="closeCamera()">{{ i18n.t('Cancel', 'రద్దు') }}</button>
+            <button type="button" class="btn btn-primary btn-lg" (click)="capture()"><app-icon name="camera" />{{ i18n.t('Capture', 'ఫోటో తీయండి') }}</button>
+          </div>
+        </dialog>
       }
     }
   }

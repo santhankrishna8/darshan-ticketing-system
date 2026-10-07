@@ -14,8 +14,10 @@
 }
 
 h1 {
-  font-size: 1.4rem;
-  margin-bottom: 2px;
+  font-size: clamp(1.75rem, 6vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
 }
 
 .card-skel {
@@ -51,7 +53,7 @@ form {
 }
 
 .member {
-  padding: 16px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -66,7 +68,7 @@ form {
 }
 
 h2 {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
 }
 
 .scan {
@@ -133,8 +135,10 @@ h2 {
   gap: 12px;
   margin-inline: calc(var(--gutter) * -1);
   padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
-  background: var(--background);
-  border-top: 1px solid var(--border);
+  background: hsl(0 0% 96% / 0.78);
+  backdrop-filter: saturate(1.8) blur(20px);
+  -webkit-backdrop-filter: saturate(1.8) blur(20px);
+  border-top: 1px solid hsl(0 0% 0% / 0.08);
 }
 
 .submit-bar .btn {
@@ -179,7 +183,8 @@ h2 {
   min-width: 64px;
   padding: 6px 10px;
   border-radius: var(--radius);
-  background: var(--muted);
+  background: var(--primary);
+  color: var(--primary-foreground);
   font-size: 1.5rem;
   line-height: 1.2;
   text-align: center;
@@ -231,4 +236,36 @@ h2 {
 
 .status .bad {
   color: var(--destructive);
+}
+
+.camera {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 16px;
+  border: 0;
+  background: #000;
+  color: #fff;
+  flex-direction: column;
+  gap: 12px;
+}
+.camera[open] {
+  display: flex;
+}
+.camera video {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  object-fit: contain;
+}
+.camera p {
+  margin: 0;
+  text-align: center;
+}
+.camera-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }

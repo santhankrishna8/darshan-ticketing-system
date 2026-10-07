@@ -10,8 +10,8 @@
   --input: #ebebeb;
   --muted: #f5f5f5;
   --accent: #ebebeb;
-  --border: #e4e4e4;
-  --radius: 0.5rem;
+  --border: #e6e6ea;
+  --radius: 0.75rem;
   --chart-1: #ffae04;
   --chart-2: #2d62ef;
   --chart-3: #a4a4a4;
@@ -21,9 +21,9 @@
   --primary: #000000;
   --sidebar: #ffffff;
   --font-mono: 'Geist Mono', ui-monospace, monospace;
-  --font-sans: 'Geist Sans', 'Noto Sans Telugu', system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable', 'Segoe UI', 'Noto Sans Telugu', system-ui, Roboto, sans-serif;
   --secondary: #ebebeb;
-  --background: #ffffff;
+  --background: #f5f5f7; /* grouped background: white cards sit on it, as in iOS lists */
   --font-serif: Georgia, 'Noto Sans Telugu', serif;
   --foreground: #000000;
   --destructive: #c62828;
@@ -49,9 +49,10 @@
   --sidebar-primary-foreground: #ffffff;
 
   /* Derived from the theme above. */
-  --shadow: var(--shadow-offset-x) var(--shadow-offset-y) var(--shadow-blur) var(--shadow-spread) hsl(0 0% 0% / 0.18);
-  --shadow-lg: 0 10px 30px -10px hsl(0 0% 0% / 0.25);
-  --input-border: #d4d4d4;
+  --shadow: 0 1px 2px hsl(0 0% 0% / 0.04), 0 4px 16px -6px hsl(0 0% 0% / 0.08);
+  --shadow-lg: 0 20px 48px -16px hsl(0 0% 0% / 0.28);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --input-border: #d8d8de;
   --highlight: #fffaf0; /* light chart-1 tint: fields filled from the card */
   --highlight-border: #f3d38c;
   --destructive-soft: #fdecec;
@@ -77,6 +78,7 @@ body {
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
 
@@ -84,9 +86,9 @@ h1,
 h2,
 h3 {
   font-family: var(--font-sans);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.25;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.022em;
   margin: 0;
 }
 
@@ -166,7 +168,8 @@ app-icon svg {
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.15s ease, opacity 0.15s ease;
+  box-shadow: var(--shadow);
+  transition: background-color 0.2s var(--ease), opacity 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
 
 .btn:hover:not(:disabled) {
@@ -174,7 +177,7 @@ app-icon svg {
 }
 
 .btn:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: scale(0.98);
 }
 
 .btn:disabled {
@@ -186,7 +189,8 @@ app-icon svg {
   background: var(--primary);
   border-color: var(--primary);
   color: var(--primary-foreground);
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: 0 1px 2px hsl(0 0% 0% / 0.2), 0 6px 16px -6px hsl(0 0% 0% / 0.45);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -197,6 +201,7 @@ app-icon svg {
 .btn-ghost {
   background: transparent;
   border-color: transparent;
+  box-shadow: none;
   color: var(--muted-foreground);
 }
 
@@ -206,8 +211,9 @@ app-icon svg {
 
 .btn-lg {
   min-height: 52px;
-  font-size: 1rem;
-  padding: 0 20px;
+  font-size: 1.05rem;
+  padding: 0 24px;
+  border-radius: 14px;
 }
 
 .btn-sm {
@@ -230,8 +236,8 @@ app-icon svg {
 
 .field label,
 .field .label {
-  font-weight: 400;
-  font-size: 0.875rem;
+  font-weight: 500;
+  font-size: 0.8125rem;
   color: var(--muted-foreground);
 }
 
@@ -242,13 +248,14 @@ app-icon svg {
 
 .input {
   width: 100%;
-  min-height: 44px;
+  min-height: 48px;
   padding: 0 12px;
   border: 1px solid var(--input-border);
   border-radius: var(--radius);
   background: var(--card);
   color: var(--foreground);
   font: 400 1rem/1.4 var(--font-sans);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
 
 .input::placeholder {
@@ -258,7 +265,7 @@ app-icon svg {
 .input:focus {
   outline: none;
   border-color: var(--ring);
-  box-shadow: 0 0 0 3px var(--accent);
+  box-shadow: 0 0 0 4px hsl(0 0% 0% / 0.1);
 }
 
 .input.from-card {
@@ -300,17 +307,19 @@ select.input {
   background: var(--card);
   color: var(--card-foreground);
   border: 1px solid var(--border);
-  border-radius: calc(var(--radius) + 4px);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
 }
 
 .notice {
   display: flex;
+  box-shadow: var(--shadow);
   gap: 10px;
   align-items: flex-start;
   padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--muted);
+  background: var(--card);
   font-size: 0.95rem;
 }
 
@@ -359,7 +368,7 @@ select.input {
 
 .skeleton {
   border-radius: var(--radius);
-  background: linear-gradient(90deg, var(--muted) 25%, var(--accent) 50%, var(--muted) 75%) 0 0 / 200% 100%;
+  background: linear-gradient(90deg, var(--accent) 25%, #f9f9fb 50%, var(--accent) 75%) 0 0 / 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }
 

@@ -6,7 +6,9 @@
 }
 
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 h1 .muted {
@@ -28,8 +30,9 @@ h1 .muted {
 .stat {
   padding: 18px;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: 20px;
   background: var(--card);
+  box-shadow: var(--shadow);
 }
 
 
@@ -40,8 +43,9 @@ h1 .muted {
 }
 
 .value {
-  font-size: 2.2rem;
-  font-weight: 500;
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
 }

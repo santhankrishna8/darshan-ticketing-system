@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, computed, effect, inject, signal, untracked, viewChildren } from '@angular/core';
+import { Component, ElementRef, OnDestroy, computed, effect, inject, signal, untracked, viewChild, viewChildren } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -19,6 +19,9 @@ import { TourService, TourStep } from '../../shared/tour';
 
 type ScanState = 'idle' | 'scanning' | 'ok' | 'partial' | 'failed';
 type Field = 'name' | 'aadhaar' | 'age' | 'gender' | 'phone' | 'address';
+/** Unsent form, kept for this tab only so a refresh does not lose it (cleared on submit). */
+const DRAFT = 'register.draft';
+type Draft = { values: MemberRow['form']['value']; dob: string; fromCard: Field[] }[];
 
 function aadhaarValidator(c: AbstractControl): ValidationErrors | null {
   const digits = String(c.value ?? '').replace(/\D/g, '');
@@ -146,7 +149,7 @@ export class RegisterComponent implements OnDestroy {
   constructor() {
     effect(() => {
       const s = this.season.settings();
-      if (s && untracked(this.rows).length === 0) this.rows.set([new MemberRow(s)]);
+      if (s && untracked(this.rows).length === 0) this.rows.set(this.restore(s) ?? [new MemberRow(s)]);
     });
     // Offer the walkthrough once the form is actually on screen.
     effect(() => {
@@ -156,6 +159,7 @@ export class RegisterComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.closeCamera();
     this.stopAuth();
     this.tour.withdraw('register');
   }
@@ -165,11 +169,91 @@ export class RegisterComponent implements OnDestroy {
     if (!s || this.rows().length >= this.maxRows()) return;
     const rows = this.rows();
     this.rows.set([...rows, new MemberRow(s, rows[rows.length - 1])]);
+    this.save();
     setTimeout(() => this.cards().at(-1)?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
 
   protected removeRow(row: MemberRow): void {
     this.rows.update(rows => rows.filter(r => r !== row));
+    this.save();
+  }
+
+  protected save(): void {
+    const draft: Draft = this.rows().map(r => ({ values: r.form.getRawValue(), dob: r.dob, fromCard: [...r.fromCard()] }));
+    try {
+      sessionStorage.setItem(DRAFT, JSON.stringify(draft));
+    } catch {
+      /* private mode: a refresh starts over */
+    }
+  }
+
+  private restore(s: SeasonSettings): MemberRow[] | null {
+    try {
+      const draft: Draft = JSON.parse(sessionStorage.getItem(DRAFT) ?? 'null');
+      if (!draft?.length) return null;
+      const rows = draft.map(d => {
+        const row = new MemberRow(s);
+        row.form.patchValue(d.values);
+        row.dob = d.dob;
+        row.fromCard.set(new Set(d.fromCard));
+        return row;
+      });
+      setTimeout(() => rows.forEach(r => r.form.controls.aadhaar.value && this.checkDuplicate(r)));
+      return rows;
+    } catch {
+      return null;
+    }
+  }
+
+  private clearDraft(): void {
+    try {
+      sessionStorage.removeItem(DRAFT);
+    } catch {}
+  }
+
+  // Live camera, so the back camera is used: a file input's camera app reopens on whichever
+  // camera was used last, often the selfie one.
+  private readonly camDialog = viewChild<ElementRef<HTMLDialogElement>>('camDialog');
+  private readonly camVideo = viewChild<ElementRef<HTMLVideoElement>>('camVideo');
+  private camStream?: MediaStream;
+  private camRow?: MemberRow;
+
+  protected async openCamera(row: MemberRow, fallback: HTMLInputElement): Promise<void> {
+    this.scanner.warmUp();
+    try {
+      this.camStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 3840 }, height: { ideal: 2160 } },
+        audio: false,
+      });
+    } catch {
+      this.pickPhoto(fallback); // no camera permission or no getUserMedia: use the phone's camera app
+      return;
+    }
+    this.camRow = row;
+    const video = this.camVideo()!.nativeElement;
+    video.srcObject = this.camStream;
+    this.camDialog()!.nativeElement.showModal();
+    await video.play().catch(() => {});
+  }
+
+  protected capture(): void {
+    const video = this.camVideo()?.nativeElement;
+    const row = this.camRow;
+    if (!video?.videoWidth || !row) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d')!.drawImage(video, 0, 0);
+    this.closeCamera();
+    canvas.toBlob(blob => blob && this.scan(row, blob), 'image/jpeg', 0.95);
+  }
+
+  protected closeCamera(): void {
+    this.camStream?.getTracks().forEach(t => t.stop());
+    this.camStream = undefined;
+    this.camRow = undefined;
+    const dialog = this.camDialog()?.nativeElement;
+    if (dialog?.open) dialog.close();
   }
 
   protected pickPhoto(input: HTMLInputElement): void {
@@ -180,7 +264,10 @@ export class RegisterComponent implements OnDestroy {
 
   protected async onPhoto(row: MemberRow, event: Event): Promise<void> {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
+    if (file) await this.scan(row, file);
+  }
+
+  private async scan(row: MemberRow, file: Blob): Promise<void> {
     row.scan.set('scanning');
     row.missing.set([]);
     try {
@@ -193,6 +280,7 @@ export class RegisterComponent implements OnDestroy {
       if (row.form.controls.age.value == null) missing.push(t('age', 'వయసు'));
       row.missing.set(missing);
       row.scan.set(result.filled.length === 0 ? 'failed' : missing.length ? 'partial' : 'ok');
+      this.save();
     } catch (e) {
       console.error('Scan failed', e);
       row.scan.set('failed');
@@ -303,6 +391,7 @@ export class RegisterComponent implements OnDestroy {
     try {
       const reg = await this.registrations.register(members, auth.currentUser?.uid ?? null);
       this.done.set(reg);
+      this.clearDraft();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e: any) {
       console.error(e);
@@ -345,5 +434,6 @@ export class RegisterComponent implements OnDestroy {
     this.attempted.set(false);
     const s = this.season.settings();
     this.rows.set(s ? [new MemberRow(s)] : []);
+    this.clearDraft();
   }
 }

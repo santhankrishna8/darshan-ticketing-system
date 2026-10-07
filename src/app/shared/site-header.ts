@@ -20,12 +20,12 @@ import { SettingsSheetComponent } from './settings-sheet';
     </header>
   `,
   styles: `
-    header { border-bottom: 1px solid var(--border); background: hsl(0 0% 100% / 0.9); backdrop-filter: saturate(1.2) blur(8px); position: sticky; top: 0; z-index: 20; }
+    header { border-bottom: 1px solid hsl(0 0% 0% / 0.08); background: hsl(0 0% 100% / 0.72); backdrop-filter: saturate(1.8) blur(20px); -webkit-backdrop-filter: saturate(1.8) blur(20px); position: sticky; top: 0; z-index: 20; }
     .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; }
-    .brand { text-decoration: none; font-weight: 500; font-size: 0.95rem; white-space: nowrap; }
+    .brand { text-decoration: none; font-weight: 600; font-size: 1rem; letter-spacing: -0.01em; white-space: nowrap; }
     .brand span { color: var(--muted-foreground); font-weight: 400; }
     nav { display: flex; align-items: center; gap: 2px; }
-    .link { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 10px; border-radius: var(--radius); text-decoration: none; font-size: 0.9rem; color: var(--muted-foreground); }
+    .link { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 10px; border-radius: 999px; text-decoration: none; font-size: 0.9rem; color: var(--muted-foreground); }
     .link:hover, .link.active { background: var(--accent); color: var(--foreground); }
     @media (max-width: 360px) { .bar { gap: 4px; } .brand { font-size: 0.875rem; } .brand span { display: none; } .link { padding: 0 8px; } }
   `,

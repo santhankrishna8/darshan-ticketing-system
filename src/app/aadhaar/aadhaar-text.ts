@@ -191,7 +191,10 @@ function nameScore(raw: string, candidate: string): number {
   const words = candidate.split(' ');
   if (words.length < 2 || words.length > 6) return -1;
   if (words.some(w => NOT_NAME_WORDS.has(w.toLowerCase().replace(/\.$/, '')))) return -1;
-  if (words.filter(w => w.replace('.', '').length >= 3).length < 2) return -1;
+  // Two full words, or one plus initials ("R. Karthikeyan", "Lakshmi K"), as on Tamil Nadu cards.
+  const long = words.filter(w => w.replace('.', '').length >= 3).length;
+  const initials = words.filter(w => w.replace('.', '').length === 1).length;
+  if (long < 2 && !(long === 1 && initials === words.length - 1)) return -1;
   // UPPER-case words of 2-3 letters in a row are usually noise ("HB", "EPR").
   if (rawWords.filter(w => /^[A-Z]{2,3}$/.test(w)).length > 1) return -1;
   return 1 + (words.length >= 3 ? 0.3 : 0);
