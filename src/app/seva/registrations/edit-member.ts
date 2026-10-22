@@ -33,7 +33,7 @@ interface Draft {
 
           <div class="field">
             <label for="e-name">Full name</label>
-            <input id="e-name" name="name" class="input" [(ngModel)]="d.name" required minlength="2" />
+            <input id="e-name" name="name" class="input" [(ngModel)]="d.name" required minlength="2" maxlength="100" />
           </div>
 
           <div class="field">
@@ -51,7 +51,7 @@ interface Draft {
           <div class="row2">
             <div class="field">
               <label for="e-age">Age</label>
-              <input id="e-age" name="age" type="number" inputmode="numeric" class="input" [(ngModel)]="d.age" required
+              <input id="e-age" name="age" type="number" inputmode="numeric" step="1" class="input" [(ngModel)]="d.age" required
                 [min]="season.settings()?.minAge ?? 0" [max]="season.settings()?.maxAge ?? 120" />
             </div>
             <div class="field">
@@ -71,14 +71,14 @@ interface Draft {
 
           <div class="field">
             <label for="e-address">Village / address</label>
-            <textarea id="e-address" name="address" class="input" rows="2" [(ngModel)]="d.address" required></textarea>
+            <textarea id="e-address" name="address" class="input" rows="2" maxlength="500" [(ngModel)]="d.address" required></textarea>
           </div>
 
           @if (error()) { <div class="notice notice-error" role="alert"><app-icon name="warning-circle" /><p>{{ error() }}</p></div> }
 
           <div class="acts">
             <button type="button" class="btn" (click)="close()">Cancel</button>
-            <button type="submit" class="btn btn-primary" [disabled]="saving() || f.invalid || (auth.canAdmin() && !aadhaarValid())">
+            <button type="submit" class="btn btn-primary" [disabled]="saving() || loadingAadhaar() || f.invalid || aadhaarBlocksSave()">
               {{ saving() ? 'Saving…' : 'Save' }}
             </button>
           </div>
@@ -124,6 +124,9 @@ export class EditMemberComponent {
       try {
         this.originalAadhaar = (await this.service.aadhaarOf(r.reg.id, r.ticketNumber)) ?? '';
         this.d.aadhaar = formatAadhaar(this.originalAadhaar);
+      } catch (e) {
+        console.error(e);
+        this.error.set('Could not load the Aadhaar number. You can still correct the other details.');
       } finally {
         this.loadingAadhaar.set(false);
       }
@@ -138,10 +141,19 @@ export class EditMemberComponent {
     return isValidAadhaar(this.d.aadhaar);
   }
 
+  /** An admin editing a devotee whose Aadhaar is known must leave a valid number in the field. */
+  protected aadhaarBlocksSave(): boolean {
+    return this.auth.canAdmin() && !!this.originalAadhaar && !this.aadhaarValid();
+  }
+
   protected async save(r: Row): Promise<void> {
     const s = this.season.settings();
     const age = Number(this.d.age);
+    if (!Number.isInteger(age)) return this.error.set('Age must be a whole number.');
     if (s && (age < s.minAge || age > s.maxAge)) return this.error.set(`Age must be ${s.minAge} to ${s.maxAge}.`);
+    const name = this.d.name.trim();
+    const address = this.d.address.trim();
+    if (name.length < 2 || !address) return this.error.set('Enter the name and the address.');
     const newAadhaar = this.d.aadhaar.replace(/\D/g, '');
     this.saving.set(true);
     this.error.set(null);
@@ -149,7 +161,7 @@ export class EditMemberComponent {
       await this.service.updateMember(
         r.reg.id,
         r.ticketNumber,
-        { name: this.d.name, age, gender: this.d.gender, phone: this.d.phone, address: this.d.address },
+        { name, age, gender: this.d.gender, phone: this.d.phone, address },
         this.auth.canAdmin() && this.originalAadhaar && newAadhaar !== this.originalAadhaar ? { from: this.originalAadhaar, to: newAadhaar } : undefined,
       );
       this.toast.show(`Ticket ${r.ticketNumber} updated`, 'ok');

@@ -14,7 +14,7 @@ Angular 20 + Firebase (Firestore, Google sign-in).
 | `seasons/2026` | This year's settings (ticket count, fee, coordinators, open/closed). |
 | `seasons/2026/meta/counter` | Last ticket and registration number. |
 | `seasons/2026/registrations/{id}` | One document per family; Aadhaar shown only as last 4 digits. |
-| `seasons/2026/aadhaar/{sha256}` | Full Aadhaar number, used to block duplicates. Admins only. |
+| `seasons/2026/aadhaar/{sha256}` | Full Aadhaar number, used to block duplicates and to find a ticket. Fetched by exact id only (the id is the SHA-256 of the number), listed by admins only. |
 | `seasons/2026/phones/{phone}` | Lets a devotee find their ticket by phone. |
 | `seasons/2026/staff/{uid}` | Access requests and approved staff. |
 
@@ -86,6 +86,53 @@ first visit. **Settings > Show me around** replays it. Tours are remembered per 
 Uses the device's platform authenticator (WebAuthn). Google sign-in remains the real identity check enforced by
 the Firestore rules; fingerprint unlock is a lock on top, so a phone left signed in cannot be opened by someone else.
 There is no server here, so it is not a replacement for Google sign-in on a new device.
+
+## Security
+
+The site has no server of its own: browsers talk to Firestore directly, so **`firestore.rules` is the security
+boundary**, and everything the app checks is checked again there.
+
+- **What the public can do**: read the season settings, register while registration is open, and fetch one
+  registration by an exact Aadhaar or phone number. Nobody outside the approved staff can list registrations,
+  and last year's data is closed to everyone.
+- **What the rules check on every registration**: the ticket counter moves by exactly the group size, tickets are
+  numbered in order, every devotee starts unpaid, a devotee has exactly the 11 known fields, and the name, address,
+  phone, last 4 digits, gender, date of birth and coordinator have the right type, format and length. The phone
+  and Aadhaar lookup entries must belong to the registration being saved, so nobody can add themselves to someone
+  else's phone lookup. Staff edits keep ticket numbers fixed; only admins change the last 4 Aadhaar digits; access
+  requests accept only Google-hosted profile pictures.
+- **At most 10 devotees per registration.** Firestore stops evaluating a rule after 1000 expressions, and
+  checking every field of every devotee uses most of that. The form, the Settings page and the rules all use 10
+  (`MAX_PER_REGISTRATION` in `src/app/core/models.ts`). Do not raise it without re-running `npm run test:rules`,
+  which registers a full group of 10 and fails if the rules run out of budget.
+- **Injection**: the app never builds HTML from data (Angular escapes text; the only `innerHTML` is the bundled icon
+  set), Excel cells are written as typed text so `=...` stays text, and the PDF is drawn on a canvas.
+- **Headers** (`vercel.json`): a Content-Security-Policy that allows only this site, Firebase/Google sign-in and the
+  analytics script, with no inline or eval script; no framing; no sniffing; HSTS; camera only for this site.
+  If you add another third-party script or service, add its host to the CSP or the browser will block it.
+- **Dependencies**: `firebase` is pinned at exactly 12.3.0 because later 12.x releases add about 200 kB to every
+  page load. `npm audit` still lists `@grpc/grpc-js` under `firebase`; that is the Node transport and is not part of
+  the browser bundle. Dev-tool findings (Vite, firebase-tools) never reach visitors.
+
+### Turn on App Check (recommended, one time)
+
+Anyone who knows the public Firestore address can call it from a script, bypassing the website. The rules stop
+bad data, but not volume: someone could fill all the tickets with junk registrations, or try Aadhaar/phone numbers
+one after another to see which are registered. **App Check** makes Firestore accept only calls from this website.
+
+1. Firebase console > Build > App Check > register the web app with **reCAPTCHA v3** (get a site key).
+2. Put the site key in `appCheckSiteKey` in `src/environments/environment.ts`.
+3. In the `Content-Security-Policy` in `vercel.json`, add `https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/`
+   to `script-src` and `frame-src`, and `https://www.google.com/recaptcha/ https://content-firebaseappcheck.googleapis.com`
+   to `connect-src`. Deploy. (This step was written from Google's documentation and could not be tried against the real project.)
+4. Check the site works, then in the console switch **Enforce** on for Cloud Firestore.
+
+## Tests
+
+```bash
+npm run test:unit    # Aadhaar parser, QR decoder, checksum, export file names
+npm run test:rules   # 70+ security rule tests: valid flows and attacks (needs Java)
+```
 
 ## Development
 

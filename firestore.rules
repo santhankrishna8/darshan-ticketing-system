@@ -8,6 +8,9 @@ rules_version = '2';
 //    the exact Aadhaar or phone number. Nobody outside the staff can list registrations.
 //  - Last year's top-level collections (devotees, tickets, submissions) stay in the database
 //    untouched, but the app can neither read nor change them. Only the Firebase console sees them.
+//
+// The public writes straight to Firestore, so these rules, not the app, are what stop a hostile
+// caller. Everything a registration writes is checked here: field names, types, lengths and formats.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -37,6 +40,11 @@ service cloud.firestore {
       return isOwner() || (isApproved(season) && get(staffPath(season)).data.role == 'admin');
     }
 
+    // Text of at most `max` characters.
+    function text(v, max) {
+      return v is string && v.size() <= max;
+    }
+
     // ---- previous year: preserved as-is, closed to every app user including admins ----
     match /devotees/{id} {
       allow read, write: if false;
@@ -62,21 +70,84 @@ service cloud.firestore {
       function counterAfter() {
         return getAfter(counterPath()).data;
       }
-      // New registrations: every devotee starts unpaid, numbered in order from firstTicket.
-      // Rules cannot loop, so each of the (at most 20) places is checked in turn.
-      function memberOk(members, i, first) {
-        return members.size() <= i
-          || (members[i].paymentStatus == 'Not Paid' && members[i].ticketNumber == first + i);
-      }
-      function membersOk(m, f) {
-        return m.size() <= 20
-          && memberOk(m, 0, f) && memberOk(m, 1, f) && memberOk(m, 2, f) && memberOk(m, 3, f) && memberOk(m, 4, f)
-          && memberOk(m, 5, f) && memberOk(m, 6, f) && memberOk(m, 7, f) && memberOk(m, 8, f) && memberOk(m, 9, f)
-          && memberOk(m, 10, f) && memberOk(m, 11, f) && memberOk(m, 12, f) && memberOk(m, 13, f) && memberOk(m, 14, f)
-          && memberOk(m, 15, f) && memberOk(m, 16, f) && memberOk(m, 17, f) && memberOk(m, 18, f) && memberOk(m, 19, f);
-      }
       function regAfter(id) {
         return getAfter(/databases/$(database)/documents/seasons/$(season)/registrations/$(id)).data;
+      }
+
+      // ---- what a registration may hold ----
+      // Firestore stops evaluating a rule after 1000 expressions, so the checks on each devotee are kept
+      // short: one regex per field or per pair of fields, and no helper layers. That budget is why a
+      // registration holds at most 10 devotees (the app never offers more).
+      //
+      // A devotee has exactly 11 fields, so `size() == 11` plus reading each one rules out extra fields.
+      // A field of the wrong type makes the rule fail.
+      function slot(m, n) {
+        return m.size() == 11
+          && m.ticketNumber == n
+          && m.paymentStatus == 'Not Paid'
+          && m.age is int
+          && m.name.matches('.{2,100}')
+          && m.address.matches('(?s).{1,500}')
+          && (m.phone + '-' + m.aadhaarLast4).matches('[6-9][0-9]{9}-[0-9]{4}')
+          && (m.gender + m.dob + m.coordinator).matches('(?s).{0,130}');
+      }
+      function membersFrom5(m, f) {
+        return (m.size() <= 5 || slot(m[5], f + 5)) && (m.size() <= 6 || slot(m[6], f + 6)) && (m.size() <= 7 || slot(m[7], f + 7))
+          && (m.size() <= 8 || slot(m[8], f + 8)) && (m.size() <= 9 || slot(m[9], f + 9));
+      }
+      function membersOk(m, f) {
+        return m is list && m.size() <= 10
+          && slot(m[0], f) && (m.size() <= 1 || slot(m[1], f + 1)) && (m.size() <= 2 || slot(m[2], f + 2))
+          && (m.size() <= 3 || slot(m[3], f + 3)) && (m.size() <= 4 || slot(m[4], f + 4))
+          && (m.size() <= 5 || membersFrom5(m, f));
+      }
+
+      // Staff edits. A payment can be marked on any devotee. Any other correction keeps the same fields and
+      // ticket number, and only admins may change the last 4 digits of the Aadhaar number.
+      function memberEdit(a, b) {
+        return a == b
+          || (a.diff(b).affectedKeys().hasOnly(['paymentStatus']) && a.paymentStatus in ['Paid', 'Not Paid'])
+          || (a.size() == 11
+              && a.ticketNumber == b.ticketNumber
+              && a.paymentStatus in ['Paid', 'Not Paid']
+              && a.age is int
+              && a.name.matches('.{2,100}')
+              && a.address.matches('(?s).{1,500}')
+              && (a.phone + '-' + a.aadhaarLast4).matches('[6-9][0-9]{9}-[0-9]{4}')
+              && (a.gender + a.dob + a.coordinator).matches('(?s).{0,130}')
+              && (a.aadhaarLast4 == b.aadhaarLast4 || isAdmin(season)));
+      }
+      function editsFrom5(a, b) {
+        return (a.size() <= 5 || memberEdit(a[5], b[5])) && (a.size() <= 6 || memberEdit(a[6], b[6])) && (a.size() <= 7 || memberEdit(a[7], b[7]))
+          && (a.size() <= 8 || memberEdit(a[8], b[8])) && (a.size() <= 9 || memberEdit(a[9], b[9]));
+      }
+      function editsOk(a, b) {
+        return a is list && a.size() == b.size() && a.size() <= 10
+          && memberEdit(a[0], b[0]) && (a.size() <= 1 || memberEdit(a[1], b[1])) && (a.size() <= 2 || memberEdit(a[2], b[2]))
+          && (a.size() <= 3 || memberEdit(a[3], b[3])) && (a.size() <= 4 || memberEdit(a[4], b[4]))
+          && (a.size() <= 5 || editsFrom5(a, b));
+      }
+
+      // Does one of these devotees have this phone number?
+      function hasPhoneAt(m, i, p) {
+        return m.size() > i && m[i].phone == p;
+      }
+      function hasPhone(m, p) {
+        return hasPhoneAt(m, 0, p) || hasPhoneAt(m, 1, p) || hasPhoneAt(m, 2, p) || hasPhoneAt(m, 3, p) || hasPhoneAt(m, 4, p)
+          || hasPhoneAt(m, 5, p) || hasPhoneAt(m, 6, p) || hasPhoneAt(m, 7, p) || hasPhoneAt(m, 8, p) || hasPhoneAt(m, 9, p);
+      }
+
+      function newRegistration(id, d) {
+        let before = counterBefore();
+        let after = counterAfter();
+        return after.lastRegistrationId == id
+          && d.keys().hasOnly(['submissionNo', 'firstTicket', 'members', 'createdAt', 'createdBy'])
+          && d.keys().hasAll(['submissionNo', 'firstTicket', 'members', 'createdAt', 'createdBy'])
+          && d.submissionNo == after.lastSubmission
+          && d.firstTicket == before.lastTicket + 1
+          && d.members.size() == after.lastTicket - before.lastTicket
+          && d.createdAt == request.time
+          && membersOk(d.members, d.firstTicket);
       }
 
       allow get: if true;
@@ -91,6 +162,11 @@ service cloud.firestore {
           && request.resource.data.lastSubmission == 0;
         // Every registration moves the counter forward by exactly its own size.
         allow update: if request.resource.data.keys().hasOnly(['lastTicket', 'lastSubmission', 'lastRegistrationId'])
+          && request.resource.data.keys().hasAll(['lastTicket', 'lastSubmission', 'lastRegistrationId'])
+          && request.resource.data.lastTicket is int
+          && request.resource.data.lastSubmission is int
+          // It is used inside a document path below, so it must look like an auto-generated id.
+          && request.resource.data.lastRegistrationId.matches('[A-Za-z0-9]{20}')
           && (settings().registrationOpen == true || isStaff(season))
           && request.resource.data.lastSubmission == resource.data.lastSubmission + 1
           && request.resource.data.lastTicket > resource.data.lastTicket
@@ -104,26 +180,30 @@ service cloud.firestore {
       match /registrations/{id} {
         allow get: if true;
         allow list: if isStaff(season);
-        allow create: if counterAfter().lastRegistrationId == id
-          && request.resource.data.keys().hasOnly(['submissionNo', 'firstTicket', 'members', 'createdAt', 'createdBy'])
-          && request.resource.data.submissionNo == counterAfter().lastSubmission
-          && request.resource.data.firstTicket == counterBefore().lastTicket + 1
-          && request.resource.data.members.size() == counterAfter().lastTicket - counterBefore().lastTicket
-          && membersOk(request.resource.data.members, request.resource.data.firstTicket)
-          && request.resource.data.createdAt == request.time
+        allow create: if newRegistration(id, request.resource.data)
           && (request.resource.data.createdBy == null || request.resource.data.createdBy == request.auth.uid);
-        // Staff mark payments; nothing else about a registration changes.
+        // Staff mark payments and correct details; nothing else about a registration changes.
         allow update: if isStaff(season)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'updatedAt'])
-          && request.resource.data.members.size() == resource.data.members.size();
+          && request.resource.data.updatedAt == request.time
+          && editsOk(request.resource.data.members, resource.data.members);
         allow delete: if isOwner();
       }
 
       // Keyed by SHA-256 of the Aadhaar number: blocks duplicates and lets a devotee find a ticket.
       match /aadhaar/{hash} {
+        function entryShape() {
+          return hash.matches('[0-9a-f]{64}')
+            && request.resource.data.keys().hasOnly(['aadhaar', 'registrationId', 'ticketNumber'])
+            && request.resource.data.keys().hasAll(['aadhaar', 'registrationId', 'ticketNumber'])
+            && request.resource.data.aadhaar is string && request.resource.data.aadhaar.matches('[0-9]{12}')
+            && request.resource.data.registrationId is string
+            && request.resource.data.ticketNumber is int;
+        }
+
         allow get: if true;
         allow list: if isAdmin(season);
-        allow create: if request.resource.data.keys().hasOnly(['aadhaar', 'registrationId', 'ticketNumber'])
+        allow create: if entryShape()
           && ((request.resource.data.registrationId == counterAfter().lastRegistrationId
                 && request.resource.data.ticketNumber > counterBefore().lastTicket
                 && request.resource.data.ticketNumber <= counterAfter().lastTicket)
@@ -134,17 +214,28 @@ service cloud.firestore {
         allow delete: if isAdmin(season);
       }
 
+      // Keyed by the devotee's phone number: lets a devotee find a ticket. A registration can only add
+      // itself to a phone number that one of its own devotees gave.
       match /phones/{phone} {
+        function listShape() {
+          return phone.matches('[6-9][0-9]{9}')
+            && request.resource.data.keys().hasOnly(['registrationIds'])
+            && request.resource.data.registrationIds is list;
+        }
+        function ownPhone() {
+          return hasPhone(regAfter(counterAfter().lastRegistrationId).members, phone);
+        }
+
         allow get: if true;
         allow list: if isStaff(season);
-        allow create: if request.resource.data.keys().hasOnly(['registrationIds'])
-          && (request.resource.data.registrationIds == [counterAfter().lastRegistrationId] || isStaff(season));
+        allow create: if listShape()
+          && ((request.resource.data.registrationIds == [counterAfter().lastRegistrationId] && ownPhone())
+              || isStaff(season));
         // Staff move a registration between phone numbers when correcting a devotee's phone.
-        allow update: if isStaff(season) || (
-          request.resource.data.keys().hasOnly(['registrationIds'])
-          && request.resource.data.registrationIds.size() == resource.data.registrationIds.size() + 1
-          && request.resource.data.registrationIds.hasAll(resource.data.registrationIds)
-          && request.resource.data.registrationIds.hasAll([counterAfter().lastRegistrationId]));
+        allow update: if listShape()
+          && (isStaff(season)
+              || (request.resource.data.registrationIds == resource.data.registrationIds.concat([counterAfter().lastRegistrationId])
+                  && ownPhone()));
         allow delete: if isOwner();
       }
 
@@ -153,11 +244,17 @@ service cloud.firestore {
         allow list: if isOwner();
         allow create: if signedIn() && request.auth.uid == uid
           && request.resource.data.keys().hasOnly(['uid', 'email', 'name', 'photoURL', 'status', 'role', 'biometricAllowed', 'requestedAt'])
+          && request.resource.data.keys().hasAll(['uid', 'email', 'name', 'photoURL', 'status', 'role', 'biometricAllowed', 'requestedAt'])
           && request.resource.data.uid == uid
           && request.resource.data.email == request.auth.token.email
+          && text(request.resource.data.name, 200)
+          // The picture is shown to the main admin: only Google-hosted profile pictures, never a tracking link.
+          && text(request.resource.data.photoURL, 500)
+          && (request.resource.data.photoURL == '' || request.resource.data.photoURL.matches('https://[a-z0-9.-]+[.]googleusercontent[.]com/.*'))
           && request.resource.data.status == 'pending'
           && request.resource.data.role == 'volunteer'
-          && request.resource.data.biometricAllowed == false;
+          && request.resource.data.biometricAllowed == false
+          && request.resource.data.requestedAt == request.time;
         allow update: if isOwner()
           && request.resource.data.status in ['pending', 'approved', 'rejected', 'revoked']
           && request.resource.data.role in ['admin', 'volunteer'];

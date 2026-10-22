@@ -5,9 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AadhaarScannerService } from '../../aadhaar/aadhaar-scanner.service';
 import { AadhaarDetails, ageFrom, formatAadhaar } from '../../aadhaar/aadhaar.types';
 import { isValidAadhaar } from '../../aadhaar/verhoeff';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../../core/firebase-auth';
-import { MemberInput, Registration, SeasonSettings } from '../../core/models';
+import { MAX_PER_REGISTRATION, MemberInput, Registration, SeasonSettings } from '../../core/models';
 import { RegistrationError, RegistrationService } from '../../core/registration.service';
 import { SeasonService } from '../../core/season.service';
 import { downloadTicketPdf } from '../../core/ticket-pdf';
@@ -30,16 +28,26 @@ function aadhaarValidator(c: AbstractControl): ValidationErrors | null {
   return isValidAadhaar(digits) ? null : { checksum: true };
 }
 
+/** At least `n` characters once the spaces at both ends are removed (the saved value is trimmed). */
+const trimmedMin =
+  (n: number) =>
+  (c: AbstractControl): ValidationErrors | null =>
+    String(c.value ?? '').trim().length >= n ? null : { minlength: true };
+
+function wholeNumber(c: AbstractControl): ValidationErrors | null {
+  return c.value == null || c.value === '' || Number.isInteger(Number(c.value)) ? null : { integer: true };
+}
+
 class MemberRow {
   private static nextId = 1;
   readonly id = MemberRow.nextId++;
   readonly form = new FormGroup({
-    name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(2)] }),
+    name: new FormControl('', { nonNullable: true, validators: [Validators.required, trimmedMin(2), Validators.maxLength(100)] }),
     aadhaar: new FormControl('', { nonNullable: true, validators: [Validators.required, aadhaarValidator] }),
-    age: new FormControl<number | null>(null, { validators: [Validators.required] }),
+    age: new FormControl<number | null>(null, { validators: [Validators.required, wholeNumber] }),
     gender: new FormControl<'' | 'Male' | 'Female' | 'Transgender'>('', { nonNullable: true, validators: [Validators.required] }),
     phone: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)] }),
-    address: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
+    address: new FormControl('', { nonNullable: true, validators: [Validators.required, trimmedMin(3), Validators.maxLength(500)] }),
   });
   dob = '';
   readonly scan = signal<ScanState>('idle');
@@ -52,8 +60,8 @@ class MemberRow {
 
   constructor(settings: SeasonSettings, prev?: MemberRow) {
     this.form.controls.age.addValidators([Validators.min(settings.minAge), Validators.max(settings.maxAge)]);
-    // Families usually share a phone number and address.
-    if (prev) this.form.patchValue({ phone: prev.form.controls.phone.value, address: prev.form.controls.address.value });
+    // Families usually share a phone number; the address comes from each person's own card.
+    if (prev) this.form.patchValue({ phone: prev.form.controls.phone.value });
   }
 
   get scanned(): boolean {
@@ -87,8 +95,8 @@ const TOUR: TourStep[] = [
     target: '[data-tour=add]',
     title: 'Add family members',
     titleTe: 'కుటుంబ సభ్యులు',
-    body: 'Add everyone who is coming. Phone and address are copied from the previous person.',
-    bodyTe: 'వచ్చే అందరినీ జోడించండి. ఫోన్, చిరునామా ముందు వ్యక్తి నుండి వస్తాయి.',
+    body: 'Add everyone who is coming. The phone number is copied from the previous person.',
+    bodyTe: 'వచ్చే అందరినీ జోడించండి. ఫోన్ నంబర్ ముందు వ్యక్తి నుండి వస్తుంది.',
   },
   {
     target: '[data-tour=submit]',
@@ -128,8 +136,6 @@ export class RegisterComponent implements OnDestroy {
   protected readonly attempted = signal(false);
   protected readonly done = signal<Registration | null>(null);
   protected readonly submitError = signal<string | null>(null);
-  /** Signed-in staff may register walk-in devotees even while public registration is closed. */
-  private readonly signedIn = signal(false);
   protected readonly scanningAny = computed(() => this.rows().some(r => r.scan() === 'scanning'));
 
   protected readonly state = computed<'loading' | 'not-ready' | 'closed' | 'full' | 'open'>(() => {
@@ -137,14 +143,15 @@ export class RegisterComponent implements OnDestroy {
     if (s === undefined) return 'loading';
     if (!s || !this.season.counter()) return 'not-ready';
     if (this.season.ticketsLeft() <= 0) return 'full';
-    if (!s.registrationOpen && !this.signedIn()) return 'closed';
+    // Inside the seva desk (staff only) walk-in devotees can be registered even while public registration is closed.
+    if (!s.registrationOpen && !this.embedded) return 'closed';
     return 'open';
   });
 
-  protected readonly maxRows = computed(() => Math.min(this.season.settings()?.maxPerGroup ?? 10, this.season.ticketsLeft()));
+  protected readonly maxRows = computed(() =>
+    Math.max(1, Math.min(this.season.settings()?.maxPerGroup ?? MAX_PER_REGISTRATION, MAX_PER_REGISTRATION, this.season.ticketsLeft())),
+  );
   protected readonly formatAadhaar = formatAadhaar;
-
-  private readonly stopAuth = onAuthStateChanged(auth, user => this.signedIn.set(!!user));
 
   constructor() {
     effect(() => {
@@ -153,14 +160,14 @@ export class RegisterComponent implements OnDestroy {
     });
     // Offer the walkthrough once the form is actually on screen.
     effect(() => {
-      if (this.state() === 'open' && !this.done()) untracked(() => this.tour.offer('register', TOUR));
+      // Public visitors get the "how it works" row instead of an overlay; the tour stays under Settings.
+      if (this.state() === 'open' && !this.done()) untracked(() => this.tour.offer('register', TOUR, this.embedded));
       else untracked(() => this.tour.withdraw('register'));
     });
   }
 
   ngOnDestroy(): void {
     this.closeCamera();
-    this.stopAuth();
     this.tour.withdraw('register');
   }
 
@@ -179,6 +186,9 @@ export class RegisterComponent implements OnDestroy {
   }
 
   protected save(): void {
+    // The form's last "change" event can arrive as the form is removed after a successful submit; it must not
+    // bring the cleared draft (with the family's Aadhaar numbers) back.
+    if (this.done()) return;
     const draft: Draft = this.rows().map(r => ({ values: r.form.getRawValue(), dob: r.dob, fromCard: [...r.fromCard()] }));
     try {
       sessionStorage.setItem(DRAFT, JSON.stringify(draft));
@@ -191,7 +201,7 @@ export class RegisterComponent implements OnDestroy {
     try {
       const draft: Draft = JSON.parse(sessionStorage.getItem(DRAFT) ?? 'null');
       if (!draft?.length) return null;
-      const rows = draft.map(d => {
+      const rows = draft.slice(0, Math.min(s.maxPerGroup || MAX_PER_REGISTRATION, MAX_PER_REGISTRATION)).map(d => {
         const row = new MemberRow(s);
         row.form.patchValue(d.values);
         row.dob = d.dob;
@@ -361,15 +371,24 @@ export class RegisterComponent implements OnDestroy {
     return c.invalid && (c.touched || this.attempted());
   }
 
+  protected needsFix(row: MemberRow): boolean {
+    return row.form.invalid || row.duplicate() === 'taken' || row.duplicate() === 'repeat';
+  }
+
+  /** Jump to the first field that needs fixing (after the error styles have rendered). */
+  private pointAtProblem(): void {
+    setTimeout(() => this.cards().find(c => c.nativeElement.querySelector('.invalid'))?.nativeElement.querySelector<HTMLElement>('.invalid')?.focus());
+  }
+
   protected async submit(): Promise<void> {
     this.attempted.set(true);
     this.submitError.set(null);
     const rows = this.rows();
     rows.forEach(r => r.form.markAllAsTouched());
-    const firstBad = rows.findIndex(r => r.form.invalid || r.duplicate() === 'taken' || r.duplicate() === 'repeat');
-    if (firstBad >= 0) {
-      this.cards()[firstBad]?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      this.toast.show(this.i18n.t('Please fix the highlighted details', 'గుర్తించిన వివరాలు సరిచేయండి'), 'error');
+    const bad = rows.flatMap((r, i) => (this.needsFix(r) ? [i + 1] : []));
+    if (bad.length) {
+      this.pointAtProblem();
+      this.toast.show(this.i18n.t('Please fix the highlighted details: Devotee ', 'గుర్తించిన వివరాలు సరిచేయండి: భక్తుడు ') + bad.join(', '), 'error');
       return;
     }
 
@@ -389,7 +408,9 @@ export class RegisterComponent implements OnDestroy {
 
     this.submitting.set(true);
     try {
-      const reg = await this.registrations.register(members, auth.currentUser?.uid ?? null);
+      // Staff are recorded against their registrations. The sign-in code is only loaded inside the seva desk.
+      const createdBy = this.embedded ? ((await import('../../core/firebase-auth')).auth.currentUser?.uid ?? null) : null;
+      const reg = await this.registrations.register(members, createdBy);
       this.done.set(reg);
       this.clearDraft();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -397,6 +418,7 @@ export class RegisterComponent implements OnDestroy {
       console.error(e);
       if (e instanceof RegistrationError && e.code === 'duplicate') {
         for (const r of rows) if (e.aadhaars.includes(r.form.controls.aadhaar.value.replace(/\D/g, ''))) r.duplicate.set('taken');
+        this.pointAtProblem();
         this.submitError.set(this.i18n.t('Some Aadhaar numbers are already registered. Remove them or download the existing ticket.', 'కొన్ని ఆధార్ నంబర్లు ఇప్పటికే నమోదయ్యాయి. వాటిని తొలగించండి లేదా పాత టికెట్ డౌన్‌లోడ్ చేసుకోండి.'));
       } else if (e instanceof RegistrationError) {
         const left = e.message.match(/\d+/)?.[0] ?? '0';
@@ -407,7 +429,12 @@ export class RegisterComponent implements OnDestroy {
           : t('Registration has not started yet.', 'నమోదు ఇంకా ప్రారంభం కాలేదు.'),
         );
       } else if (e?.code === 'permission-denied') {
-        this.submitError.set(this.i18n.t('Registration is not open right now.', 'ప్రస్తుతం నమోదు అందుబాటులో లేదు.'));
+        // Either registration was closed meanwhile, or the server did not accept a detail (too long, wrong format).
+        this.submitError.set(
+          this.season.settings()?.registrationOpen === false && !this.embedded
+            ? this.i18n.t('Registration is not open right now.', 'ప్రస్తుతం నమోదు అందుబాటులో లేదు.')
+            : this.i18n.t('Could not save just now. Many people may be registering at once, so please press Submit again. If it keeps happening, check the name, phone number and address.', 'ఇప్పుడు సేవ్ కాలేదు. చాలామంది ఒకేసారి నమోదు చేస్తుండవచ్చు, మళ్ళీ సమర్పించండి. అయినా కాకపోతే పేరు, ఫోన్ నంబర్, చిరునామా సరిచూడండి.'),
+        );
       } else if (e?.code === 'unavailable') {
         this.submitError.set(this.i18n.t('No internet connection. Your details are still here, please try again.', 'ఇంటర్నెట్ లేదు. వివరాలు అలాగే ఉన్నాయి, మళ్ళీ ప్రయత్నించండి.'));
       } else {

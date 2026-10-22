@@ -42,7 +42,7 @@ export class TicketComponent implements OnDestroy {
         body: 'Your registration appears below with a Download button, and whether payment is done.',
         bodyTe: 'కింద మీ నమోదు, డౌన్‌లోడ్ బటన్, చెల్లింపు స్థితి కనిపిస్తాయి.',
       },
-    ]);
+    ], false); // one field on the page: no overlay, the tour is still under Settings
   }
 
   ngOnDestroy(): void {
@@ -55,7 +55,10 @@ export class TicketComponent implements OnDestroy {
   protected readonly error = signal<string | null>(null);
 
   protected async search(): Promise<void> {
-    const digits = this.query.replace(/\D/g, '');
+    let digits = this.query.replace(/\D/g, '');
+    // A phone number typed as +91 98480 00001 or 098480 00001.
+    if (digits.length === 12 && digits.startsWith('91') && !isValidAadhaar(digits) && /^[6-9]\d{9}$/.test(digits.slice(2))) digits = digits.slice(2);
+    else if (digits.length === 11 && digits.startsWith('0')) digits = digits.slice(1);
     this.error.set(null);
     this.results.set(null);
     if (digits.length === 12) {

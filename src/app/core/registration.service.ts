@@ -39,8 +39,25 @@ export async function aadhaarKey(aadhaar: string): Promise<string> {
   return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+/**
+ * When several people register at the same moment, an attempt can read a ticket counter that has just moved.
+ * Firestore then checks the rules against the newer counter and refuses the stale write as "permission denied"
+ * instead of asking for a retry. So a refusal is tried again, from fresh numbers, with a growing random pause
+ * (everyone shares one counter, so they must spread out) before it is believed.
+ */
+async function retryIfStale<T>(run: () => Promise<T>, attempts = 9): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await run();
+    } catch (e: any) {
+      if (e?.code !== 'permission-denied' || attempt >= attempts) throw e;
+      await new Promise(resolve => setTimeout(resolve, 60 + Math.random() * Math.min(3000, 250 * 2 ** (attempt - 1))));
+    }
+  }
+}
+
 export function coordinatorFor(ticket: number, s: Pick<SeasonSettings, 'coordinators' | 'ticketsPerCoordinator'>): string {
-  if (!s.coordinators.length) return '';
+  if (!s.coordinators?.length) return '';
   const i = Math.floor((ticket - 1) / Math.max(1, s.ticketsPerCoordinator));
   return s.coordinators[Math.min(i, s.coordinators.length - 1)];
 }
@@ -66,7 +83,7 @@ export class RegistrationService {
     const regRef = doc(registrations());
     const phones = [...new Set(inputs.map(m => m.phone))];
 
-    return runTransaction(db, async tx => {
+    return retryIfStale(() => runTransaction(db, async tx => {
       const [seasonSnap, counterSnap] = await Promise.all([tx.get(seasonRef()), tx.get(counterRef())]);
       if (!seasonSnap.exists() || !counterSnap.exists()) throw new RegistrationError('not-ready', 'Registration has not started yet.');
       const s = seasonSnap.data() as SeasonSettings;
@@ -118,7 +135,7 @@ export class RegistrationService {
       );
 
       return { id: regRef.id, submissionNo, firstTicket, members, createdAt: null, createdBy };
-    });
+    }));
   }
 
   async get(id: string): Promise<Registration | null> {
@@ -137,7 +154,8 @@ export class RegistrationService {
     const snap = await getDoc(doc(phoneIndex(), phone));
     if (!snap.exists()) return [];
     const ids: string[] = snap.data()['registrationIds'] ?? [];
-    const regs = await Promise.all(ids.map(id => this.get(id)));
+    // One bad or deleted entry must not hide the others.
+    const regs = await Promise.all(ids.map(id => this.get(id).catch(() => null)));
     return regs.filter((r): r is Registration => !!r).sort((a, b) => a.submissionNo - b.submissionNo);
   }
 
@@ -233,12 +251,9 @@ export class RegistrationService {
 
   /** Main admin only. Ticket numbers are not reused; the Aadhaar numbers become free to register again. */
   async delete(reg: Registration): Promise<void> {
-    const numbers = await this.aadhaarNumbers();
+    const entries = await getDocs(query(aadhaarIndex(), where('registrationId', '==', reg.id)));
     const batch = writeBatch(db);
-    for (const m of reg.members) {
-      const aadhaar = numbers.get(`${reg.id}:${m.ticketNumber}`);
-      if (aadhaar) batch.delete(doc(aadhaarIndex(), await aadhaarKey(aadhaar)));
-    }
+    entries.forEach(entry => batch.delete(entry.ref));
     for (const phone of new Set(reg.members.map(m => m.phone))) {
       const ref = doc(phoneIndex(), phone);
       if ((await getDoc(ref)).exists()) batch.update(ref, { registrationIds: arrayRemove(reg.id) });

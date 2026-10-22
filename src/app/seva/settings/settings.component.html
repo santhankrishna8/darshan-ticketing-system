@@ -31,28 +31,28 @@
       <fieldset>
         <legend>Tickets</legend>
         <div class="grid">
-          <div class="field"><label for="total">Total tickets</label><input id="total" name="total" class="input" type="number" min="1" [(ngModel)]="d.totalTickets" required /></div>
-          <div class="field"><label for="max">Max devotees per registration</label><input id="max" name="max" class="input" type="number" min="1" max="20" [(ngModel)]="d.maxPerGroup" /></div>
+          <div class="field"><label for="total">Total tickets</label><input id="total" name="total" class="input" type="number" min="1" step="1" [(ngModel)]="d.totalTickets" required /></div>
+          <div class="field"><label for="max">Max devotees per registration</label><input id="max" name="max" class="input" type="number" min="1" max="10" step="1" [(ngModel)]="d.maxPerGroup" aria-describedby="max-hint" /><p id="max-hint" class="hint">Up to 10: that is the most one registration can hold.</p></div>
           <div class="field"><label for="minAge">Minimum age</label><input id="minAge" name="minAge" class="input" type="number" min="0" [(ngModel)]="d.minAge" /></div>
           <div class="field"><label for="maxAge">Maximum age</label><input id="maxAge" name="maxAge" class="input" type="number" [(ngModel)]="d.maxAge" /></div>
           <div class="field"><label for="fee">Darshan fee (₹)</label><input id="fee" name="fee" class="input" type="number" min="0" [(ngModel)]="d.fee" /></div>
-          <div class="field"><label for="date">Darshan date</label><input id="date" name="date" class="input" [(ngModel)]="d.darshanDate" placeholder="e.g. 18 December 2026" /></div>
+          <div class="field"><label for="date">Darshan date</label><input id="date" name="date" class="input" maxlength="200" [(ngModel)]="d.darshanDate" placeholder="e.g. 18 December 2026" /></div>
         </div>
       </fieldset>
 
       <fieldset>
         <legend>Event and instructions</legend>
         <div class="grid">
-          <div class="field span-2"><label for="tte">Title (Telugu)</label><input id="tte" name="tte" class="input" [(ngModel)]="d.eventTitleTe" /></div>
-          <div class="field span-2"><label for="ten">Title (English)</label><input id="ten" name="ten" class="input" [(ngModel)]="d.eventTitleEn" /></div>
-          <div class="field"><label for="pte">Place (Telugu)</label><input id="pte" name="pte" class="input" [(ngModel)]="d.placeTe" /></div>
-          <div class="field"><label for="pen">Place (English)</label><input id="pen" name="pen" class="input" [(ngModel)]="d.placeEn" /></div>
-          <div class="field"><label for="payte">Where to pay (Telugu)</label><input id="payte" name="payte" class="input" [(ngModel)]="d.paymentPlaceTe" /></div>
-          <div class="field"><label for="payen">Where to pay (English)</label><input id="payen" name="payen" class="input" [(ngModel)]="d.paymentPlaceEn" /></div>
-          <div class="field"><label for="dte">Dress code (Telugu)</label><input id="dte" name="dte" class="input" [(ngModel)]="d.dressCodeTe" /></div>
-          <div class="field"><label for="den">Dress code (English)</label><input id="den" name="den" class="input" [(ngModel)]="d.dressCodeEn" /></div>
-          <div class="field"><label for="cname">Contact name</label><input id="cname" name="cname" class="input" [(ngModel)]="d.contactName" /></div>
-          <div class="field"><label for="cphone">Contact phone</label><input id="cphone" name="cphone" class="input" inputmode="numeric" [(ngModel)]="d.contactPhone" /></div>
+          <div class="field span-2"><label for="tte">Title (Telugu)</label><input id="tte" name="tte" class="input" maxlength="200" [(ngModel)]="d.eventTitleTe" /></div>
+          <div class="field span-2"><label for="ten">Title (English)</label><input id="ten" name="ten" class="input" maxlength="200" [(ngModel)]="d.eventTitleEn" /></div>
+          <div class="field"><label for="pte">Place (Telugu)</label><input id="pte" name="pte" class="input" maxlength="200" [(ngModel)]="d.placeTe" /></div>
+          <div class="field"><label for="pen">Place (English)</label><input id="pen" name="pen" class="input" maxlength="200" [(ngModel)]="d.placeEn" /></div>
+          <div class="field"><label for="payte">Where to pay (Telugu)</label><input id="payte" name="payte" class="input" maxlength="200" [(ngModel)]="d.paymentPlaceTe" /></div>
+          <div class="field"><label for="payen">Where to pay (English)</label><input id="payen" name="payen" class="input" maxlength="200" [(ngModel)]="d.paymentPlaceEn" /></div>
+          <div class="field"><label for="dte">Dress code (Telugu)</label><input id="dte" name="dte" class="input" maxlength="200" [(ngModel)]="d.dressCodeTe" /></div>
+          <div class="field"><label for="den">Dress code (English)</label><input id="den" name="den" class="input" maxlength="200" [(ngModel)]="d.dressCodeEn" /></div>
+          <div class="field"><label for="cname">Contact name</label><input id="cname" name="cname" class="input" maxlength="200" [(ngModel)]="d.contactName" /></div>
+          <div class="field"><label for="cphone">Contact phone</label><input id="cphone" name="cphone" class="input" maxlength="15" inputmode="numeric" [(ngModel)]="d.contactPhone" /></div>
         </div>
       </fieldset>
 

@@ -4,6 +4,9 @@ import { SeasonService } from '../../core/season.service';
 import { IconComponent } from '../../shared/icon';
 import { ToastService } from '../../shared/toast';
 
+/** Each registered devotee carries their coordinator's name, and firestore.rules limits its length. */
+const MAX_NAME = 60;
+
 /**
  * Coordinators as a list: add by name, reorder, remove. Every change saves straight away.
  * Tickets go to coordinators in blocks, in list order.
@@ -44,7 +47,7 @@ import { ToastService } from '../../shared/toast';
       }
 
       <form class="add" (ngSubmit)="add()">
-        <input class="input" name="newName" [(ngModel)]="newName" placeholder="Coordinator name" autocomplete="off" aria-label="Coordinator name" />
+        <input class="input" name="newName" [(ngModel)]="newName" placeholder="Coordinator name" autocomplete="off" maxlength="60" aria-label="Coordinator name" />
         <button type="submit" class="btn btn-primary" [disabled]="!newName.trim() || busy()"><app-icon name="plus" />Add</button>
       </form>
     </section>
@@ -94,6 +97,10 @@ export class CoordinatorsComponent {
   protected add(): Promise<void> {
     const name = this.newName.trim().replace(/\s+/g, ' ');
     if (!name) return Promise.resolve();
+    if (name.length > MAX_NAME) {
+      this.toast.show(`Keep the name to ${MAX_NAME} characters or fewer`, 'error');
+      return Promise.resolve();
+    }
     if (this.list().some(n => n.toLowerCase() === name.toLowerCase())) {
       this.toast.show(`${name} is already in the list`, 'error');
       return Promise.resolve();

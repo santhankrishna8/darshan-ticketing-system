@@ -32,12 +32,41 @@
       </div>
     </section>
   } @else {
-    <header class="page-head">
-      <h1>{{ i18n.t('Registration', 'దర్శన నమోదు') }}</h1>
-      @if (state() === 'open') {
-        <p class="muted">{{ i18n.t(season.ticketsLeft() + ' of ' + season.settings()?.totalTickets + ' tickets left', season.ticketsLeft() + ' / ' + season.settings()?.totalTickets + ' టికెట్లు మిగిలి ఉన్నాయి') }}</p>
-      }
-    </header>
+    @if (embedded) {
+      <header class="page-head">
+        <h1>{{ i18n.t('Registration', 'దర్శన నమోదు') }}</h1>
+        @if (state() === 'open') {
+          <p class="muted">{{ i18n.t(season.ticketsLeft() + ' of ' + season.settings()?.totalTickets + ' tickets left', season.ticketsLeft() + ' / ' + season.settings()?.totalTickets + ' టికెట్లు మిగిలి ఉన్నాయి') }}</p>
+        }
+      </header>
+    } @else {
+      <header class="card hero">
+        <div class="hero-body">
+          <div>
+            <h1>{{ i18n.t('Darshan registration', 'దర్శన నమోదు') }}</h1>
+            @if (season.settings(); as s) {
+              <p class="muted">{{ i18n.t(s.eventTitleEn, s.eventTitleTe) }}, {{ i18n.t(s.placeEn, s.placeTe) }}</p>
+            }
+          </div>
+          @if (state() === 'loading') {
+            <div class="skeleton facts-skel"></div>
+          } @else if (state() === 'open' && season.settings(); as s) {
+            <dl class="facts">
+              @if (s.darshanDate) {
+                <div><dt>{{ i18n.t('Darshan', 'దర్శనం') }}</dt><dd>{{ s.darshanDate }}</dd></div>
+              }
+              <div><dt>{{ i18n.t('Per devotee', 'ఒక్కొక్కరికి') }}</dt><dd>₹{{ s.fee }}</dd></div>
+              <div><dt>{{ i18n.t('Tickets left', 'మిగిలిన టికెట్లు') }}</dt><dd>{{ season.ticketsLeft() }} / {{ s.totalTickets }}</dd></div>
+            </dl>
+            <ol class="steps" [attr.aria-label]="i18n.t('How it works', 'ఎలా చేయాలి')">
+              <li>{{ i18n.t('Scan card', 'కార్డు స్కాన్') }}</li>
+              <li>{{ i18n.t('Check details', 'వివరాలు సరిచూడండి') }}</li>
+              <li>{{ i18n.t('Get ticket', 'టికెట్ పొందండి') }}</li>
+            </ol>
+          }
+        </div>
+      </header>
+    }
 
     @switch (state()) {
       @case ('loading') {
@@ -57,7 +86,7 @@
           @for (row of rows(); track row.id; let i = $index) {
             <section #card class="card member" [attr.aria-labelledby]="'m' + row.id">
               <div class="member-head">
-                <h2 [id]="'m' + row.id">{{ i18n.t('Devotee', 'భక్తుడు') }} {{ i + 1 }}</h2>
+                <h2 [id]="'m' + row.id">{{ i18n.t('Devotee', 'భక్తుడు') }} {{ i + 1 }}@if (attempted() && needsFix(row)) { <span class="error-text"> · {{ i18n.t('Fix details', 'వివరాలు సరిచేయండి') }}</span> }</h2>
                 @if (rows().length > 1) {
                   <button type="button" class="btn btn-ghost btn-sm" (click)="removeRow(row)" [attr.aria-label]="i18n.t('Remove devotee', 'తొలగించు') + ' ' + (i + 1)">
                     <app-icon name="trash" />{{ i18n.t('Remove', 'తొలగించు') }}
@@ -107,7 +136,7 @@
               <div class="grid" [formGroup]="row.form">
                 <div class="field span-2" [attr.data-tour]="i === 0 ? 'fields' : null">
                   <label [for]="'name' + row.id">{{ i18n.t('Full name', 'పూర్తి పేరు') }}</label>
-                  <input [id]="'name' + row.id" class="input" formControlName="name" autocomplete="off" autocapitalize="words"
+                  <input [id]="'name' + row.id" class="input" formControlName="name" autocomplete="off" autocapitalize="words" maxlength="100"
                     [class.from-card]="row.fromCard().has('name')" [class.invalid]="show(row, 'name')" (input)="edited(row, 'name')" />
                   @if (show(row, 'name')) { <p class="error-text">{{ i18n.t('Enter the name as on Aadhaar', 'ఆధార్‌లో ఉన్నట్లు పేరు ఇవ్వండి') }}</p> }
                 </div>
@@ -155,7 +184,7 @@
 
                 <div class="field">
                   <label [for]="'age' + row.id">{{ i18n.t('Age', 'వయసు') }}</label>
-                  <input [id]="'age' + row.id" class="input" type="number" inputmode="numeric" formControlName="age"
+                  <input [id]="'age' + row.id" class="input" type="number" inputmode="numeric" step="1" formControlName="age"
                     [class.from-card]="row.fromCard().has('age')" [class.invalid]="show(row, 'age')" (input)="edited(row, 'age')" />
                   @if (show(row, 'age')) {
                     <p class="error-text">{{ i18n.t('Age', 'వయసు') }} {{ season.settings()?.minAge }}-{{ season.settings()?.maxAge }}</p>
@@ -183,7 +212,7 @@
 
                 <div class="field span-2">
                   <label [for]="'address' + row.id">{{ i18n.t('Village / address', 'గ్రామం / చిరునామా') }}</label>
-                  <textarea [id]="'address' + row.id" class="input" rows="2" formControlName="address"
+                  <textarea [id]="'address' + row.id" class="input" rows="2" maxlength="500" formControlName="address"
                     [class.from-card]="row.fromCard().has('address')" [class.invalid]="show(row, 'address')" (input)="edited(row, 'address')"></textarea>
                   @if (show(row, 'address')) { <p class="error-text">{{ i18n.t('Address is required', 'చిరునామా తప్పనిసరి') }}</p> }
                 </div>

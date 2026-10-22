@@ -46,7 +46,10 @@ export class SeasonService {
   }
 
   async saveSettings(changes: Partial<SeasonSettings>): Promise<void> {
-    await updateDoc(seasonRef(), { ...changes, updatedAt: serverTimestamp() });
+    // A copy of the settings read from Firestore carries createdAt/updatedAt as plain objects; writing them
+    // back would replace the real timestamps with maps.
+    const { createdAt: _c, updatedAt: _u, ...rest } = changes as Partial<SeasonSettings> & { createdAt?: unknown; updatedAt?: unknown };
+    await updateDoc(seasonRef(), { ...rest, updatedAt: serverTimestamp() });
   }
 
   /** Repairs a missing counter document (main admin only). */

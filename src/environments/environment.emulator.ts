@@ -8,5 +8,7 @@ export const environment = {
   useEmulators: true,
   /** Main admin(s). Must match isOwner() in firestore.rules. */
   ownerEmails: ['santhankrishna18@gmail.com'],
+  /** reCAPTCHA v3 site key for Firebase App Check (see README, Security). Empty keeps App Check off. */
+  appCheckSiteKey: '',
   firebaseConfig,
 };

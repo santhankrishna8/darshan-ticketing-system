@@ -8,6 +8,11 @@ const KEY = 'app.lang';
 export class I18nService {
   readonly lang = signal<Lang>(I18nService.stored());
 
+  constructor() {
+    // index.html says "te"; match the language actually shown so screen readers pick the right voice.
+    document.documentElement.lang = this.lang();
+  }
+
   set(lang: Lang): void {
     this.lang.set(lang);
     document.documentElement.lang = lang;

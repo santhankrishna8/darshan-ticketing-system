@@ -2,6 +2,12 @@ import { Gender } from '../aadhaar/aadhaar.types';
 
 export type PaymentStatus = 'Paid' | 'Not Paid';
 
+/**
+ * The most devotees one registration can hold. firestore.rules checks every devotee, and Firestore stops
+ * evaluating a rule after 1000 expressions, so the rules support 10 (and the Settings cap follows this).
+ */
+export const MAX_PER_REGISTRATION = 10;
+
 /** seasons/{season}: one document per year, holding that year's settings. */
 export interface SeasonSettings {
   season: string;
