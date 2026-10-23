@@ -279,6 +279,26 @@ app-icon svg {
   border-color: var(--destructive);
 }
 
+/* Aadhaar fields: when not focused and complete, hide the first 8 digits behind the text in data-mask. */
+.mask-wrap {
+  position: relative;
+}
+
+.mask-wrap[data-mask]:not(:focus-within) .input {
+  color: transparent;
+}
+
+.mask-wrap[data-mask]:not(:focus-within)::after {
+  content: attr(data-mask);
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font: 400 1rem/1.4 var(--font-sans);
+  color: var(--foreground);
+  pointer-events: none;
+}
+
 textarea.input {
   padding-block: 10px;
   min-height: 76px;

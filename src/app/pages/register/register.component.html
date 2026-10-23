@@ -143,7 +143,7 @@
 
                 <div class="field span-2">
                   <label [for]="'aadhaar' + row.id">{{ i18n.t('Aadhaar number', 'ఆధార్ నంబర్') }}</label>
-                  <div class="with-status">
+                  <div class="with-status mask-wrap" [attr.data-mask]="mask(row.form.controls.aadhaar.value)">
                     <input #aadhaarEl [id]="'aadhaar' + row.id" class="input mono" formControlName="aadhaar" inputmode="numeric" autocomplete="off"
                       placeholder="0000 0000 0000" maxlength="14" [attr.aria-describedby]="'aadhaar-msg' + row.id"
                       [attr.aria-invalid]="showAadhaarError(row) || row.duplicate() === 'taken' || row.duplicate() === 'repeat'"
@@ -227,6 +227,8 @@
           } @else {
             <p class="hint center">{{ i18n.t('Maximum ' + maxRows() + ' devotees in one registration.', 'ఒక నమోదులో గరిష్టంగా ' + maxRows() + ' మంది.') }}</p>
           }
+
+          <app-aadhaar-notice />
 
           @if (submitError()) {
             <div class="notice notice-error" role="alert"><app-icon name="warning-circle" /><p>{{ submitError() }}</p></div>

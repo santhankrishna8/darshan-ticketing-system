@@ -1,6 +1,6 @@
 import { Component, ElementRef, inject, output, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Gender, formatAadhaar } from '../../aadhaar/aadhaar.types';
+import { Gender, formatAadhaar, maskAadhaar } from '../../aadhaar/aadhaar.types';
 import { isValidAadhaar } from '../../aadhaar/verhoeff';
 import { AuthService } from '../../core/auth.service';
 import { RegistrationError, RegistrationService } from '../../core/registration.service';
@@ -39,8 +39,10 @@ interface Draft {
           <div class="field">
             <label for="e-aadhaar">Aadhaar number</label>
             @if (auth.canAdmin()) {
-              <input id="e-aadhaar" name="aadhaar" class="input mono" inputmode="numeric" maxlength="14" [ngModel]="d.aadhaar"
-                (ngModelChange)="d.aadhaar = format($event)" [placeholder]="loadingAadhaar() ? 'Loading…' : ''" [disabled]="loadingAadhaar()" />
+              <div class="mask-wrap" [attr.data-mask]="mask(d.aadhaar)">
+                <input id="e-aadhaar" name="aadhaar" class="input mono" inputmode="numeric" maxlength="14" [ngModel]="d.aadhaar"
+                  (ngModelChange)="d.aadhaar = format($event)" [placeholder]="loadingAadhaar() ? 'Loading…' : ''" [disabled]="loadingAadhaar()" />
+              </div>
               @if (d.aadhaar && !aadhaarValid()) { <p class="error-text">Enter a valid 12-digit Aadhaar number</p> }
             } @else {
               <input id="e-aadhaar" class="input mono" [value]="'XXXX XXXX ' + r.aadhaarLast4" disabled />
@@ -112,6 +114,7 @@ export class EditMemberComponent {
   protected d: Draft = { name: '', age: null, gender: '', phone: '', address: '', aadhaar: '' };
   private originalAadhaar = '';
   protected readonly format = formatAadhaar;
+  protected readonly mask = maskAadhaar;
 
   async open(r: Row): Promise<void> {
     this.row.set(r);

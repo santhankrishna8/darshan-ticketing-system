@@ -3,12 +3,13 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validatio
 import { NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AadhaarScannerService } from '../../aadhaar/aadhaar-scanner.service';
-import { AadhaarDetails, ageFrom, formatAadhaar } from '../../aadhaar/aadhaar.types';
+import { AadhaarDetails, ageFrom, formatAadhaar, maskAadhaar } from '../../aadhaar/aadhaar.types';
 import { isValidAadhaar } from '../../aadhaar/verhoeff';
 import { MAX_PER_REGISTRATION, MemberInput, Registration, SeasonSettings } from '../../core/models';
 import { RegistrationError, RegistrationService } from '../../core/registration.service';
 import { SeasonService } from '../../core/season.service';
 import { downloadTicketPdf } from '../../core/ticket-pdf';
+import { AadhaarNoticeComponent } from '../../shared/aadhaar-notice';
 import { IconComponent } from '../../shared/icon';
 import { I18nService } from '../../shared/i18n.service';
 import { SiteHeaderComponent } from '../../shared/site-header';
@@ -116,7 +117,7 @@ const TOUR: TourStep[] = [
 
 @Component({
   selector: 'app-register',
-  imports: [NgTemplateOutlet, ReactiveFormsModule, RouterLink, SiteHeaderComponent, IconComponent],
+  imports: [NgTemplateOutlet, ReactiveFormsModule, RouterLink, SiteHeaderComponent, IconComponent, AadhaarNoticeComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })
@@ -324,6 +325,8 @@ export class RegisterComponent implements OnDestroy {
     next.delete(field);
     row.fromCard.set(next);
   }
+
+  protected readonly mask = maskAadhaar;
 
   protected onAadhaarInput(row: MemberRow, el: HTMLInputElement): void {
     const formatted = formatAadhaar(el.value);

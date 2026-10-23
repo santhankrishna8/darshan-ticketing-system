@@ -7,7 +7,9 @@
   <form class="search card" (ngSubmit)="search()">
     <div class="field" data-tour="lookup">
       <label for="q">{{ i18n.t('Aadhaar or phone number', 'ఆధార్ లేదా ఫోన్ నంబర్') }}</label>
-      <input id="q" name="q" class="input" inputmode="numeric" autocomplete="off" [(ngModel)]="query" />
+      <div class="mask-wrap" [attr.data-mask]="mask(query)">
+        <input id="q" name="q" class="input" inputmode="numeric" autocomplete="off" [(ngModel)]="query" />
+      </div>
       @if (error()) { <p class="error-text" role="alert">{{ error() }}</p> }
     </div>
     <button class="btn btn-primary" type="submit" data-tour="find" [disabled]="searching()">
@@ -15,6 +17,8 @@
       @else { <app-icon name="magnifying-glass" />{{ i18n.t('Find', 'వెతకండి') }} }
     </button>
   </form>
+
+  <app-aadhaar-notice />
 
   @if (searching()) {
     <div class="skeleton result-skel"></div>

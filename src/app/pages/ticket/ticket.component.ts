@@ -1,11 +1,13 @@
 import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { maskAadhaar } from '../../aadhaar/aadhaar.types';
 import { isValidAadhaar } from '../../aadhaar/verhoeff';
 import { Registration } from '../../core/models';
 import { RegistrationService } from '../../core/registration.service';
 import { SeasonService } from '../../core/season.service';
 import { downloadTicketPdf } from '../../core/ticket-pdf';
+import { AadhaarNoticeComponent } from '../../shared/aadhaar-notice';
 import { I18nService } from '../../shared/i18n.service';
 import { SiteHeaderComponent } from '../../shared/site-header';
 import { ToastService } from '../../shared/toast';
@@ -15,7 +17,7 @@ import { IconComponent } from '../../shared/icon';
 /** Find a ticket by Aadhaar or phone. Lookups are exact-match documents, so nobody can browse others' data. */
 @Component({
   selector: 'app-ticket',
-  imports: [IconComponent, FormsModule, RouterLink, SiteHeaderComponent],
+  imports: [IconComponent, FormsModule, RouterLink, SiteHeaderComponent, AadhaarNoticeComponent],
   templateUrl: './ticket.component.html',
   styleUrl: './ticket.component.css',
 })
@@ -24,6 +26,7 @@ export class TicketComponent implements OnDestroy {
   private readonly registrations = inject(RegistrationService);
   private readonly toast = inject(ToastService);
   protected readonly i18n = inject(I18nService);
+  protected readonly mask = maskAadhaar;
   private readonly tour = inject(TourService);
 
   constructor() {

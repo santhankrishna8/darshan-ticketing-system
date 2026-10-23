@@ -48,3 +48,9 @@ export function ageFrom(details: Pick<AadhaarDetails, 'dob' | 'yearOfBirth'>, on
 export function formatAadhaar(digits: string): string {
   return digits.replace(/\D/g, '').slice(0, 12).replace(/(\d{4})(?=\d)/g, '$1 ');
 }
+
+/** "XXXX XXXX 1234" once all 12 digits are in, otherwise null (nothing to hide yet). Pair with .mask-wrap in styles.css. */
+export function maskAadhaar(value: string): string | null {
+  const digits = value.replace(/\D/g, '');
+  return digits.length === 12 ? `XXXX XXXX ${digits.slice(-4)}` : null;
+}
