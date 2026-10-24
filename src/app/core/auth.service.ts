@@ -1,15 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import {
-  GoogleAuthProvider,
-  User,
-  browserLocalPersistence,
-  getRedirectResult,
-  onAuthStateChanged,
-  setPersistence,
-  signInWithPopup,
-  signInWithRedirect,
-  signOut,
-} from 'firebase/auth';
+import { GoogleAuthProvider, User, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { collection, doc, onSnapshot, serverTimestamp, setDoc, Unsubscribe, updateDoc } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
 import { BiometricService } from './biometric.service';
@@ -61,24 +51,20 @@ export class AuthService {
   readonly ready = new Promise<void>(resolve => (this.markReady = resolve));
 
   constructor() {
-    getRedirectResult(auth)
-      .then(r => r && this.biometric.markUnlocked(r.user.uid))
-      .catch(e => this.error.set(friendly(e)));
     onAuthStateChanged(auth, user => this.onUser(user));
   }
 
   async signInWithGoogle(): Promise<void> {
     this.error.set(null);
-    await setPersistence(auth, browserLocalPersistence);
+    // The popup must open straight from the tap: no await before it, or phones block it.
+    // ponytail: no redirect fallback; authDomain is another site, so browsers drop the redirect result and sign-in loops.
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     try {
       const { user } = await signInWithPopup(auth, provider);
       this.biometric.markUnlocked(user.uid);
     } catch (e: any) {
-      if (e?.code === 'auth/popup-blocked' || e?.code === 'auth/operation-not-supported-in-this-environment') {
-        await signInWithRedirect(auth, provider);
-      } else if (e?.code !== 'auth/popup-closed-by-user' && e?.code !== 'auth/cancelled-popup-request') {
+      if (e?.code !== 'auth/popup-closed-by-user' && e?.code !== 'auth/cancelled-popup-request') {
         this.error.set(friendly(e));
       }
     }
@@ -162,6 +148,10 @@ function friendly(e: any): string {
       return 'No internet connection. Please try again.';
     case 'auth/unauthorized-domain':
       return 'This website is not yet allowed for Google sign-in. Add it under Firebase Authentication > Settings > Authorized domains.';
+    case 'auth/popup-blocked':
+      return 'The Google sign-in window was blocked. Allow pop-ups for this site, then tap Sign in again.';
+    case 'auth/operation-not-supported-in-this-environment':
+      return 'Google sign-in does not work in this app view. Open this page in Chrome or Safari and sign in there.';
     case 'permission-denied':
       return 'Permission denied. Please make sure the Firestore rules are deployed.';
     default:
