@@ -66,7 +66,7 @@ export interface Member {
   scanned: boolean;
 }
 
-/** The swamy the group knows and pays the darshan amount to (gives the ID card and registration number); asked once per registration. */
+/** The swamy the group knows and pays the darshan amount to (gives the ID card); asked once per registration. */
 export interface Swamy {
   name: string;
   phone: string;
