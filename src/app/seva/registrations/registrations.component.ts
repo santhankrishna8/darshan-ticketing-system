@@ -102,6 +102,8 @@ export class RegistrationsComponent {
         Phone: r.phone,
         Address: r.address,
         Coordinator: r.coordinator,
+        Swamy: r.reg.swamyName ?? '',
+        'Swamy phone': r.reg.swamyPhone ?? '',
         Payment: r.paid ? 'Paid' : 'Not Paid',
         Registered: r.reg.createdAt?.toDate().toLocaleString('en-IN') ?? '',
       }));

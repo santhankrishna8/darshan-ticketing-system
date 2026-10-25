@@ -95,7 +95,9 @@ boundary**, and everything the app checks is checked again there.
 - **What the public can do**: read the season settings, register while registration is open, and fetch one
   registration by an exact Aadhaar or phone number. Nobody outside the approved staff can list registrations,
   and last year's data is closed to everyone.
-- **What the rules check on every registration**: the ticket counter moves by exactly the group size, tickets are
+- **Two links**: `/` is the public registration form (and `/register` still works), with ticket lookup at `/ticket`.
+  Organizers sign in at `/seva`; the settings panel on the public pages also has an "Organizer sign in" link.
+- **What the rules check on every registration**: the swamy's name and phone (the one they pay the darshan amount to, asked once above the devotees), the ticket counter moves by exactly the group size, tickets are
   numbered in order, every devotee starts unpaid, a devotee has exactly the 11 known fields, and the name, address,
   phone, last 4 digits, gender, date of birth and coordinator have the right type, format and length. The phone
   and Aadhaar lookup entries must belong to the registration being saved, so nobody can add themselves to someone

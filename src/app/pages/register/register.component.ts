@@ -20,6 +20,7 @@ type ScanState = 'idle' | 'scanning' | 'ok' | 'partial' | 'failed';
 type Field = 'name' | 'aadhaar' | 'age' | 'gender' | 'phone' | 'address';
 /** Unsent form, kept for this tab only so a refresh does not lose it (cleared on submit). */
 const DRAFT = 'register.draft';
+const SWAMY_DRAFT = 'register.swamy';
 type Draft = { values: MemberRow['form']['value']; dob: string; fromCard: Field[] }[];
 
 function aadhaarValidator(c: AbstractControl): ValidationErrors | null {
@@ -133,6 +134,11 @@ export class RegisterComponent implements OnDestroy {
   private readonly cards = viewChildren<ElementRef<HTMLElement>>('card');
 
   protected readonly rows = signal<MemberRow[]>([]);
+  /** The swamy the group knows and pays the darshan amount to: asked once, above the devotees. Its text shows in both languages. */
+  protected readonly swamy = new FormGroup({
+    name: new FormControl('', { nonNullable: true, validators: [Validators.required, trimmedMin(2), Validators.maxLength(100)] }),
+    phone: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)] }),
+  });
   protected readonly submitting = signal(false);
   protected readonly attempted = signal(false);
   protected readonly done = signal<Registration | null>(null);
@@ -155,6 +161,11 @@ export class RegisterComponent implements OnDestroy {
   protected readonly formatAadhaar = formatAadhaar;
 
   constructor() {
+    try {
+      this.swamy.patchValue(JSON.parse(sessionStorage.getItem(SWAMY_DRAFT) ?? 'null') ?? {});
+    } catch {
+      /* no draft */
+    }
     effect(() => {
       const s = this.season.settings();
       if (s && untracked(this.rows).length === 0) this.rows.set(this.restore(s) ?? [new MemberRow(s)]);
@@ -193,6 +204,7 @@ export class RegisterComponent implements OnDestroy {
     const draft: Draft = this.rows().map(r => ({ values: r.form.getRawValue(), dob: r.dob, fromCard: [...r.fromCard()] }));
     try {
       sessionStorage.setItem(DRAFT, JSON.stringify(draft));
+      sessionStorage.setItem(SWAMY_DRAFT, JSON.stringify(this.swamy.getRawValue()));
     } catch {
       /* private mode: a refresh starts over */
     }
@@ -219,6 +231,7 @@ export class RegisterComponent implements OnDestroy {
   private clearDraft(): void {
     try {
       sessionStorage.removeItem(DRAFT);
+      sessionStorage.removeItem(SWAMY_DRAFT);
     } catch {}
   }
 
@@ -374,6 +387,11 @@ export class RegisterComponent implements OnDestroy {
     return c.invalid && (c.touched || this.attempted());
   }
 
+  protected showSwamy(field: 'name' | 'phone'): boolean {
+    const c = this.swamy.controls[field];
+    return c.invalid && (c.touched || this.attempted());
+  }
+
   protected needsFix(row: MemberRow): boolean {
     return row.form.invalid || row.duplicate() === 'taken' || row.duplicate() === 'repeat';
   }
@@ -388,10 +406,14 @@ export class RegisterComponent implements OnDestroy {
     this.submitError.set(null);
     const rows = this.rows();
     rows.forEach(r => r.form.markAllAsTouched());
-    const bad = rows.flatMap((r, i) => (this.needsFix(r) ? [i + 1] : []));
+    this.swamy.markAllAsTouched();
+    const bad = [
+      ...(this.swamy.invalid ? ['Swamy / స్వామి'] : []),
+      ...rows.flatMap((r, i) => (this.needsFix(r) ? [this.i18n.t('Devotee ', 'భక్తుడు ') + (i + 1)] : [])),
+    ];
     if (bad.length) {
       this.pointAtProblem();
-      this.toast.show(this.i18n.t('Please fix the highlighted details: Devotee ', 'గుర్తించిన వివరాలు సరిచేయండి: భక్తుడు ') + bad.join(', '), 'error');
+      this.toast.show(this.i18n.t('Please fix the highlighted details: ', 'గుర్తించిన వివరాలు సరిచేయండి: ') + bad.join(', '), 'error');
       return;
     }
 
@@ -413,7 +435,7 @@ export class RegisterComponent implements OnDestroy {
     try {
       // Staff are recorded against their registrations. The sign-in code is only loaded inside the seva desk.
       const createdBy = this.embedded ? ((await import('../../core/firebase-auth')).auth.currentUser?.uid ?? null) : null;
-      const reg = await this.registrations.register(members, createdBy);
+      const reg = await this.registrations.register(members, this.swamy.getRawValue(), createdBy);
       this.done.set(reg);
       this.clearDraft();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -464,6 +486,7 @@ export class RegisterComponent implements OnDestroy {
     this.attempted.set(false);
     const s = this.season.settings();
     this.rows.set(s ? [new MemberRow(s)] : []);
+    this.swamy.reset();
     this.clearDraft();
   }
 }

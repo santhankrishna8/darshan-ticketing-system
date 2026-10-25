@@ -32,6 +32,8 @@
       </div>
     </section>
   } @else {
+    <img class="banner" src="assets/header2.png" width="1131" height="306" [alt]="i18n.t('Sri Krishna Bhajana Mandiramu, Sri Vakulamatha Govinda Mala Bhaktamandali', 'శ్రీ కృష్ణ భజన మందిరము, శ్రీ వకుళామాత గోవింద మాల భక్తమండలి')" />
+
     @if (embedded) {
       <header class="page-head">
         <h1>{{ i18n.t('Registration', 'దర్శన నమోదు') }}</h1>
@@ -56,7 +58,7 @@
                 <div><dt>{{ i18n.t('Darshan', 'దర్శనం') }}</dt><dd>{{ s.darshanDate }}</dd></div>
               }
               <div><dt>{{ i18n.t('Per devotee', 'ఒక్కొక్కరికి') }}</dt><dd>₹{{ s.fee }}</dd></div>
-              <div><dt>{{ i18n.t('Tickets left', 'మిగిలిన టికెట్లు') }}</dt><dd>{{ season.ticketsLeft() }} / {{ s.totalTickets }}</dd></div>
+              <div><dt>{{ i18n.t('Filled so far', 'ఇప్పటివరకు నమోదైనవి') }}</dt><dd>{{ season.registered() }} / {{ s.totalTickets }}</dd></div>
             </dl>
             <ol class="steps" [attr.aria-label]="i18n.t('How it works', 'ఎలా చేయాలి')">
               <li>{{ i18n.t('Scan card', 'కార్డు స్కాన్') }}</li>
@@ -83,6 +85,25 @@
       }
       @case ('open') {
         <form (submit)="$event.preventDefault(); submit()" (input)="save()" (change)="save()" novalidate>
+          <section #card class="card member" aria-labelledby="swamy-h">
+            <div class="member-head">
+              <h2 id="swamy-h">Your swamy · మీ స్వామి</h2>
+            </div>
+            <p class="hint">Pay the darshan amount to this swamy. Collect your ID card and registration number from them.<br />ఈ స్వామికి దర్శనం డబ్బు ఇవ్వండి. ID కార్డు, నమోదు నంబర్ వారి దగ్గర తీసుకోండి.</p>
+            <div class="grid" [formGroup]="swamy">
+              <div class="field span-2">
+                <label for="swamy-name">Swamy name · స్వామి పేరు</label>
+                <input id="swamy-name" class="input" formControlName="name" autocomplete="off" autocapitalize="words" maxlength="100" [class.invalid]="showSwamy('name')" />
+                @if (showSwamy('name')) { <p class="error-text">Enter the name · పేరు ఇవ్వండి</p> }
+              </div>
+              <div class="field span-2">
+                <label for="swamy-phone">Swamy phone · స్వామి ఫోన్</label>
+                <input id="swamy-phone" class="input" type="tel" inputmode="numeric" maxlength="10" formControlName="phone" autocomplete="off" [class.invalid]="showSwamy('phone')" />
+                @if (showSwamy('phone')) { <p class="error-text">Enter 10 digits · 10 అంకెలు ఇవ్వండి</p> }
+              </div>
+            </div>
+          </section>
+
           @for (row of rows(); track row.id; let i = $index) {
             <section #card class="card member" [attr.aria-labelledby]="'m' + row.id">
               <div class="member-head">

@@ -15,7 +15,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { SEASON, db } from './firebase';
-import { AadhaarIndex, Member, MemberInput, PaymentStatus, Registration, SeasonSettings } from './models';
+import { AadhaarIndex, Member, MemberInput, PaymentStatus, Registration, SeasonSettings, Swamy } from './models';
 import { counterRef, seasonRef } from './season.service';
 
 const registrations = () => collection(db, 'seasons', SEASON, 'registrations');
@@ -74,7 +74,7 @@ export class RegistrationService {
    * Allocates ticket numbers and saves the group in one transaction, so two phones
    * submitting at the same moment can never get the same ticket or register the same Aadhaar twice.
    */
-  async register(inputs: MemberInput[], createdBy: string | null): Promise<Registration> {
+  async register(inputs: MemberInput[], swamy: Swamy, createdBy: string | null): Promise<Registration> {
     const keys = await Promise.all(inputs.map(m => aadhaarKey(m.aadhaar)));
     const seen = new Set<string>();
     const repeated = inputs.filter((_, i) => seen.size === seen.add(keys[i]).size).map(m => m.aadhaar);
@@ -115,7 +115,8 @@ export class RegistrationService {
         scanned: m.scanned,
       }));
 
-      tx.set(regRef, { submissionNo, firstTicket, members, createdAt: serverTimestamp(), createdBy });
+      const swamyFields = { swamyName: swamy.name.trim(), swamyPhone: swamy.phone };
+      tx.set(regRef, { submissionNo, firstTicket, members, ...swamyFields, createdAt: serverTimestamp(), createdBy });
       tx.update(counterRef(), {
         lastTicket: c.lastTicket + inputs.length,
         lastSubmission: submissionNo,
@@ -134,7 +135,7 @@ export class RegistrationService {
           : tx.set(doc(phoneIndex(), p), { registrationIds: [regRef.id] }),
       );
 
-      return { id: regRef.id, submissionNo, firstTicket, members, createdAt: null, createdBy };
+      return { id: regRef.id, submissionNo, firstTicket, members, ...swamyFields, createdAt: null, createdBy };
     }));
   }
 

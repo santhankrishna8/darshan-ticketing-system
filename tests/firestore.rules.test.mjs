@@ -87,14 +87,18 @@ function register(db, members, { createdBy = null, tamper = {} } = {}) {
     const c = (await tx.get(doc(db, `seasons/${S}/meta/counter`))).data();
     const first = c.lastTicket + 1;
     const phoneSnaps = await Promise.all(members.map(m => tx.get(doc(db, `seasons/${S}/phones/${m.phone}`))));
-    tx.set(regRef, {
+    const reg = {
       submissionNo: c.lastSubmission + 1,
       firstTicket: first,
       members: tamper.members ? tamper.members(members, first) : members.map((m, i) => ({ ...memberDoc(m, first + i), ...tamper.member?.(i) })),
+      swamyName: 'Guru Swamy',
+      swamyPhone: '9848011111',
       createdAt: serverTimestamp(),
       createdBy,
       ...tamper.registration,
-    });
+    };
+    for (const key of tamper.omit ?? []) delete reg[key];
+    tx.set(regRef, reg);
     tx.update(doc(db, `seasons/${S}/meta/counter`), {
       lastTicket: c.lastTicket + members.length,
       lastSubmission: c.lastSubmission + 1,
@@ -231,6 +235,15 @@ describe('public attacks on the registration writes', () => {
     bad('members as a map instead of a list', { registration: { members: { 0: memberDoc(devotee(1), 1) } } });
     bad('a submission number that is text', { registration: { submissionNo: '1' } });
     bad('an extra top-level field', { registration: { approved: true } });
+    bad('no swamy name', { omit: ['swamyName'] });
+    bad('no swamy phone', { omit: ['swamyPhone'] });
+    bad('an empty swamy name', { registration: { swamyName: '' } });
+    bad('a one-letter swamy name', { registration: { swamyName: 'A' } });
+    bad('a 5000-character swamy name', { registration: { swamyName: 'A'.repeat(5000) } });
+    bad('a swamy name that is not text', { registration: { swamyName: 12345 } });
+    bad('a swamy phone that is too short', { registration: { swamyPhone: '12345' } });
+    bad('a swamy phone starting with 1', { registration: { swamyPhone: '1234567890' } });
+    bad('a swamy phone that is a number', { registration: { swamyPhone: 9848011111 } });
     bad('a registration id that is a path, not an id', { counter: { lastRegistrationId: 'abc/def/ghi' } });
   });
 
@@ -259,7 +272,7 @@ describe('public attacks on the registration writes', () => {
         const regRef = doc(collection(db, `seasons/${S}/registrations`));
         return runTransaction(db, async tx => {
           const c = (await tx.get(doc(db, `seasons/${S}/meta/counter`))).data();
-          tx.set(regRef, { submissionNo: c.lastSubmission + 1, firstTicket: c.lastTicket + 1, members: [memberDoc(attacker, c.lastTicket + 1)], createdAt: serverTimestamp(), createdBy: null });
+          tx.set(regRef, { submissionNo: c.lastSubmission + 1, firstTicket: c.lastTicket + 1, members: [memberDoc(attacker, c.lastTicket + 1)], swamyName: 'Guru Swamy', swamyPhone: '9848011111', createdAt: serverTimestamp(), createdBy: null });
           tx.update(doc(db, `seasons/${S}/meta/counter`), { lastTicket: c.lastTicket + 1, lastSubmission: c.lastSubmission + 1, lastRegistrationId: regRef.id });
           tx.set(doc(db, `seasons/${S}/aadhaar/${sha(attacker.aadhaar)}`), { aadhaar: attacker.aadhaar, registrationId: regRef.id, ticketNumber: c.lastTicket + 1 });
           tx.set(doc(db, `seasons/${S}/phones/${attacker.phone}`), { registrationIds: [regRef.id] });
@@ -303,7 +316,7 @@ describe('public attacks on single documents', () => {
     await assertFails(
       runTransaction(db, async tx => {
         const c = (await tx.get(doc(db, `seasons/${S}/meta/counter`))).data();
-        tx.set(doc(db, `seasons/${S}/registrations/${id}`), { submissionNo: c.lastSubmission + 1, firstTicket: c.lastTicket + 1, members: [memberDoc(devotee(2), c.lastTicket + 1)], createdAt: serverTimestamp(), createdBy: null });
+        tx.set(doc(db, `seasons/${S}/registrations/${id}`), { submissionNo: c.lastSubmission + 1, firstTicket: c.lastTicket + 1, members: [memberDoc(devotee(2), c.lastTicket + 1)], swamyName: 'Guru Swamy', swamyPhone: '9848011111', createdAt: serverTimestamp(), createdBy: null });
         tx.update(doc(db, `seasons/${S}/meta/counter`), { lastTicket: c.lastTicket + 1, lastSubmission: c.lastSubmission + 1, lastRegistrationId: id });
       }),
     );

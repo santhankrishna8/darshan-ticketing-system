@@ -42,8 +42,8 @@ export class TicketComponent implements OnDestroy {
         target: '[data-tour=find]',
         title: 'Download the PDF',
         titleTe: 'PDF డౌన్‌లోడ్',
-        body: 'Your registration appears below with a Download button, and whether payment is done.',
-        bodyTe: 'కింద మీ నమోదు, డౌన్‌లోడ్ బటన్, చెల్లింపు స్థితి కనిపిస్తాయి.',
+        body: 'Your registration appears below with a Download button.',
+        bodyTe: 'కింద మీ నమోదు, డౌన్‌లోడ్ బటన్ కనిపిస్తాయి.',
       },
     ], false); // one field on the page: no overlay, the tour is still under Settings
   }

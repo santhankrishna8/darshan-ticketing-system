@@ -141,8 +141,11 @@ service cloud.firestore {
         let before = counterBefore();
         let after = counterAfter();
         return after.lastRegistrationId == id
-          && d.keys().hasOnly(['submissionNo', 'firstTicket', 'members', 'createdAt', 'createdBy'])
-          && d.keys().hasAll(['submissionNo', 'firstTicket', 'members', 'createdAt', 'createdBy'])
+          && d.keys().hasOnly(['submissionNo', 'firstTicket', 'members', 'swamyName', 'swamyPhone', 'createdAt', 'createdBy'])
+          && d.keys().hasAll(['submissionNo', 'firstTicket', 'members', 'swamyName', 'swamyPhone', 'createdAt', 'createdBy'])
+          // The swamy the group pays the darshan amount to, asked once per registration.
+          && d.swamyName.matches('.{2,100}')
+          && d.swamyPhone.matches('[6-9][0-9]{9}')
           && d.submissionNo == after.lastSubmission
           && d.firstTicket == before.lastTicket + 1
           && d.members.size() == after.lastTicket - before.lastTicket

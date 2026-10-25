@@ -43,7 +43,6 @@
             <li>
               <span class="ticket-no">{{ m.ticketNumber }}</span>
               <span class="name">{{ m.name }}</span>
-              <span class="chip" [class.chip-solid]="m.paymentStatus === 'Paid'">{{ m.paymentStatus === 'Paid' ? i18n.t('Paid', 'చెల్లించారు') : i18n.t('Not paid', 'చెల్లించలేదు') }}</span>
             </li>
           }
         </ol>

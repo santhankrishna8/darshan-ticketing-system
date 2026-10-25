@@ -20,6 +20,15 @@ h1 {
   margin-bottom: 4px;
 }
 
+.banner {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
 /* Photo, title and the few facts a devotee needs before starting. */
 .hero {
   margin-bottom: 16px;

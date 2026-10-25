@@ -60,6 +60,7 @@
               <strong>{{ r.name }}</strong>
               <span class="muted">{{ r.age }} yrs · Reg {{ r.reg.submissionNo }} · XXXX {{ r.aadhaarLast4 }}</span>
               <span class="muted addr">{{ r.address }}</span>
+              @if (r.reg.swamyName) { <span class="muted addr">Swamy: {{ r.reg.swamyName }}, {{ r.reg.swamyPhone }}</span> }
             </td>
             <td data-label="Phone"><a [href]="'tel:+91' + r.phone">{{ r.phone }}</a></td>
             <td data-label="Coordinator">{{ r.coordinator || '-' }}</td>

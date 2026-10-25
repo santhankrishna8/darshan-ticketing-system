@@ -66,12 +66,21 @@ export interface Member {
   scanned: boolean;
 }
 
+/** The swamy the group knows and pays the darshan amount to (gives the ID card and registration number); asked once per registration. */
+export interface Swamy {
+  name: string;
+  phone: string;
+}
+
 /** seasons/{season}/registrations/{id}: one group submission. */
 export interface Registration {
   id: string;
   submissionNo: number;
   firstTicket: number;
   members: Member[];
+  /** Missing on registrations made before the swamy was asked. */
+  swamyName?: string;
+  swamyPhone?: string;
   createdAt?: { toDate(): Date } | null;
   createdBy: string | null;
 }
