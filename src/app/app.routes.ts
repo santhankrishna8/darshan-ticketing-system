@@ -6,6 +6,7 @@ export const routes: Routes = [
   { path: 'register', redirectTo: '' },
   { path: 'ticket', loadComponent: () => import('./pages/ticket/ticket.component').then(m => m.TicketComponent), title: 'My ticket | టికెట్' },
   { path: 'seva', loadChildren: () => import('./seva/seva.routes').then(m => m.SEVA_ROUTES), title: 'Seva desk' },
+  { path: 'staff-login', loadComponent: () => import('./seva/staff-login/staff-login.component').then(m => m.StaffLoginComponent), title: 'Staff sign in' },
   // Links shared earlier keep working.
   { path: 'form', redirectTo: '' },
   { path: 'search', redirectTo: 'ticket' },

@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { GoogleAuthProvider, User, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, User, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
 import { collection, doc, onSnapshot, serverTimestamp, setDoc, Unsubscribe, updateDoc } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
 import { BiometricService } from './biometric.service';
@@ -67,6 +67,23 @@ export class AuthService {
       if (e?.code !== 'auth/popup-closed-by-user' && e?.code !== 'auth/cancelled-popup-request') {
         this.error.set(friendly(e));
       }
+    }
+  }
+
+  /** Backup sign-in at /staff-login for an organizer whose phone cannot finish Google sign-in. Same approval flow afterwards. */
+  async signInWithPassword(email: string, password: string): Promise<boolean> {
+    this.error.set(null);
+    if (!email.trim() || !password) {
+      this.error.set('Enter your email and password.');
+      return false;
+    }
+    try {
+      const { user } = await signInWithEmailAndPassword(auth, email.trim(), password);
+      this.biometric.markUnlocked(user.uid);
+      return true;
+    } catch (e: any) {
+      this.error.set(friendly(e));
+      return false;
     }
   }
 
@@ -152,6 +169,15 @@ function friendly(e: any): string {
       return 'The Google sign-in window was blocked. Allow pop-ups for this site, then tap Sign in again.';
     case 'auth/operation-not-supported-in-this-environment':
       return 'Google sign-in does not work in this app view. Open this page in Chrome or Safari and sign in there.';
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+    case 'auth/invalid-email':
+      return 'Wrong email or password.';
+    case 'auth/too-many-requests':
+      return 'Too many attempts. Wait a few minutes and try again.';
+    case 'auth/operation-not-allowed':
+      return 'Email sign-in is not turned on yet in Firebase.';
     case 'permission-denied':
       return 'Permission denied. Please make sure the Firestore rules are deployed.';
     default:
