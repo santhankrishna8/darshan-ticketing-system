@@ -154,6 +154,12 @@ describe('public', () => {
     await assertSucceeds(register(as({ uid: 'vol', email: 'vol@example.com' }), ten.map((d, i) => devotee(i + 21)), { createdBy: 'vol' }));
   });
 
+  it('registers a family of 9 who all share one phone number', async () => {
+    await env.withSecurityRulesDisabled(ctx => updateDoc(doc(ctx.firestore(), `seasons/${S}`), { maxPerGroup: 10, totalTickets: 100 }));
+    const family = Array.from({ length: 9 }, (_, i) => ({ ...devotee(i + 1), phone: '9848011111' }));
+    await assertSucceeds(register(as(null), family));
+  });
+
   it('refuses an 11th devotee in one registration even when settings allow more', async () => {
     await env.withSecurityRulesDisabled(ctx => updateDoc(doc(ctx.firestore(), `seasons/${S}`), { maxPerGroup: 20, totalTickets: 100 }));
     await assertFails(register(as(null), Array.from({ length: 11 }, (_, i) => devotee(i + 1))));

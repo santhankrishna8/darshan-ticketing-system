@@ -26,19 +26,24 @@ export class RegistrationsComponent {
 
   protected readonly query = signal('');
   protected readonly coordinator = signal(inject(ActivatedRoute).snapshot.queryParamMap.get('coordinator') ?? '');
+  protected readonly swamy = signal('');
   protected readonly payment = signal<'' | 'paid' | 'unpaid'>('');
   protected readonly saving = signal<Set<string>>(new Set());
   protected readonly exporting = signal(false);
 
   protected readonly coordinators = computed(() => [...new Set(this.data.rows().map(r => r.coordinator || 'Not assigned'))]);
 
+  protected readonly swamys = computed(() => [...new Set(this.data.rows().map(r => r.reg.swamyName?.trim()).filter((n): n is string => !!n))].sort());
+
   protected readonly filtered = computed(() => {
     const q = this.query().trim().toLowerCase();
     const digits = q.replace(/\D/g, '');
     const coord = this.coordinator();
+    const swamy = this.swamy();
     const pay = this.payment();
     return this.data.rows().filter(r => {
       if (coord && (r.coordinator || 'Not assigned') !== coord) return false;
+      if (swamy && r.reg.swamyName?.trim() !== swamy) return false;
       if (pay === 'paid' && !r.paid) return false;
       if (pay === 'unpaid' && r.paid) return false;
       if (!q) return true;

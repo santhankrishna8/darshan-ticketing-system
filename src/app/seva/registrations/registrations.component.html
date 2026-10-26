@@ -21,6 +21,13 @@
     </select>
   </div>
   <div class="field">
+    <label for="swamy">Swamy</label>
+    <select id="swamy" class="input" [ngModel]="swamy()" (ngModelChange)="swamy.set($event)">
+      <option value="">Everyone</option>
+      @for (s of swamys(); track s) { <option [value]="s">{{ s }}</option> }
+    </select>
+  </div>
+  <div class="field">
     <label for="pay">Payment</label>
     <select id="pay" class="input" [ngModel]="payment()" (ngModelChange)="payment.set($event)">
       <option value="">All</option>
