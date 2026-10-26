@@ -1,7 +1,10 @@
 {
+  "rewrites": [
+    { "source": "/__/auth/:path*", "destination": "https://darshanregistration.firebaseapp.com/__/auth/:path*" }
+  ],
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/((?!__/auth/).*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
@@ -10,8 +13,17 @@
         { "key": "Permissions-Policy", "value": "camera=(self), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=()" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://apis.google.com https://tidemark-analytics.vercel.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleusercontent.com https://tidemark-analytics.vercel.app; font-src 'self'; connect-src 'self' https://apis.google.com https://www.google.com/images/ https://*.googleusercontent.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://tidemark-analytics.vercel.app; frame-src https://darshanregistration.firebaseapp.com https://accounts.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+          "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://apis.google.com https://tidemark-analytics.vercel.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleusercontent.com https://tidemark-analytics.vercel.app; font-src 'self'; connect-src 'self' https://apis.google.com https://www.google.com/images/ https://*.googleusercontent.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://tidemark-analytics.vercel.app; frame-src 'self' https://darshanregistration.firebaseapp.com https://accounts.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
         }
+      ]
+    },
+    {
+      "source": "/__/auth/:path*",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000" }
       ]
     }
   ]
