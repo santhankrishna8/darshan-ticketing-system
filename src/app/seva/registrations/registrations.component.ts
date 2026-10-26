@@ -11,6 +11,8 @@ import { Row, StaffDataService } from '../staff-data.service';
 import { EditMemberComponent } from './edit-member';
 import { IconComponent } from '../../shared/icon';
 
+const swamyKey = (name?: string) => (name ?? '').trim().replace(/\s+/g, ' ').toLowerCase();
+
 @Component({
   selector: 'app-registrations',
   imports: [IconComponent, FormsModule, RouterLink, EditMemberComponent],
@@ -33,7 +35,15 @@ export class RegistrationsComponent {
 
   protected readonly coordinators = computed(() => [...new Set(this.data.rows().map(r => r.coordinator || 'Not assigned'))]);
 
-  protected readonly swamys = computed(() => [...new Set(this.data.rows().map(r => r.reg.swamyName?.trim()).filter((n): n is string => !!n))].sort());
+  /** Names that differ only by case or spacing are one swamy; anything else stays separate. */
+  protected readonly swamys = computed(() => {
+    const byKey = new Map<string, string>();
+    for (const r of this.data.rows()) {
+      const key = swamyKey(r.reg.swamyName);
+      if (key && !byKey.has(key)) byKey.set(key, r.reg.swamyName!.trim().replace(/\s+/g, ' '));
+    }
+    return [...byKey].map(([key, label]) => ({ key, label })).sort((a, b) => a.label.localeCompare(b.label));
+  });
 
   protected readonly filtered = computed(() => {
     const q = this.query().trim().toLowerCase();
@@ -43,7 +53,7 @@ export class RegistrationsComponent {
     const pay = this.payment();
     return this.data.rows().filter(r => {
       if (coord && (r.coordinator || 'Not assigned') !== coord) return false;
-      if (swamy && r.reg.swamyName?.trim() !== swamy) return false;
+      if (swamy && swamyKey(r.reg.swamyName) !== swamy) return false;
       if (pay === 'paid' && !r.paid) return false;
       if (pay === 'unpaid' && r.paid) return false;
       if (!q) return true;

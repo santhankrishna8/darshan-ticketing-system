@@ -24,7 +24,7 @@
     <label for="swamy">Swamy</label>
     <select id="swamy" class="input" [ngModel]="swamy()" (ngModelChange)="swamy.set($event)">
       <option value="">Everyone</option>
-      @for (s of swamys(); track s) { <option [value]="s">{{ s }}</option> }
+      @for (s of swamys(); track s.key) { <option [value]="s.key">{{ s.label }}</option> }
     </select>
   </div>
   <div class="field">
